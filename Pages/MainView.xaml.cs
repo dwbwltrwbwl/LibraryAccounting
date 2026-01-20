@@ -70,5 +70,15 @@ namespace LibraryAccounting.Pages
             AppConnect.CurrentUser = null;
             GetMainFrame().Navigate(new LoginView());
         }
+
+        private void DirectoriesButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Pages.DirectoriesView());
+        }
+
+        private void UsersButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Pages.UsersView());
+        }
     }
 }
