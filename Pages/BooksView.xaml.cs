@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace LibraryAccounting.Pages
 {
     public partial class BooksView : Page
     {
+        private ICollectionView _booksView;
+        private List<dynamic> _books;
         public BooksView()
         {
             InitializeComponent();
@@ -22,7 +26,7 @@ namespace LibraryAccounting.Pages
         {
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            var books = AppConnect.model01.Books
+            _books = AppConnect.model01.Books
                 .Select(b => new
                 {
                     b.BookId,
@@ -31,40 +35,85 @@ namespace LibraryAccounting.Pages
                     Genre = b.Genres.Name,
                     b.Publisher,
                     b.PublishYear,
-                    b.ISBN
+                    b.ISBN,
+                    b.CoverImage
                 })
-                .ToList();
+                .ToList<dynamic>();
 
-            BooksDataGrid.ItemsSource = books;
+            _booksView = CollectionViewSource.GetDefaultView(_books);
+            _booksView.Filter = FilterBooks;
+
+            BooksDataGrid.ItemsSource = _booksView;
+
+            LoadGenres();
         }
-
-        /// <summary>
-        /// Поиск книг
-        /// </summary>
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        private void LoadGenres()
         {
-            string search = SearchTextBox.Text.Trim().ToLower();
+            GenreComboBox.Items.Clear();
+            GenreComboBox.Items.Add("Все жанры");
 
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            var result = AppConnect.model01.Books
-                .Where(b =>
-                    b.Title.ToLower().Contains(search) ||
-                    b.Authors.FullName.ToLower().Contains(search) ||
-                    b.Genres.Name.ToLower().Contains(search))
-                .Select(b => new
-                {
-                    b.BookId,
-                    b.Title,
-                    Author = b.Authors.FullName,
-                    Genre = b.Genres.Name,
-                    b.Publisher,
-                    b.PublishYear,
-                    b.ISBN
-                })
+            var genres = AppConnect.model01.Genres
+                .Select(g => g.Name)
+                .Distinct()
                 .ToList();
 
-            BooksDataGrid.ItemsSource = result;
+            foreach (var genre in genres)
+                GenreComboBox.Items.Add(genre);
+
+            GenreComboBox.SelectedIndex = 0;
+        }
+        private bool FilterBooks(object item)
+        {
+            dynamic book = item;
+
+            string search = SearchTextBox.Text.ToLower();
+            string selectedGenre = GenreComboBox.SelectedItem?.ToString();
+
+            bool matchesSearch =
+                string.IsNullOrEmpty(search) ||
+                book.Title.ToLower().Contains(search) ||
+                book.Author.ToLower().Contains(search);
+
+            bool matchesGenre =
+                selectedGenre == "Все жанры" ||
+                string.IsNullOrEmpty(selectedGenre) ||
+                book.Genre == selectedGenre;
+
+            return matchesSearch && matchesGenre;
+        }
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _booksView?.Refresh();
+        }
+        private void Filter_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            _booksView?.Refresh();
+        }
+        private void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_booksView == null) return;
+
+            _booksView.SortDescriptions.Clear();
+
+            string sort = (SortComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            switch (sort)
+            {
+                case "По названию":
+                    _booksView.SortDescriptions.Add(
+                        new SortDescription("Title", ListSortDirection.Ascending));
+                    break;
+
+                case "По автору":
+                    _booksView.SortDescriptions.Add(
+                        new SortDescription("Author", ListSortDirection.Ascending));
+                    break;
+
+                case "По году":
+                    _booksView.SortDescriptions.Add(
+                        new SortDescription("PublishYear", ListSortDirection.Descending));
+                    break;
+            }
         }
 
         /// <summary>
@@ -72,12 +121,11 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new MessageDialog(
-                "Добавление книги",
-                "Окно добавления книги будет реализовано позже."
-            );
-            dialog.Owner = Window.GetWindow(this);
-            dialog.ShowDialog();
+            var win = new BookEditWindow();
+            win.Owner = Window.GetWindow(this);
+
+            if (win.ShowDialog() == true)
+                LoadBooks();
         }
 
         /// <summary>
@@ -87,16 +135,20 @@ namespace LibraryAccounting.Pages
         {
             if (BooksDataGrid.SelectedItem == null)
             {
-                ShowError("Выберите книгу для редактирования");
+                ShowError("Выберите книгу");
                 return;
             }
 
-            var dialog = new MessageDialog(
-                "Редактирование книги",
-                "Окно редактирования книги будет реализовано позже."
-            );
-            dialog.Owner = Window.GetWindow(this);
-            dialog.ShowDialog();
+            dynamic selected = BooksDataGrid.SelectedItem;
+            int id = selected.BookId;
+
+            var book = AppConnect.model01.Books.First(b => b.BookId == id);
+
+            var win = new BookEditWindow(book);
+            win.Owner = Window.GetWindow(this);
+
+            if (win.ShowDialog() == true)
+                LoadBooks();
         }
 
         /// <summary>

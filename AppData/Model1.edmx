@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Хранилище LibraryAccountingModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Хранилище LibraryAccountingModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Authors">
           <Key>
             <PropertyRef Name="AuthorId" />
@@ -32,6 +32,7 @@
           <Property Name="Publisher" Type="nvarchar" MaxLength="150" />
           <Property Name="PublishYear" Type="int" />
           <Property Name="ISBN" Type="nvarchar" MaxLength="20" />
+          <Property Name="CoverImage" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="Genres">
           <Key>
@@ -196,8 +197,7 @@
             <End Role="Users" EntitySet="Users" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="LibraryAccountingModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -234,6 +234,7 @@
           <NavigationProperty Name="Authors" Relationship="Self.FK_Books_Authors" FromRole="Books" ToRole="Authors" />
           <NavigationProperty Name="BookCopies" Relationship="Self.FK_BookCopies_Books" FromRole="Books" ToRole="BookCopies" />
           <NavigationProperty Name="Genres" Relationship="Self.FK_Books_Genres" FromRole="Books" ToRole="Genres" />
+          <Property Name="CoverImage" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
         <EntityType Name="Genres">
           <Key>
@@ -431,6 +432,7 @@
           <EntitySetMapping Name="Books">
             <EntityTypeMapping TypeName="LibraryAccountingModel.Books">
               <MappingFragment StoreEntitySet="Books">
+                <ScalarProperty Name="CoverImage" ColumnName="CoverImage" />
                 <ScalarProperty Name="BookId" ColumnName="BookId" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
                 <ScalarProperty Name="AuthorId" ColumnName="AuthorId" />

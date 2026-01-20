@@ -85,61 +85,119 @@
 
                 <!-- Поиск -->
                 <StackPanel Orientation="Horizontal"
-                            Margin="0,0,0,10">
+            Margin="0,0,0,10">
 
                     <TextBlock Text="Поиск:"
-                               VerticalAlignment="Center"
-                               Foreground="#3A3A3A"
-                               Margin="0,0,10,0"/>
+               VerticalAlignment="Center"
+               Foreground="#3A3A3A"
+               Margin="0,0,10,0"/>
 
-                    <TextBox Width="250" x:Name="SearchTextBox"
-                             Height="32"
-                             Padding="8"
-                             Background="#F4F1EC"
-                             BorderBrush="#C8BFAF"
-                             BorderThickness="1"/>
+                    <TextBox x:Name="SearchTextBox"
+             Width="250"
+             Height="32"
+             Padding="8"
+             Background="#F4F1EC"
+             BorderBrush="#C8BFAF"
+             BorderThickness="1"
+             TextChanged="SearchTextBox_TextChanged"/>
 
-                    <Button Content="Найти" Click="SearchButton_Click"
-                            Width="80"
-                            Margin="10,0,0,0"
-                            Style="{StaticResource ActionButtonStyle}"/>
+                    <!-- Фильтр по жанру -->
+                    <ComboBox x:Name="GenreComboBox"
+              Width="180"
+              Margin="20,0,0,0"
+              SelectionChanged="Filter_Changed"/>
+
+                    <!-- Сортировка -->
+                    <ComboBox x:Name="SortComboBox"
+              Width="180"
+              Margin="10,0,0,0"
+              SelectionChanged="SortComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Без сортировки"/>
+                        <ComboBoxItem Content="По названию"/>
+                        <ComboBoxItem Content="По автору"/>
+                        <ComboBoxItem Content="По году"/>
+                    </ComboBox>
+
                 </StackPanel>
+
 
                 <!-- DataGrid -->
                 <DataGrid x:Name="BooksDataGrid"
-          Style="{StaticResource BooksDataGridStyle}"
-          ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-          RowStyle="{StaticResource BooksDataGridRowStyle}"
-          CellStyle="{StaticResource BooksDataGridCellStyle}"
-          AutoGenerateColumns="False">
+                          Grid.Row="1"
+                          RowHeight="130"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.CanContentScroll="True"
+                          Style="{StaticResource BooksDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                          RowStyle="{StaticResource BooksDataGridRowStyle}"
+                          CellStyle="{StaticResource BooksDataGridCellStyle}"
+                          AutoGenerateColumns="False">
 
                     <DataGrid.Columns>
 
+                        <!-- Обложка -->
+                        <DataGridTemplateColumn Header="Обложка" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Width="80"
+                    Height="110"
+                    CornerRadius="6"
+                    BorderBrush="#C8BFAF"
+                    BorderThickness="1"
+                    Background="#F4F1EC">
+
+                                        <Image Source="{Binding CoverImage, Converter={StaticResource ByteArrayToImageConverter}}"
+                       Stretch="UniformToFill"
+                       RenderOptions.BitmapScalingMode="HighQuality">
+
+                                            <Image.ToolTip>
+                                                <Border Background="#FFFDF9"
+                                BorderBrush="#C8BFAF"
+                                BorderThickness="1"
+                                Padding="10"
+                                CornerRadius="8">
+                                                    <Image Source="{Binding CoverImage, Converter={StaticResource ByteArrayToImageConverter}}"
+                                   Width="220"
+                                   Height="300"
+                                   Stretch="Uniform"
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                </Border>
+                                            </Image.ToolTip>
+
+                                        </Image>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+
                         <DataGridTextColumn Header="Название"
-                            Binding="{Binding Title}"
-                            Width="2*"/>
+                        Binding="{Binding Title}"
+                        Width="2*"/>
 
                         <DataGridTextColumn Header="Автор"
-                            Binding="{Binding Author}"
-                            Width="1.5*"/>
+                        Binding="{Binding Author}"
+                        Width="1.5*"/>
 
                         <DataGridTextColumn Header="Жанр"
-                            Binding="{Binding Genre}"
-                            Width="1*"/>
+                        Binding="{Binding Genre}"
+                        Width="1*"/>
 
                         <DataGridTextColumn Header="Издательство"
-                            Binding="{Binding Publisher}"
-                            Width="1*"/>
+                        Binding="{Binding Publisher}"
+                        Width="1*"/>
 
                         <DataGridTextColumn Header="Год"
-                            Binding="{Binding PublishYear}"
-                            Width="0.7*"/>
+                        Binding="{Binding PublishYear}"
+                        Width="0.7*"/>
 
                         <DataGridTextColumn Header="ISBN"
-                            Binding="{Binding ISBN}"
-                            Width="1.2*"/>
+                        Binding="{Binding ISBN}"
+                        Width="1.2*"/>
 
                     </DataGrid.Columns>
+
                 </DataGrid>
 
             </Grid>

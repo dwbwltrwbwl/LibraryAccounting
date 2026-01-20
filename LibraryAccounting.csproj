@@ -67,8 +67,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\ByteArrayToImageConverter.cs" />
     <Compile Include="Pages\BookCopiesView.xaml.cs">
       <DependentUpon>BookCopiesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BookEditWindow.xaml.cs">
+      <DependentUpon>BookEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\BooksView.xaml.cs">
       <DependentUpon>BooksView.xaml</DependentUpon>
@@ -140,6 +144,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Pages\BookCopiesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\BookEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -233,10 +241,15 @@
       <DependentUpon>Model1.edmx</DependentUpon>
       <LastGenOutput>Model1.cs</LastGenOutput>
     </Content>
+    <Resource Include="Images\books.png" />
+    <Resource Include="Images\loans.png" />
+    <Resource Include="Images\readers.png" />
+    <Resource Include="Images\reports.png" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
