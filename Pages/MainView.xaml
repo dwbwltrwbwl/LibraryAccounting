@@ -1,0 +1,111 @@
+﻿<Page x:Class="LibraryAccounting.Pages.MainView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d"
+      d:DesignHeight="600"
+      d:DesignWidth="1000"
+      Background="#F4F1EC">
+
+    <Grid>
+
+        <!-- Основная сетка -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="230"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Левая панель навигации -->
+        <Border Grid.Column="0"
+                Background="#2F4F4F"
+                Padding="20">
+
+            <StackPanel>
+
+                <!-- Название системы -->
+                <TextBlock Text="LIBRARY SYSTEM"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="#F4F1EC"
+                           Margin="0,0,0,30"/>
+
+                <!-- Навигация -->
+                <Button x:Name="BooksButton" Content="Книги"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Margin="0,0,0,10" Click="BooksButton_Click"/>
+
+                <Button x:Name="CopiesButton" Content="Экземпляры книг"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Margin="0,0,0,10" Click="CopiesButton_Click"/>
+
+                <Button x:Name="ReadersButton" Content="Читатели"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Margin="0,0,0,10" Click="ReadersButton_Click"/>
+
+                <Button x:Name="LoansButton" Content="Выдача и возврат"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Margin="0,0,0,10" Click="LoansButton_Click"/>
+
+                <Button x:Name="ReportsButton" Content="Отчеты"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Margin="0,0,0,10" Click="ReportsButton_Click"/>
+
+                <Separator Margin="0,20,0,20"
+                           Background="#A9B2A5"/>
+
+                <Button x:Name="LogoutButton" Content="Выход"
+                        Style="{StaticResource MenuButtonStyle}" Click="LogoutButton_Click"/>
+
+            </StackPanel>
+        </Border>
+
+        <!-- Правая часть -->
+        <Grid Grid.Column="1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Верхняя панель -->
+            <Border Background="#FFFDF9"
+                    BorderBrush="#C8BFAF"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20"
+                    Margin="0,0,0,20">
+
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <TextBlock Text="Главная панель"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="#2F4F4F"/>
+
+                    <TextBlock Text=" | Добро пожаловать в систему учета библиотеки"
+                               FontSize="14"
+                               Foreground="#6F6F6F"
+                               Margin="10,6,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Контент -->
+            <Border Grid.Row="1"
+                    Background="#FFFDF9"
+                    BorderBrush="#C8BFAF"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20">
+
+                <TextBlock Text="Выберите раздел в меню слева"
+                           FontSize="16"
+                           Foreground="#6F6F6F"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
+            </Border>
+
+        </Grid>
+    </Grid>
+</Page>

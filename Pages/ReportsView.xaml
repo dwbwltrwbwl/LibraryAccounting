@@ -1,0 +1,87 @@
+﻿<Page x:Class="LibraryAccounting.Pages.ReportsView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d"
+      d:DesignHeight="600"
+      d:DesignWidth="1000"
+      Background="#F4F1EC">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верхняя панель -->
+        <Border Background="#FFFDF9"
+                BorderBrush="#C8BFAF"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20"
+                Margin="0,0,0,20">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Отчёты"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="#2F4F4F"/>
+                    <TextBlock Text="Аналитика и контроль работы библиотеки"
+                               FontSize="13"
+                               Foreground="#6F6F6F"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Кнопки отчетов -->
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <Button Content="Выданные книги"
+                            Width="150"
+                            Margin="0,0,10,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="IssuedBooks_Click"/>
+
+                    <Button Content="Просрочки"
+                            Width="120"
+                            Margin="0,0,10,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="Overdue_Click"/>
+
+                    <Button Content="Популярные книги"
+                            Width="160"
+                            Margin="0,0,10,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="PopularBooks_Click"/>
+                    <Button Content="Обратно" Click="BackButton_Click" Background="#5f3e40"
+                            Width="100"
+                            Style="{StaticResource ActionButtonStyle}"/>        
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Таблица отчета -->
+        <Border Grid.Row="1"
+                Background="#FFFDF9"
+                BorderBrush="#C8BFAF"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="15">
+
+            <DataGrid x:Name="ReportsDataGrid"
+                      Style="{StaticResource BooksDataGridStyle}"
+                      ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                      RowStyle="{StaticResource BooksDataGridRowStyle}"
+                      CellStyle="{StaticResource BooksDataGridCellStyle}"
+                      AutoGenerateColumns="True"/>
+        </Border>
+    </Grid>
+</Page>

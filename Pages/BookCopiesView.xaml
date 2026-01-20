@@ -1,0 +1,98 @@
+﻿<Page x:Class="LibraryAccounting.Pages.BookCopiesView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d"
+      d:DesignHeight="600"
+      d:DesignWidth="1000"
+      Background="#F4F1EC">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верхняя панель -->
+        <Border Background="#FFFDF9"
+                BorderBrush="#C8BFAF"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20"
+                Margin="0,0,0,20">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Экземпляры книг"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="#2F4F4F"/>
+                    <TextBlock Text="Учет физических экземпляров"
+                               FontSize="13"
+                               Foreground="#6F6F6F"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <Button Content="Добавить"
+                            Width="100"
+                            Margin="0,0,10,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="AddButton_Click"/>
+
+                    <Button Content="Удалить"
+                            Width="100"
+                            Margin="0,0,10,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="DeleteButton_Click"/>
+                    <Button Content="Обратно" Click="BackButton_Click" Background="#5f3e40"
+                            Width="100"
+                            Style="{StaticResource ActionButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Таблица -->
+        <Border Grid.Row="1"
+                Background="#FFFDF9"
+                BorderBrush="#C8BFAF"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="15">
+
+            <DataGrid x:Name="CopiesDataGrid"
+                      Style="{StaticResource BooksDataGridStyle}"
+                      ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                      RowStyle="{StaticResource BooksDataGridRowStyle}"
+                      CellStyle="{StaticResource BooksDataGridCellStyle}"
+                      AutoGenerateColumns="False">
+
+                <DataGrid.Columns>
+
+                    <DataGridTextColumn Header="Книга"
+                                        Binding="{Binding BookTitle}"
+                                        Width="2*"/>
+
+                    <DataGridTextColumn Header="Инвентарный №"
+                                        Binding="{Binding InventoryNumber}"
+                                        Width="1.5*"/>
+
+                    <DataGridTextColumn Header="Статус"
+                                        Binding="{Binding Status}"
+                                        Width="1*"/>
+
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </Border>
+    </Grid>
+</Page>

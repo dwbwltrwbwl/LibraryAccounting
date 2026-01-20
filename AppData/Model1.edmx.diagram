@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="28c2d4c647614daca637d73293459e1e" Name="Diagram1">
+        <EntityTypeShape EntityType="LibraryAccountingModel.Authors" Width="1.5" PointX="0.75" PointY="1.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.BookCopies" Width="1.5" PointX="5.25" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.Books" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.Genres" Width="1.5" PointX="0.75" PointY="5.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.Loans" Width="1.5" PointX="7.5" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.Readers" Width="1.5" PointX="5.25" PointY="5.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.Roles" Width="1.5" PointX="7.75" PointY="5" IsExpanded="true" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.sysdiagrams" Width="1.5" PointX="7.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.Users" Width="1.5" PointX="10" PointY="4.875" IsExpanded="true" />
+        <AssociationConnector Association="LibraryAccountingModel.FK_Books_Authors" ManuallyRouted="false" />
+        <AssociationConnector Association="LibraryAccountingModel.FK_BookCopies_Books" ManuallyRouted="false" />
+        <AssociationConnector Association="LibraryAccountingModel.FK_Loans_BookCopies" ManuallyRouted="false" />
+        <AssociationConnector Association="LibraryAccountingModel.FK_Books_Genres" ManuallyRouted="false" />
+        <AssociationConnector Association="LibraryAccountingModel.FK_Loans_Readers" ManuallyRouted="false" />
+        <AssociationConnector Association="LibraryAccountingModel.FK_Users_Roles" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
