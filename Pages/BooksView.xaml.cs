@@ -1,11 +1,13 @@
 ﻿using LibraryAccounting.AppData;
 using LibraryAccounting.Windows;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.ComponentModel;
 using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace LibraryAccounting.Pages
 {
@@ -47,6 +49,7 @@ namespace LibraryAccounting.Pages
 
             LoadGenres();
         }
+
         private void LoadGenres()
         {
             GenreComboBox.Items.Clear();
@@ -62,6 +65,7 @@ namespace LibraryAccounting.Pages
 
             GenreComboBox.SelectedIndex = 0;
         }
+
         private bool FilterBooks(object item)
         {
             dynamic book = item;
@@ -81,14 +85,17 @@ namespace LibraryAccounting.Pages
 
             return matchesSearch && matchesGenre;
         }
+
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             _booksView?.Refresh();
         }
+
         private void Filter_Changed(object sender, SelectionChangedEventArgs e)
         {
             _booksView?.Refresh();
         }
+
         private void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_booksView == null) return;
@@ -117,38 +124,112 @@ namespace LibraryAccounting.Pages
         }
 
         /// <summary>
-        /// Добавление книги (заглушка)
+        /// Добавление книги
         /// </summary>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var win = new BookEditWindow();
-            win.Owner = Window.GetWindow(this);
+            try
+            {
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            if (win.ShowDialog() == true)
-                LoadBooks();
+                // Создаем пустую книгу
+                var newBook = new Books();
+
+                var win = new BookEditWindow(newBook);
+                win.Owner = Window.GetWindow(this);
+
+                if (win.ShowDialog() == true)
+                {
+                    LoadBooks();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ShowError($"Ошибка при добавлении книги: {ex.Message}");
+            }
         }
 
         /// <summary>
-        /// Редактирование книги (заглушка)
+        /// Редактирование книги (по кнопке)
         /// </summary>
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (BooksDataGrid.SelectedItem == null)
+            EditSelectedBook();
+        }
+
+        /// <summary>
+        /// Редактирование книги по двойному клику
+        /// </summary>
+        private void BooksDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // Проверяем, что клик был по строке, а не по заголовку или пустому месту
+            var source = e.OriginalSource as FrameworkElement;
+            if (source != null)
             {
-                ShowError("Выберите книгу");
-                return;
+                var row = GetParent<DataGridRow>(source);
+                if (row != null)
+                {
+                    EditSelectedBook();
+                }
             }
+        }
 
-            dynamic selected = BooksDataGrid.SelectedItem;
-            int id = selected.BookId;
+        /// <summary>
+        /// Вспомогательный метод для поиска родительского элемента
+        /// </summary>
+        private T GetParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
 
-            var book = AppConnect.model01.Books.First(b => b.BookId == id);
+            if (parentObject == null)
+                return null;
 
-            var win = new BookEditWindow(book);
-            win.Owner = Window.GetWindow(this);
+            T parent = parentObject as T;
+            if (parent != null)
+                return parent;
 
-            if (win.ShowDialog() == true)
-                LoadBooks();
+            return GetParent<T>(parentObject);
+        }
+
+        /// <summary>
+        /// Общий метод для редактирования выбранной книги
+        /// </summary>
+        private void EditSelectedBook()
+        {
+            try
+            {
+                if (BooksDataGrid.SelectedItem == null)
+                {
+                    ShowError("Выберите книгу для редактирования");
+                    return;
+                }
+
+                dynamic selected = BooksDataGrid.SelectedItem;
+                int id = selected.BookId;
+
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+                // Получаем книгу из базы данных
+                var book = AppConnect.model01.Books.FirstOrDefault(b => b.BookId == id);
+
+                if (book == null)
+                {
+                    ShowError("Книга не найдена в базе данных");
+                    return;
+                }
+
+                var win = new BookEditWindow(book);
+                win.Owner = Window.GetWindow(this);
+
+                if (win.ShowDialog() == true)
+                {
+                    LoadBooks();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ShowError($"Ошибка при редактировании книги: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -156,27 +237,42 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (BooksDataGrid.SelectedItem == null)
+            try
             {
-                ShowError("Выберите книгу для удаления");
-                return;
+                if (BooksDataGrid.SelectedItem == null)
+                {
+                    ShowError("Выберите книгу для удаления");
+                    return;
+                }
+
+                dynamic selected = BooksDataGrid.SelectedItem;
+                int bookId = selected.BookId;
+
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+                var book = AppConnect.model01.Books.FirstOrDefault(b => b.BookId == bookId);
+
+                if (book != null)
+                {
+                    // Подтверждение удаления
+                    var dialog = new MessageDialog("Подтверждение",
+                        $"Вы действительно хотите удалить книгу '{book.Title}'?");
+                    dialog.Owner = Window.GetWindow(this);
+
+                    if (dialog.ShowDialog() == true)
+                    {
+                        AppConnect.model01.Books.Remove(book);
+                        AppConnect.model01.SaveChanges();
+
+                        LoadBooks();
+
+                        ShowInfo("Книга успешно удалена");
+                    }
+                }
             }
-
-            dynamic selected = BooksDataGrid.SelectedItem;
-            int bookId = selected.BookId;
-
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            var book = AppConnect.model01.Books.FirstOrDefault(b => b.BookId == bookId);
-
-            if (book != null)
+            catch (System.Exception ex)
             {
-                AppConnect.model01.Books.Remove(book);
-                AppConnect.model01.SaveChanges();
-
-                LoadBooks();
-
-                ShowInfo("Книга успешно удалена");
+                ShowError($"Ошибка при удалении книги: {ex.Message}");
             }
         }
 

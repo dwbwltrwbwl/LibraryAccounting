@@ -44,6 +44,11 @@ namespace LibraryAccounting.Pages
             LoadAll();
         }
 
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.GoBack();
+        }
+
         private string Prompt(string title)
         {
             var dialog = new MessageDialog(title, "");

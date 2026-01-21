@@ -22,16 +22,33 @@
                 Padding="20"
                 Margin="0,0,0,20">
 
-            <StackPanel>
-                <TextBlock Text="Справочники"
-                           FontSize="22"
-                           FontWeight="SemiBold"
-                           Foreground="#2F4F4F"/>
-                <TextBlock Text="Управление вспомогательными данными системы"
-                           FontSize="13"
-                           Foreground="#6F6F6F"
-                           Margin="0,4,0,0"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Справочники"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="#2F4F4F"/>
+                    <TextBlock Text="Управление вспомогательными данными системы"
+                               FontSize="13"
+                               Foreground="#6F6F6F"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Кнопка "Обратно" -->
+                <Button Grid.Column="2"
+                        Content="Обратно" 
+                        Click="BackButton_Click" 
+                        Background="#5f3e40"
+                        Width="100"
+                        Style="{StaticResource ActionButtonStyle}"
+                        HorizontalAlignment="Right"/>
+            </Grid>
         </Border>
 
         <!-- Вкладки -->

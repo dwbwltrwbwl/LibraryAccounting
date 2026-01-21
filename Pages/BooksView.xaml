@@ -52,11 +52,6 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"/>
 
-                    <Button Content="Редактировать" Click="EditButton_Click"
-                            Width="120"
-                            Margin="0,0,10,0"
-                            Style="{StaticResource ActionButtonStyle}"/>
-
                     <Button Content="Удалить" Click="DeleteButton_Click"
                             Width="100"
                             Margin="0,0,10,0"
@@ -132,7 +127,8 @@
                           ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
                           RowStyle="{StaticResource BooksDataGridRowStyle}"
                           CellStyle="{StaticResource BooksDataGridCellStyle}"
-                          AutoGenerateColumns="False">
+                          AutoGenerateColumns="False"
+                          MouseDoubleClick="BooksDataGrid_MouseDoubleClick">
 
                     <DataGrid.Columns>
 
