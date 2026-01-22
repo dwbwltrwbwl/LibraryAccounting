@@ -119,5 +119,11 @@ namespace LibraryAccounting.Pages
             SetActiveButton(null);
             MainContentFrame.Navigate(new MainDashboardView());
         }
+
+        private void AccountButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveButton(AccountButton);
+            MainContentFrame.Navigate(new AccountView());
+        }
     }
 }

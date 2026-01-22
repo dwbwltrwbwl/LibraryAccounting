@@ -68,7 +68,10 @@
                 <Separator Margin="0,20,0,20"
                            Background="#A9B2A5"/>
 
-                <Button x:Name="LogoutButton" Content="Выход"
+                <Button x:Name="AccountButton" Content="Аккаунт" Margin="0 0 0 10" Height="25"
+                        Style="{StaticResource MenuButtonStyle}" Click="AccountButton_Click"/>
+
+                <Button x:Name="LogoutButton" Content="Выход" Height="25"
                         Style="{StaticResource MenuButtonStyle}" Click="LogoutButton_Click"/>
 
             </StackPanel>

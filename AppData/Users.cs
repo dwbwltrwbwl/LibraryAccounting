@@ -18,6 +18,9 @@ namespace LibraryAccounting.AppData
         public string Login { get; set; }
         public string PasswordHash { get; set; }
         public Nullable<int> RoleId { get; set; }
+        public string last_name { get; set; }
+        public string first_name { get; set; }
+        public string middle_name { get; set; }
     
         public virtual Roles Roles { get; set; }
     }
