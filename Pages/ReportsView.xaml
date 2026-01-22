@@ -61,9 +61,6 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="PopularBooks_Click"/>
-                    <Button Content="Обратно" Click="BackButton_Click" Background="#5f3e40"
-                            Width="100"
-                            Style="{StaticResource ActionButtonStyle}"/>        
                 </StackPanel>
             </Grid>
         </Border>

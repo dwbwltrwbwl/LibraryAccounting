@@ -28,21 +28,9 @@ namespace LibraryAccounting.Pages
         {
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            _books = AppConnect.model01.Books
-                .Select(b => new
-                {
-                    b.BookId,
-                    b.Title,
-                    Author = b.Authors.FullName,
-                    Genre = b.Genres.Name,
-                    b.Publisher,
-                    b.PublishYear,
-                    b.ISBN,
-                    b.CoverImage
-                })
-                .ToList<dynamic>();
+            var books = AppConnect.model01.Books.ToList();
 
-            _booksView = CollectionViewSource.GetDefaultView(_books);
+            _booksView = CollectionViewSource.GetDefaultView(books);
             _booksView.Filter = FilterBooks;
 
             BooksDataGrid.ItemsSource = _booksView;
@@ -68,20 +56,24 @@ namespace LibraryAccounting.Pages
 
         private bool FilterBooks(object item)
         {
-            dynamic book = item;
+            Books book = item as Books;
+            if (book == null)
+                return false;
 
-            string search = SearchTextBox.Text.ToLower();
+            string search = SearchTextBox.Text?.ToLower() ?? "";
             string selectedGenre = GenreComboBox.SelectedItem?.ToString();
 
             bool matchesSearch =
                 string.IsNullOrEmpty(search) ||
                 book.Title.ToLower().Contains(search) ||
-                book.Author.ToLower().Contains(search);
+                (book.Authors != null &&
+                 book.Authors.FullName.ToLower().Contains(search));
 
             bool matchesGenre =
                 selectedGenre == "Все жанры" ||
                 string.IsNullOrEmpty(selectedGenre) ||
-                book.Genre == selectedGenre;
+                (book.Genres != null &&
+                 book.Genres.Name == selectedGenre);
 
             return matchesSearch && matchesGenre;
         }
@@ -135,7 +127,7 @@ namespace LibraryAccounting.Pages
                 // Создаем пустую книгу
                 var newBook = new Books();
 
-                var win = new BookEditWindow(newBook);
+                var win = new BookEditWindow();
                 win.Owner = Window.GetWindow(this);
 
                 if (win.ShowDialog() == true)
@@ -162,17 +154,25 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void BooksDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, что клик был по строке, а не по заголовку или пустому месту
-            var source = e.OriginalSource as FrameworkElement;
-            if (source != null)
+            Books selectedBook = BooksDataGrid.CurrentItem as Books;
+            if (selectedBook == null)
+                return;
+
+            var bookFromDb = AppConnect.model01.Books
+                .FirstOrDefault(b => b.BookId == selectedBook.BookId);
+
+            if (bookFromDb == null)
+                return;
+
+            var window = new BookEditWindow(bookFromDb)
             {
-                var row = GetParent<DataGridRow>(source);
-                if (row != null)
-                {
-                    EditSelectedBook();
-                }
-            }
+                Owner = Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true)
+                LoadBooks();
         }
+
 
         /// <summary>
         /// Вспомогательный метод для поиска родительского элемента
@@ -294,11 +294,6 @@ namespace LibraryAccounting.Pages
             var dialog = new MessageDialog("Информация", message);
             dialog.Owner = Window.GetWindow(this);
             dialog.ShowDialog();
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService.GoBack();
         }
     }
 }

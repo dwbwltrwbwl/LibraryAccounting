@@ -106,15 +106,21 @@
                     </Border>
 
                     <!-- Кнопка -->
-                    <Button Content="Войти"
-                            Height="40"
-                            FontSize="14"
-                            FontWeight="SemiBold"
-                            Background="#2F4F4F"
-                            Foreground="White"
-                            BorderThickness="0"
-                            Cursor="Hand"
-                            Click="LoginButton_Click"/>
+                    <Border CornerRadius="5"
+        Background="#2F4F4F"
+        Margin="0,0,0,0">
+
+                        <Button Content="Войти"
+            Height="40"
+            FontSize="14"
+            FontWeight="SemiBold"
+            Background="Transparent"
+            Foreground="White"
+            BorderThickness="0"
+            Cursor="Hand"
+            Click="LoginButton_Click"/>
+                    </Border>
+
                     <!-- Переход на регистрацию -->
                     <Button Click="RegisterButton_Click" Content="Регистрация нового пользователя"
                             Margin="0,12,0,0"

@@ -24,10 +24,12 @@ namespace LibraryAccounting.Converters
                 image.CacheOption = BitmapCacheOption.OnLoad;
                 image.StreamSource = ms;
                 image.EndInit();
+                image.Freeze(); // 🔥 ВАЖНО
             }
 
             return image;
         }
+
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

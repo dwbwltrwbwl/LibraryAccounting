@@ -80,8 +80,14 @@
     <Compile Include="Pages\DirectoriesView.xaml.cs">
       <DependentUpon>DirectoriesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\InputDialog.xaml.cs">
+      <DependentUpon>InputDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\LoansView.xaml.cs">
       <DependentUpon>LoansView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\MainDashboardView.xaml.cs">
+      <DependentUpon>MainDashboardView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\ReadersView.xaml.cs">
       <DependentUpon>ReadersView.xaml</DependentUpon>
@@ -165,11 +171,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\InputDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\LoansView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\LoginView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\MainDashboardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

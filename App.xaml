@@ -111,6 +111,32 @@
             <Setter Property="Margin" Value="0,0,15,0"/>
         </Style>
 
+        <Style x:Key="MenuButtonActiveStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource MenuButtonStyle}">
+            <Setter Property="Background" Value="#553E5F5F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="3"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+        </Style>
+
+        <Style x:Key="MenuButtonHomeStyle"
+       TargetType="Button"
+       BasedOn="{StaticResource MenuButtonStyle}">
+
+            <!-- 🔥 Другой цвет фона ТОЛЬКО для Главной -->
+            <Setter Property="Background" Value="#339494"/>
+
+            <!-- Цвет текста чуть светлее -->
+            <Setter Property="Foreground" Value="#F4F1EC"/>
+
+            <!-- Небольшой акцент (опционально) -->
+            <Setter Property="FontWeight" Value="Heavy"/>
+        </Style>
+
+
+
 
     </Application.Resources>
 </Application>

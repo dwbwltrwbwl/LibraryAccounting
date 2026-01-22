@@ -60,9 +60,6 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="DeleteButton_Click"/>
-                    <Button Content="Обратно" Click="BackButton_Click" Background="#5f3e40"
-                            Width="100"
-                            Style="{StaticResource ActionButtonStyle}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -97,12 +94,6 @@
                              Background="#F4F1EC"
                              BorderBrush="#C8BFAF"
                              BorderThickness="1"/>
-
-                    <Button Content="Найти"
-                            Width="80"
-                            Margin="10,0,0,0"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Click="SearchButton_Click"/>
                 </StackPanel>
 
                 <!-- DataGrid -->

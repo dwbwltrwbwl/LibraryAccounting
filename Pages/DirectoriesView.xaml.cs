@@ -44,17 +44,16 @@ namespace LibraryAccounting.Pages
             LoadAll();
         }
 
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService.GoBack();
-        }
-
         private string Prompt(string title)
         {
-            var dialog = new MessageDialog(title, "");
+            var dialog = new InputDialog(title);
             dialog.Owner = Window.GetWindow(this);
-            dialog.ShowDialog();
-            return null; // заглушка, можно заменить отдельным окном ввода
+
+            if (dialog.ShowDialog() == true)
+                return dialog.Result;
+
+            return null;
         }
+
     }
 }

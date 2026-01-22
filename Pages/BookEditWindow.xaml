@@ -3,92 +3,118 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LibraryAccounting.Pages"
         mc:Ignorable="d"
-        Title="BookEditWindow" Height="450" Width="800">
+        Title="Книга"
+        Height="520"
+        Width="860"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F1EC">
+
+    <!-- Внешний отступ -->
     <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
 
-        <!-- Заголовок -->
-        <TextBlock x:Name="TitleText"
-                   FontSize="22"
-                   FontWeight="SemiBold"
-                   Foreground="#2F4F4F"
-                   Margin="0,0,0,20"/>
+        <!-- Карточка окна -->
+        <Border Background="#FFFDF9"
+                BorderBrush="#C8BFAF"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="25">
 
-        <!-- Контент -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <!-- Поля -->
-            <StackPanel Margin="0,0,20,0">
+                <!-- ===== ЗАГОЛОВОК ===== -->
+                <TextBlock x:Name="TitleText"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           Foreground="#2F4F4F"
+                           Margin="0,0,0,25"/>
 
-                <TextBlock Text="Название"/>
-                <TextBox x:Name="TitleBox"/>
+                <!-- ===== КОНТЕНТ ===== -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Автор" Margin="0,10,0,0"/>
-                <ComboBox x:Name="AuthorBox"/>
+                    <!-- Левая часть — форма -->
+                    <StackPanel Margin="0,0,25,0">
 
-                <TextBlock Text="Жанр" Margin="0,10,0,0"/>
-                <ComboBox x:Name="GenreBox"/>
+                        <TextBlock Text="Название"/>
+                        <TextBox x:Name="TitleBox"/>
 
-                <TextBlock Text="Издательство" Margin="0,10,0,0"/>
-                <TextBox x:Name="PublisherBox"/>
+                        <TextBlock Text="Автор" Margin="0,10,0,0"/>
+                        <ComboBox x:Name="AuthorBox"/>
 
-                <TextBlock Text="Год издания" Margin="0,10,0,0"/>
-                <TextBox x:Name="YearBox" 
-         PreviewTextInput="YearBox_PreviewTextInput" 
-         MaxLength="4"/>
+                        <TextBlock Text="Жанр" Margin="0,10,0,0"/>
+                        <ComboBox x:Name="GenreBox"/>
 
-                <TextBlock Text="ISBN" Margin="0,10,0,0"/>
-                <TextBox x:Name="IsbnBox"/>
+                        <TextBlock Text="Издательство" Margin="0,10,0,0"/>
+                        <TextBox x:Name="PublisherBox"/>
 
-            </StackPanel>
+                        <TextBlock Text="Год издания" Margin="0,10,0,0"/>
+                        <TextBox x:Name="YearBox"
+                                 MaxLength="4"
+                                 PreviewTextInput="YearBox_PreviewTextInput"/>
 
-            <!-- Обложка -->
-            <StackPanel Grid.Column="1">
+                        <TextBlock Text="ISBN" Margin="0,10,0,0"/>
+                        <TextBox x:Name="IsbnBox"/>
 
-                <Border Width="160"
-                        Height="220"
-                        Background="#FFFDF9"
-                        BorderBrush="#C8BFAF"
-                        BorderThickness="1"
-                        CornerRadius="6">
+                    </StackPanel>
 
-                    <Image x:Name="CoverImage"
-                           Stretch="UniformToFill"/>
-                </Border>
+                    <!-- Правая часть — обложка -->
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
 
-                <Button Content="Загрузить обложку"
-                        Margin="0,10,0,0"
-                        Click="LoadImage_Click"/>
-                <Button Content="Удалить обложку" 
-                        Click="RemoveImage_Click" 
-                        Margin="0,10,0,0"/>
-            </StackPanel>
-        </Grid>
+                        <Border Width="100"
+                                Height="170"
+                                Background="#FFFDF9"
+                                BorderBrush="#C8BFAF"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="6">
 
-        <!-- Кнопки -->
-        <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,20,0,0">
+                            <Image x:Name="CoverImage"
+                                   Stretch="UniformToFill"/>
+                        </Border>
 
-            <Button Content="Сохранить"
-                    Width="120"
-                    Margin="0,0,10,0"
-                    Click="Save_Click"/>
+                        <Button Content="Загрузить обложку"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Margin="0,15,0,0"
+                                Click="LoadImage_Click" Width="200"/>
 
-            <Button Content="Отмена"
-                    Width="100"
-                    Click="Cancel_Click"/>
-        </StackPanel>
+                        <Button Content="Удалить обложку"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#5F3E40"
+                                Margin="0,10,0,0"
+                                Click="RemoveImage_Click"/>
+
+                    </StackPanel>
+                </Grid>
+
+                <!-- ===== КНОПКИ ===== -->
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,25,0,0">
+
+                    <Button Content="Сохранить"
+                            Width="130"
+                            Margin="0,0,10,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="Save_Click"/>
+
+                    <Button Content="Отмена"
+                            Width="110"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Background="#6F6F6F"
+                            Click="Cancel_Click"/>
+                </StackPanel>
+
+            </Grid>
+        </Border>
     </Grid>
 </Window>

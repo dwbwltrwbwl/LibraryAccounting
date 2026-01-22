@@ -117,10 +117,5 @@ namespace LibraryAccounting.Pages
             dialog.Owner = Window.GetWindow(this);
             dialog.ShowDialog();
         }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService.GoBack();
-        }
     }
 }

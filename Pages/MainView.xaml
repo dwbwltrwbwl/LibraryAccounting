@@ -31,6 +31,12 @@
                            Margin="0,0,0,30"/>
 
                 <!-- Навигация -->
+                <Button x:Name="HomeButton"
+                        Content="Главная"
+                        Style="{StaticResource MenuButtonHomeStyle}"
+                        Margin="0,0,0,10"
+                        Click="HomeButton_Click"/>
+
                 <Button x:Name="BooksButton" Content="Книги"
                         Style="{StaticResource MenuButtonStyle}"
                         Margin="0,0,0,10" Click="BooksButton_Click"/>
@@ -69,200 +75,24 @@
         </Border>
 
         <!-- Правая часть -->
+        <!-- Правая часть -->
         <Grid Grid.Column="1">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <!-- заголовок -->
                 <RowDefinition Height="*"/>
+                <!-- контент -->
             </Grid.RowDefinitions>
 
-            <!-- Заголовок -->
-            <Border Background="#FFFDF9"
-            BorderBrush="#C8BFAF"
-            BorderThickness="1"
-            CornerRadius="10"
-            Padding="20"
-            Margin="0,0,0,25">
+            
 
-                <StackPanel>
-                    <TextBlock Text="Главная панель"
-                       FontSize="24"
-                       FontWeight="SemiBold"
-                       Foreground="#2F4F4F"/>
-
-                    <TextBlock Text="Информационная панель системы учета библиотеки"
-                       FontSize="14"
-                       Foreground="#6F6F6F"
-                       Margin="0,6,0,0"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Карточки -->
-            <Grid Grid.Row="1" Margin="0,0,0,25">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Книги -->
-                <Border Grid.Column="0"
-                Style="{StaticResource DashboardCardStyle}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <Image Source="/Images/books.png"
-                       Width="48"
-                       Height="48"
-                       Margin="0,0,0,10"/>
-                        <TextBlock Text="Книги"
-                           FontSize="16"
-                           FontWeight="SemiBold"
-                           Foreground="#2F4F4F"
-                           HorizontalAlignment="Center"/>
-                        <TextBlock Text="Каталог изданий"
-                           FontSize="13"
-                           Foreground="#6F6F6F"
-                           HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Читатели -->
-                <Border Grid.Column="1"
-                Style="{StaticResource DashboardCardStyle}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <Image Source="/Images/readers.png"
-                       Width="48"
-                       Height="48"
-                       Margin="0,0,0,10"/>
-                        <TextBlock Text="Читатели"
-                           FontSize="16"
-                           FontWeight="SemiBold"
-                           Foreground="#2F4F4F"
-                           HorizontalAlignment="Center"/>
-                        <TextBlock Text="Пользователи библиотеки"
-                           FontSize="13"
-                           Foreground="#6F6F6F"
-                           HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Выдачи -->
-                <Border Grid.Column="2"
-                Style="{StaticResource DashboardCardStyle}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <Image Source="/Images/loans.png"
-                       Width="48"
-                       Height="48"
-                       Margin="0,0,0,10"/>
-                        <TextBlock Text="Выдача и возврат"
-                           FontSize="16"
-                           FontWeight="SemiBold"
-                           Foreground="#2F4F4F"
-                           HorizontalAlignment="Center"/>
-                        <TextBlock Text="Контроль операций"
-                           FontSize="13"
-                           Foreground="#6F6F6F"
-                           HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Отчёты -->
-                <Border Grid.Column="3"
-                Style="{StaticResource DashboardCardStyle}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <Image Source="/Images/reports.png"
-                       Width="48"
-                       Height="48"
-                       Margin="0,0,0,10"/>
-                        <TextBlock Text="Отчёты"
-                           FontSize="16"
-                           FontWeight="SemiBold"
-                           Foreground="#2F4F4F"
-                           HorizontalAlignment="Center"/>
-                        <TextBlock Text="Аналитика и контроль"
-                           FontSize="13"
-                           Foreground="#6F6F6F"
-                           HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <!-- Описание -->
-            <Border Grid.Row="2"
-        Background="#FFFDF9"
-        BorderBrush="#C8BFAF"
-        BorderThickness="1"
-        CornerRadius="10"
-        Padding="25">
-
-                <StackPanel>
-
-                    <!-- Заголовок -->
-                    <TextBlock Text="Назначение системы"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   Foreground="#2F4F4F"
-                   Margin="0,0,0,10"/>
-
-                    <!-- Описание -->
-                    <TextBlock Text="Данная система предназначена для автоматизации ключевых процессов работы библиотеки и повышения эффективности учета."
-                   FontSize="15"
-                   Foreground="#6F6F6F"
-                   TextWrapping="Wrap"
-                   Margin="0,0,0,20"/>
-
-                    <!-- Возможности -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Левая колонка -->
-                        <StackPanel Grid.Column="0">
-
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="Ведение и управление каталогом книг"
-                               FontSize="14"
-                               Foreground="#3A3A3A"
-                               VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="Регистрация и учет читателей библиотеки"
-                               FontSize="14"
-                               Foreground="#3A3A3A"
-                               VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                        </StackPanel>
-
-                        <!-- Правая колонка -->
-                        <StackPanel Grid.Column="1">
-
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="Контроль выдачи и возврата экземпляров"
-                               FontSize="14"
-                               Foreground="#3A3A3A"
-                               VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Формирование аналитических отчетов"
-                               FontSize="14"
-                               Foreground="#3A3A3A"
-                               VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                        </StackPanel>
-                    </Grid>
-
-                </StackPanel>
-            </Border>
-
-
+            <!-- 🔥 ВОТ ОН — ВНУТРЕННИЙ FRAME -->
+            <Frame x:Name="MainContentFrame"
+           Grid.Row="1"
+           NavigationUIVisibility="Hidden"/>
         </Grid>
+
 
     </Grid>
 </Page>

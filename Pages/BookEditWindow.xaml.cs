@@ -19,50 +19,46 @@ namespace LibraryAccounting.Pages
         private byte[] _imageBytes;
         private bool _isEditing;
 
-        // ➕ Добавление
+        // ➕ ДОБАВЛЕНИЕ
         public BookEditWindow()
         {
             InitializeComponent();
+
             TitleText.Text = "Добавление книги";
             _isEditing = false;
+
             LoadLists();
+            ClearFields();
         }
 
-        // ✏️ Редактирование
-        public BookEditWindow(Books book) : this()
+        // ✏️ РЕДАКТИРОВАНИЕ
+        public BookEditWindow(Books book)
         {
-            if (book == null)
-            {
-                MessageBox.Show("Ошибка: книга не найдена", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                DialogResult = false;
-                Close();
-                return;
-            }
+            InitializeComponent();
 
-            _book = book;
+            if (book == null)
+                throw new ArgumentNullException(nameof(book));
+
             TitleText.Text = "Редактирование книги";
             _isEditing = true;
-            FillData();
+            _book = book;
+
+            LoadLists();   // ⚠️ ОБЯЗАТЕЛЬНО
+            FillData();    // ⚠️ ПОСЛЕ LoadLists
         }
 
         private void LoadLists()
         {
             try
             {
-                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+                if (AppConnect.model01 == null)
+                    AppConnect.model01 = new LibraryAccountingEntities();
 
                 AuthorBox.ItemsSource = AppConnect.model01.Authors.ToList();
                 AuthorBox.DisplayMemberPath = "FullName";
 
                 GenreBox.ItemsSource = AppConnect.model01.Genres.ToList();
                 GenreBox.DisplayMemberPath = "Name";
-
-                // Установить значения по умолчанию
-                if (!_isEditing && AuthorBox.Items.Count > 0)
-                    AuthorBox.SelectedIndex = 0;
-                if (!_isEditing && GenreBox.Items.Count > 0)
-                    GenreBox.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
@@ -102,14 +98,11 @@ namespace LibraryAccounting.Pages
 
             if (_imageBytes != null && _imageBytes.Length > 0)
             {
-                try
-                {
-                    CoverImage.Source = LoadImage(_imageBytes);
-                }
-                catch
-                {
-                    CoverImage.Source = null;
-                }
+                CoverImage.Source = LoadImage(_imageBytes);
+            }
+            else
+            {
+                CoverImage.Source = null;
             }
         }
 
@@ -256,5 +249,19 @@ namespace LibraryAccounting.Pages
         {
             e.Handled = !char.IsDigit(e.Text, 0);
         }
+        private void ClearFields()
+        {
+            TitleBox.Text = "";
+            PublisherBox.Text = "";
+            YearBox.Text = "";
+            IsbnBox.Text = "";
+
+            AuthorBox.SelectedIndex = -1;
+            GenreBox.SelectedIndex = -1;
+
+            _imageBytes = null;
+            CoverImage.Source = null;
+        }
+
     }
 }
