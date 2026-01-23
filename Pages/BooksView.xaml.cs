@@ -1,5 +1,6 @@
 ﻿using LibraryAccounting.AppData;
 using LibraryAccounting.Windows;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -245,36 +246,85 @@ namespace LibraryAccounting.Pages
                     return;
                 }
 
-                dynamic selected = BooksDataGrid.SelectedItem;
-                int bookId = selected.BookId;
-
-                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-                var book = AppConnect.model01.Books.FirstOrDefault(b => b.BookId == bookId);
-
-                if (book != null)
+                Books selectedBook = BooksDataGrid.SelectedItem as Books;
+                if (selectedBook == null)
                 {
-                    // Подтверждение удаления
-                    var dialog = new MessageDialog("Подтверждение",
-                        $"Вы действительно хотите удалить книгу '{book.Title}'?");
-                    dialog.Owner = Window.GetWindow(this);
+                    ShowError("Ошибка выбора книги");
+                    return;
+                }
 
-                    if (dialog.ShowDialog() == true)
+                int bookId = selectedBook.BookId;
+
+                // 🔥 ПРОВЕРКА ИСПОЛЬЗОВАНИЯ
+                if (IsBookUsed(bookId))
+                {
+                    ShowError("Книга используется в других разделах системы и не может быть удалена.");
+                    return;
+                }
+
+                MessageDialog dialog = new MessageDialog(
+                    "Подтверждение удаления",
+                    $"Вы действительно хотите удалить книгу «{selectedBook.Title}»?"
+                );
+                dialog.Owner = Window.GetWindow(this);
+
+                if (dialog.ShowDialog() != true)
+                    return;
+
+                Books bookFromDb = AppConnect.model01.Books
+                    .FirstOrDefault(b => b.BookId == bookId);
+
+                if (bookFromDb == null)
+                {
+                    ShowError("Книга не найдена в базе данных");
+                    return;
+                }
+
+                AppConnect.model01.Books.Remove(bookFromDb);
+                AppConnect.model01.SaveChanges();
+
+                LoadBooks();
+                ShowInfo("Книга успешно удалена");
+            }
+            catch (Exception ex)
+            {
+                ShowError("Ошибка при удалении книги:\n" + ex.Message);
+            }
+        }
+        private bool IsBookUsed(int bookId)
+        {
+            if (AppConnect.model01 == null)
+                AppConnect.model01 = new LibraryAccountingEntities();
+
+            // Получаем книгу с подгрузкой всех связей
+            var book = AppConnect.model01.Books
+                .FirstOrDefault(b => b.BookId == bookId);
+
+            if (book == null)
+                return false;
+
+            // 🔥 Проверяем ВСЕ коллекционные навигационные свойства
+            var properties = book.GetType().GetProperties();
+
+            foreach (var prop in properties)
+            {
+                // Ищем ICollection<T>
+                if (prop.PropertyType.IsGenericType &&
+                    prop.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>))
+                {
+                    var collection = prop.GetValue(book) as System.Collections.ICollection;
+
+                    if (collection != null && collection.Count > 0)
                     {
-                        AppConnect.model01.Books.Remove(book);
-                        AppConnect.model01.SaveChanges();
-
-                        LoadBooks();
-
-                        ShowInfo("Книга успешно удалена");
+                        return true; // ❌ книга используется
                     }
                 }
             }
-            catch (System.Exception ex)
-            {
-                ShowError($"Ошибка при удалении книги: {ex.Message}");
-            }
+
+            return false; // ✅ книга свободна
         }
+
+
 
         /// <summary>
         /// Уведомление об ошибке

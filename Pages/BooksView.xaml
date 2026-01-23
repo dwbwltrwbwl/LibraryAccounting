@@ -142,31 +142,22 @@
                     CornerRadius="6"
                     BorderBrush="#C8BFAF"
                     BorderThickness="1"
-                    Background="#F4F1EC">
+                    Background="#F4F1EC"
+                    SnapsToDevicePixels="True"
+                    UseLayoutRounding="True">
 
                                         <Image Source="{Binding CoverImage, Converter={StaticResource ByteArrayToImageConverter}}"
                        Stretch="UniformToFill"
-                       RenderOptions.BitmapScalingMode="HighQuality">
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       SnapsToDevicePixels="True"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
 
-                                            <Image.ToolTip>
-                                                <Border Background="#FFFDF9"
-                                BorderBrush="#C8BFAF"
-                                BorderThickness="1"
-                                Padding="10"
-                                CornerRadius="8">
-                                                    <Image Source="{Binding CoverImage, Converter={StaticResource ByteArrayToImageConverter}}"
-                                   Width="220"
-                                   Height="300"
-                                   Stretch="Uniform"
-                                   RenderOptions.BitmapScalingMode="HighQuality"/>
-                                                </Border>
-                                            </Image.ToolTip>
-
-                                        </Image>
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+
 
 
                         <DataGridTextColumn Header="Название"

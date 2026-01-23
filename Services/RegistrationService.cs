@@ -7,62 +7,58 @@ namespace LibraryAccounting.Services
     public static class RegistrationService
     {
         public static string RegisterUser(
-            string login,
-            string password,
-            string confirmPassword,
-            string roleName = "Librarian")
+    string login,
+    string password,
+    string confirmPassword,
+    string lastName,
+    string firstName,
+    string middleName
+)
         {
-            // Проверка заполнения
-            if (string.IsNullOrWhiteSpace(login) ||
-                string.IsNullOrWhiteSpace(password) ||
-                string.IsNullOrWhiteSpace(confirmPassword))
-            {
-                return "Заполните все поля";
-            }
+            if (string.IsNullOrWhiteSpace(lastName))
+                return "Введите фамилию";
 
-            // Проверка совпадения паролей
-            if (password != confirmPassword)
-            {
-                return "Пароли не совпадают";
-            }
+            if (string.IsNullOrWhiteSpace(firstName))
+                return "Введите имя";
 
-            // Минимальная длина пароля
+            if (string.IsNullOrWhiteSpace(login))
+                return "Введите логин";
+
+            if (string.IsNullOrWhiteSpace(password))
+                return "Введите пароль";
+
             string passwordError = ValidatePassword(password);
             if (passwordError != null)
-            {
                 return passwordError;
+
+            if (password != confirmPassword)
+                return "Пароли не совпадают";
+
+            using (var db = new LibraryAccountingEntities())
+            {
+                bool exists = db.Users.Any(u => u.Login == login);
+                if (exists)
+                    return "Пользователь с таким логином уже существует";
+
+                var user = new Users
+                {
+                    Login = login,
+                    PasswordHash = password, // ⚠️ хэш — позже
+                    last_name = lastName,
+                    first_name = firstName,
+                    middle_name = string.IsNullOrWhiteSpace(middleName)
+                        ? null
+                        : middleName,
+                    RoleId = 2
+                };
+
+                db.Users.Add(user);
+                db.SaveChanges();
             }
 
-            // Инициализация EF
-            var context = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            // Проверка уникальности логина
-            if (context.Users.Any(u => u.Login == login))
-            {
-                return "Пользователь с таким логином уже существует";
-            }
-
-            // Получение роли
-            var role = context.Roles.FirstOrDefault(r => r.RoleName == roleName);
-            if (role == null)
-            {
-                return "Роль не найдена в системе";
-            }
-
-            // Создание пользователя
-            var newUser = new Users
-            {
-                Login = login,
-                PasswordHash = password, // позже заменим на хэш
-                RoleId = role.RoleId
-            };
-
-            context.Users.Add(newUser);
-            context.SaveChanges();
-
-            return null; // null = успех
+            return null;
         }
-        private static string ValidatePassword(string password)
+        public static string ValidatePassword(string password)
         {
             if (password.Length < 6)
                 return "Пароль должен содержать минимум 6 символов";

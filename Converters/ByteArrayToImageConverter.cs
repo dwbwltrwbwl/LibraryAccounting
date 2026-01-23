@@ -10,26 +10,34 @@ namespace LibraryAccounting.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return null;
-
-            byte[] bytes = value as byte[];
-            if (bytes == null || bytes.Length == 0)
-                return null;
-
-            BitmapImage image = new BitmapImage();
-            using (MemoryStream ms = new MemoryStream(bytes))
+            try
             {
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.StreamSource = ms;
-                image.EndInit();
-                image.Freeze(); // 🔥 ВАЖНО
+                byte[] bytes = value as byte[];
+
+                if (bytes != null && bytes.Length > 0)
+                {
+                    BitmapImage image = new BitmapImage();
+                    using (MemoryStream ms = new MemoryStream(bytes))
+                    {
+                        image.BeginInit();
+                        image.CacheOption = BitmapCacheOption.OnLoad;
+                        image.StreamSource = ms;
+                        image.EndInit();
+                        image.Freeze();
+                    }
+                    return image;
+                }
+
+                // 🔥 ЗАГЛУШКА
+                return new BitmapImage(
+                    new Uri("pack://application:,,,/Images/nofoto.png")
+                );
             }
-
-            return image;
+            catch
+            {
+                return null;
+            }
         }
-
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

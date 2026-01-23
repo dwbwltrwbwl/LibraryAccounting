@@ -78,7 +78,9 @@
                                 Padding="6">
 
                             <Image x:Name="CoverImage"
-                                   Stretch="UniformToFill"/>
+       Stretch="Uniform"
+       SnapsToDevicePixels="True"/>
+
                         </Border>
 
                         <Button Content="Загрузить обложку"

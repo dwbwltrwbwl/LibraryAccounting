@@ -34,6 +34,58 @@
                            Foreground="#6F6F6F"
                            Margin="0,0,0,26"/>
 
+                <!-- Фамилия -->
+                <TextBlock Text="Фамилия"
+           FontWeight="SemiBold"
+           Foreground="#3A3A3A"/>
+
+                <Border Margin="0,6,0,16"
+        Background="#F4F1EC"
+        BorderBrush="#C8BFAF"
+        BorderThickness="1"
+        CornerRadius="5">
+                    <TextBox x:Name="LastNameTextBox"
+             Height="36"
+             Background="Transparent"
+             BorderThickness="0"
+             Padding="10"/>
+                </Border>
+
+                <!-- Имя -->
+                <TextBlock Text="Имя"
+           FontWeight="SemiBold"
+           Foreground="#3A3A3A"/>
+
+                <Border Margin="0,6,0,16"
+        Background="#F4F1EC"
+        BorderBrush="#C8BFAF"
+        BorderThickness="1"
+        CornerRadius="5">
+                    <TextBox x:Name="FirstNameTextBox"
+             Height="36"
+             Background="Transparent"
+             BorderThickness="0"
+             Padding="10"/>
+                </Border>
+
+                <!-- Отчество -->
+                <TextBlock Text="Отчество"
+           FontWeight="SemiBold"
+           Foreground="#3A3A3A"/>
+
+                <Border Margin="0,6,0,24"
+        Background="#F4F1EC"
+        BorderBrush="#C8BFAF"
+        BorderThickness="1"
+        CornerRadius="5">
+                    <TextBox x:Name="MiddleNameTextBox"
+             Height="36"
+             Background="Transparent"
+             BorderThickness="0"
+             Padding="10"/>
+                </Border>
+
+
                 <!-- Логин -->
                 <TextBlock Text="Логин"
                            FontWeight="SemiBold"
@@ -83,14 +135,19 @@
                 </Border>
 
                 <!-- Кнопка регистрации -->
-                <Button Click="RegisterButton_Click" Content="Зарегистрироваться"
-                        Height="40"
-                        FontSize="14"
-                        FontWeight="SemiBold"
-                        Background="#2F4F4F"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Cursor="Hand"/>
+                <Border Height="40"
+        CornerRadius="8"
+        Background="#2F4F4F">
+
+                    <Button Click="RegisterButton_Click"
+            Content="Зарегистрироваться"
+            FontSize="14"
+            FontWeight="SemiBold"
+            Background="Transparent"
+            Foreground="White"
+            BorderThickness="0"
+            Cursor="Hand"/>
+                </Border>
 
                 <!-- Возврат к авторизации -->
                 <Button Click="BackButton_Click" Content="Назад к авторизации"

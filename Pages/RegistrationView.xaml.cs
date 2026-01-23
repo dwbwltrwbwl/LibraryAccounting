@@ -20,6 +20,10 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
+            string lastName = LastNameTextBox.Text.Trim();
+            string firstName = FirstNameTextBox.Text.Trim();
+            string middleName = MiddleNameTextBox.Text.Trim();
+
             string login = LoginTextBox.Text.Trim();
             string password = PasswordBox.Password;
             string confirmPassword = ConfirmPasswordBox.Password;
@@ -27,7 +31,10 @@ namespace LibraryAccounting.Pages
             string error = RegistrationService.RegisterUser(
                 login,
                 password,
-                confirmPassword
+                confirmPassword,
+                lastName,
+                firstName,
+                middleName
             );
 
             if (error == null)
@@ -39,7 +46,6 @@ namespace LibraryAccounting.Pages
                 dialog.Owner = Window.GetWindow(this);
                 dialog.ShowDialog();
 
-                // Возврат на страницу авторизации
                 NavigationService.Navigate(new LoginView());
             }
             else
@@ -52,6 +58,7 @@ namespace LibraryAccounting.Pages
                 dialog.ShowDialog();
             }
         }
+
 
         /// <summary>
         /// Возврат к странице авторизации

@@ -23,13 +23,13 @@ namespace LibraryAccounting.Pages
         public BookEditWindow()
         {
             InitializeComponent();
-
             TitleText.Text = "Добавление книги";
             _isEditing = false;
 
             LoadLists();
             ClearFields();
         }
+
 
         // ✏️ РЕДАКТИРОВАНИЕ
         public BookEditWindow(Books book)
@@ -95,6 +95,7 @@ namespace LibraryAccounting.Pages
             }
 
             _imageBytes = _book.CoverImage;
+            CoverImage.Source = LoadImage(_imageBytes);
 
             if (_imageBytes != null && _imageBytes.Length > 0)
             {
@@ -131,30 +132,35 @@ namespace LibraryAccounting.Pages
 
         private BitmapImage LoadImage(byte[] bytes)
         {
-            if (bytes == null || bytes.Length == 0)
-                return null;
-
             try
             {
-                BitmapImage image = new BitmapImage();
-
-                using (MemoryStream ms = new MemoryStream(bytes))
+                // Если фото есть — грузим его
+                if (bytes != null && bytes.Length > 0)
                 {
-                    image.BeginInit();
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                    image.UriSource = null;
-                    image.StreamSource = ms;
-                    image.EndInit();
+                    BitmapImage image = new BitmapImage();
+                    using (MemoryStream ms = new MemoryStream(bytes))
+                    {
+                        image.BeginInit();
+                        image.CacheOption = BitmapCacheOption.OnLoad;
+                        image.StreamSource = ms;
+                        image.EndInit();
+                        image.Freeze();
+                    }
+                    return image;
                 }
 
-                return image;
+                // 🔥 ИНАЧЕ — ЗАГЛУШКА
+                return new BitmapImage(
+                    new Uri("pack://application:,,,/Images/nofoto.png")
+                );
             }
             catch
             {
                 return null;
             }
         }
+
+
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
@@ -241,7 +247,7 @@ namespace LibraryAccounting.Pages
         private void RemoveImage_Click(object sender, RoutedEventArgs e)
         {
             _imageBytes = null;
-            CoverImage.Source = null;
+            CoverImage.Source = LoadImage(null);
         }
 
         // Валидация числового поля года

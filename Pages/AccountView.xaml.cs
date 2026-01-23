@@ -31,10 +31,12 @@ namespace LibraryAccounting.Pages
 
         private void ChangePassword_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Функция смены пароля будет реализована позже",
-                "Информация",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            var window = new ChangePasswordWindow
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            window.ShowDialog();
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)
