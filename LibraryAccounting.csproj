@@ -83,6 +83,9 @@
     <Compile Include="Pages\ChangePasswordWindow.xaml.cs">
       <DependentUpon>ChangePasswordWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\DeleteMessageDialog.xaml.cs">
+      <DependentUpon>DeleteMessageDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\DirectoriesView.xaml.cs">
       <DependentUpon>DirectoriesView.xaml</DependentUpon>
     </Compile>
@@ -178,6 +181,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\ChangePasswordWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DeleteMessageDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

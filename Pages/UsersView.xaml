@@ -14,7 +14,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок -->
+        <!-- ===== ЗАГОЛОВОК И ДЕЙСТВИЯ ===== -->
         <Border Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
@@ -24,48 +24,50 @@
 
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="1">
+                <!-- Заголовок -->
+                <StackPanel>
                     <TextBlock Text="Пользователи системы"
                                FontSize="22"
                                FontWeight="SemiBold"
                                Foreground="#2F4F4F"/>
-                    <TextBlock Text="Управление учетными записями и ролями"
+                    <TextBlock Text="Управление учетными записями и доступом"
                                FontSize="13"
                                Foreground="#6F6F6F"
                                Margin="0,4,0,0"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2"
+                <!-- Кнопки -->
+                <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
 
-                    <Button Content="Добавить"
-                            Width="100"
+                    <Button Content="Заблокировать"
+                            Width="140"
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
-                            Click="AddButton_Click"/>
+                            Background="#5F3E40"
+                            Click="BlockButton_Click"/>
 
-                    <Button Content="Редактировать"
-                            Width="120"
+                    <Button Content="Разблокировать"
+                            Width="160"
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
-                            Click="EditButton_Click"/>
+                            Background="#4F6F5F"
+                            Click="UnblockButton_Click"/>
 
                     <Button Content="Удалить"
-                            Width="100"
-                            Margin="0,0,10,0"
+                            Width="110"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="DeleteButton_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Таблица пользователей -->
+        <!-- ===== ТАБЛИЦА ПОЛЬЗОВАТЕЛЕЙ ===== -->
         <Border Grid.Row="1"
                 Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
@@ -75,10 +77,13 @@
 
             <DataGrid x:Name="UsersDataGrid"
                       AutoGenerateColumns="False"
+                      IsReadOnly="True"
                       Style="{StaticResource BooksDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
                       RowStyle="{StaticResource BooksDataGridRowStyle}"
-                      CellStyle="{StaticResource BooksDataGridCellStyle}">
+                      CellStyle="{StaticResource BooksDataGridCellStyle}"
+                      SelectionMode="Single"
+                      SelectionUnit="FullRow">
 
                 <DataGrid.Columns>
 
@@ -88,6 +93,10 @@
 
                     <DataGridTextColumn Header="Роль"
                                         Binding="{Binding Role}"
+                                        Width="1.5*"/>
+
+                    <DataGridTextColumn Header="Статус"
+                                        Binding="{Binding Status}"
                                         Width="1.5*"/>
 
                 </DataGrid.Columns>

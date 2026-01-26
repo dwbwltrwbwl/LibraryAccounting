@@ -21,6 +21,8 @@ namespace LibraryAccounting.AppData
         public string last_name { get; set; }
         public string first_name { get; set; }
         public string middle_name { get; set; }
+        public bool IsBlocked { get; set; }
+        public byte[] Photo { get; set; }
     
         public virtual Roles Roles { get; set; }
     }

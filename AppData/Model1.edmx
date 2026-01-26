@@ -92,6 +92,8 @@
           <Property Name="Login" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="PasswordHash" Type="nvarchar" MaxLength="256" Nullable="false" />
           <Property Name="RoleId" Type="int" />
+          <Property Name="IsBlocked" Type="bit" Nullable="false" />
+          <Property Name="Photo" Type="varbinary(max)" />
         </EntityType>
         <Association Name="FK_BookCopies_Books">
           <End Role="Books" Type="Self.Books" Multiplicity="1" />
@@ -303,6 +305,8 @@
           <Property Name="last_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="first_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="middle_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IsBlocked" Type="Boolean" Nullable="false" />
+          <Property Name="Photo" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
         <Association Name="FK_Books_Authors">
           <End Role="Authors" Type="Self.Authors" Multiplicity="1" />
@@ -504,6 +508,8 @@
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="LibraryAccountingModel.Users">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="Photo" ColumnName="Photo" />
+                <ScalarProperty Name="IsBlocked" ColumnName="IsBlocked" />
                 <ScalarProperty Name="middle_name" ColumnName="middle_name" />
                 <ScalarProperty Name="first_name" ColumnName="first_name" />
                 <ScalarProperty Name="last_name" ColumnName="last_name" />

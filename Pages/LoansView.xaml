@@ -67,6 +67,7 @@
                 Padding="15">
 
             <DataGrid x:Name="LoansDataGrid"
+                      IsReadOnly="True"
                       Style="{StaticResource BooksDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
                       RowStyle="{StaticResource BooksDataGridRowStyle}"

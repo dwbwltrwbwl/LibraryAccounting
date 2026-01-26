@@ -23,12 +23,76 @@ namespace LibraryAccounting.Pages
                 {
                     u.UserId,
                     u.Login,
-                    Role = u.Roles.RoleName
+                    Role = u.Roles.RoleName,
+                    u.IsBlocked,
+                    Status = u.IsBlocked ? "Заблокирован" : "Активен"
                 })
                 .ToList();
 
             UsersDataGrid.ItemsSource = users;
         }
+        private void BlockButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (UsersDataGrid.SelectedItem == null)
+            {
+                ShowError("Выберите пользователя");
+                return;
+            }
+
+            dynamic selected = UsersDataGrid.SelectedItem;
+            int userId = selected.UserId;
+
+            var user = AppConnect.model01.Users.FirstOrDefault(u => u.UserId == userId);
+            if (user == null)
+                return;
+
+            // 🔥 ЗАПРЕТ НА БЛОКИРОВКУ АДМИНИСТРАТОРА
+            if (user.Roles.RoleName == "Admin")
+            {
+                ShowError("Невозможно заблокировать администратора");
+                return;
+            }
+
+            if (user.IsBlocked)
+            {
+                ShowError("Пользователь уже заблокирован");
+                return;
+            }
+
+            user.IsBlocked = true;
+            AppConnect.model01.SaveChanges();
+
+            LoadUsers();
+            ShowInfo("Пользователь заблокирован");
+        }
+
+        private void UnblockButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (UsersDataGrid.SelectedItem == null)
+            {
+                ShowError("Выберите пользователя");
+                return;
+            }
+
+            dynamic selected = UsersDataGrid.SelectedItem;
+            int userId = selected.UserId;
+
+            var user = AppConnect.model01.Users.FirstOrDefault(u => u.UserId == userId);
+            if (user == null) return;
+
+            if (!user.IsBlocked)
+            {
+                ShowError("Пользователь не заблокирован");
+                return;
+            }
+
+            user.IsBlocked = false;
+            AppConnect.model01.SaveChanges();
+
+            LoadUsers();
+            ShowInfo("Пользователь разблокирован");
+        }
+
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {

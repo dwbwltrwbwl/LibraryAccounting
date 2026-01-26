@@ -37,6 +37,8 @@ namespace LibraryAccounting.Pages
             BooksDataGrid.ItemsSource = _booksView;
 
             LoadGenres();
+            _booksView.SortDescriptions.Clear();
+            SortComboBox.SelectedIndex = 0;
         }
 
         private void LoadGenres()
@@ -255,14 +257,17 @@ namespace LibraryAccounting.Pages
 
                 int bookId = selectedBook.BookId;
 
-                // 🔥 ПРОВЕРКА ИСПОЛЬЗОВАНИЯ
+                // 🔥 КЛЮЧЕВАЯ ПРОВЕРКА
                 if (IsBookUsed(bookId))
                 {
-                    ShowError("Книга используется в других разделах системы и не может быть удалена.");
+                    ShowError(
+                        "Невозможно удалить книгу.\n" +
+                        "Для неё существуют экземпляры или история выдач."
+                    );
                     return;
                 }
 
-                MessageDialog dialog = new MessageDialog(
+                DeleteMessageDialog dialog = new DeleteMessageDialog(
                     "Подтверждение удаления",
                     $"Вы действительно хотите удалить книгу «{selectedBook.Title}»?"
                 );
@@ -271,17 +276,17 @@ namespace LibraryAccounting.Pages
                 if (dialog.ShowDialog() != true)
                     return;
 
-                Books bookFromDb = AppConnect.model01.Books
-                    .FirstOrDefault(b => b.BookId == bookId);
+                var db = AppConnect.model01 ?? new LibraryAccountingEntities();
 
+                var bookFromDb = db.Books.FirstOrDefault(b => b.BookId == bookId);
                 if (bookFromDb == null)
                 {
                     ShowError("Книга не найдена в базе данных");
                     return;
                 }
 
-                AppConnect.model01.Books.Remove(bookFromDb);
-                AppConnect.model01.SaveChanges();
+                db.Books.Remove(bookFromDb);
+                db.SaveChanges();
 
                 LoadBooks();
                 ShowInfo("Книга успешно удалена");
@@ -293,38 +298,11 @@ namespace LibraryAccounting.Pages
         }
         private bool IsBookUsed(int bookId)
         {
-            if (AppConnect.model01 == null)
-                AppConnect.model01 = new LibraryAccountingEntities();
+            var db = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            // Получаем книгу с подгрузкой всех связей
-            var book = AppConnect.model01.Books
-                .FirstOrDefault(b => b.BookId == bookId);
-
-            if (book == null)
-                return false;
-
-            // 🔥 Проверяем ВСЕ коллекционные навигационные свойства
-            var properties = book.GetType().GetProperties();
-
-            foreach (var prop in properties)
-            {
-                // Ищем ICollection<T>
-                if (prop.PropertyType.IsGenericType &&
-                    prop.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>))
-                {
-                    var collection = prop.GetValue(book) as System.Collections.ICollection;
-
-                    if (collection != null && collection.Count > 0)
-                    {
-                        return true; // ❌ книга используется
-                    }
-                }
-            }
-
-            return false; // ✅ книга свободна
+            // Если у книги есть хотя бы один экземпляр — удалять нельзя
+            return db.BookCopies.Any(c => c.BookId == bookId);
         }
-
-
 
         /// <summary>
         /// Уведомление об ошибке

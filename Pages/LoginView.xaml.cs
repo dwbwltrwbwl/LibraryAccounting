@@ -33,20 +33,7 @@ namespace LibraryAccounting.Pages
             var user = AppConnect.model01.Users
                 .FirstOrDefault(u => u.Login == login && u.PasswordHash == password);
 
-            if (user != null)
-            {
-                string roleName = user.Roles.RoleName;
-
-                var dialog = new MessageDialog(
-                    "Авторизация",
-                    $"Вход выполнен успешно.\nРоль пользователя: {roleName}"
-                );
-                dialog.Owner = Window.GetWindow(this);
-                dialog.ShowDialog();
-                AppConnect.CurrentUser = user;
-                NavigationService.Navigate(new MainView());
-            }
-            else
+            if (user == null)
             {
                 var dialog = new MessageDialog(
                     "Ошибка авторизации",
@@ -56,8 +43,35 @@ namespace LibraryAccounting.Pages
                 dialog.ShowDialog();
 
                 ErrorTextBlock.Visibility = Visibility.Visible;
+                return;
             }
+
+            // 🔥 ВАЖНО: ПРОВЕРКА БЛОКИРОВКИ
+            if (user.IsBlocked)
+            {
+                var dialog = new MessageDialog(
+                    "Доступ запрещён",
+                    "Ваша учетная запись заблокирована.\nОбратитесь к администратору."
+                );
+                dialog.Owner = Window.GetWindow(this);
+                dialog.ShowDialog();
+                return;
+            }
+
+            // ✅ УСПЕШНЫЙ ВХОД
+            string roleName = user.Roles.RoleName;
+
+            var successDialog = new MessageDialog(
+                "Авторизация",
+                $"Вход выполнен успешно.\nРоль пользователя: {roleName}"
+            );
+            successDialog.Owner = Window.GetWindow(this);
+            successDialog.ShowDialog();
+
+            AppConnect.CurrentUser = user;
+            NavigationService.Navigate(new MainView());
         }
+
 
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
