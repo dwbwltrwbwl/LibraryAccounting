@@ -11,6 +11,11 @@ namespace LibraryAccounting.Pages
         public BookCopiesView()
         {
             InitializeComponent();
+            if (AppConnect.CurrentUser != null && AppConnect.CurrentUser.RoleId == 2)
+            {
+                DeleteButton.IsEnabled = false;
+                DeleteButton.Visibility = Visibility.Collapsed; // можно оставить только IsEnabled=false
+            }
             LoadCopies();
         }
 

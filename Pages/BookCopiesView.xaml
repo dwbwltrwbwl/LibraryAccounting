@@ -49,7 +49,7 @@
                             Style="{StaticResource ActionButtonStyle}"
                             Click="AddButton_Click"/>
 
-                    <Button Content="Удалить"
+                    <Button x:Name="DeleteButton" Content="Удалить"
                             Width="100"
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"

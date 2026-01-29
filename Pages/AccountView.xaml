@@ -48,7 +48,7 @@
                 CornerRadius="12"
                 Padding="30"
                 Width="700"
-                Height="350"
+                Height="450"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top">
 
@@ -101,18 +101,24 @@
                 <StackPanel Grid.Column="1" Margin="30,0,0,0">
 
                     <TextBlock Text="Логин" Foreground="#6F6F6F" FontSize="13"/>
-                    <TextBlock x:Name="LoginText"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="#2F4F4F"
-                               Margin="0,4,0,18"/>
+                    <TextBox x:Name="LoginBox"
+         Height="34"
+         Padding="8"
+         Background="#F4F1EC"
+         BorderBrush="#C8BFAF"
+         BorderThickness="1"
+         Margin="0,4,0,18"/>
 
-                    <TextBlock Text="ФИО" Foreground="#6F6F6F" FontSize="13"/>
-                    <TextBlock x:Name="FullNameText"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="#2F4F4F"
-                               Margin="0,4,0,18"/>
+
+                    <TextBlock Text="Фамилия" Foreground="#6F6F6F" FontSize="13"/>
+                    <TextBox x:Name="LastNameBox" Margin="0,4,0,10"/>
+
+                    <TextBlock Text="Имя" Foreground="#6F6F6F" FontSize="13"/>
+                    <TextBox x:Name="FirstNameBox" Margin="0,4,0,10"/>
+
+                    <TextBlock Text="Отчество" Foreground="#6F6F6F" FontSize="13"/>
+                    <TextBox x:Name="MiddleNameBox" Margin="0,4,0,18"/>
+
 
                     <TextBlock Text="Роль" Foreground="#6F6F6F" FontSize="13"/>
                     <TextBlock x:Name="RoleText"
@@ -120,8 +126,15 @@
                                FontWeight="SemiBold"
                                Foreground="#2F4F4F"
                                Margin="0,4,0,25"/>
+                    <Button Content="Сохранить изменения"
+        Width="160" HorizontalAlignment="Left"
+        Margin="0,0,0,10"
+        Style="{StaticResource ActionButtonStyle}"
+        Click="SaveProfile_Click"/>
+
 
                     <StackPanel Orientation="Horizontal">
+                        
                         <Button Content="Сменить пароль"
                                 Width="160"
                                 Style="{StaticResource ActionButtonStyle}"

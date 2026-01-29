@@ -19,6 +19,11 @@ namespace LibraryAccounting.Pages
         public BooksView()
         {
             InitializeComponent();
+            if (AppConnect.CurrentUser != null && AppConnect.CurrentUser.RoleId == 2)
+            {
+                DeleteButton.IsEnabled = false;
+                DeleteButton.Visibility = Visibility.Collapsed; // можно оставить только IsEnabled=false
+            }
             LoadBooks();
         }
 
@@ -240,6 +245,11 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
+            if (AppConnect.CurrentUser == null || AppConnect.CurrentUser.RoleId == 2)
+            {
+                ShowError("У вас нет прав на удаление книг");
+                return;
+            }
             try
             {
                 if (BooksDataGrid.SelectedItem == null)

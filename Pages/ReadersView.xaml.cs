@@ -1,5 +1,6 @@
 ﻿using LibraryAccounting.AppData;
 using LibraryAccounting.Windows;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,9 +9,19 @@ namespace LibraryAccounting.Pages
 {
     public partial class ReadersView : Page
     {
+        private List<dynamic> _allReaders;
         public ReadersView()
         {
             InitializeComponent();
+            if (AppConnect.CurrentUser != null && AppConnect.CurrentUser.RoleId == 2)
+            {
+                DeleteButton.IsEnabled = false;
+                DeleteButton.Visibility = Visibility.Collapsed; // можно оставить только IsEnabled=false
+                AddButton.IsEnabled = false;
+                AddButton.Visibility = Visibility.Collapsed;
+                EditButton.IsEnabled = false;
+                EditButton.Visibility = Visibility.Collapsed;
+            }
             LoadReaders();
         }
 
@@ -21,7 +32,7 @@ namespace LibraryAccounting.Pages
         {
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            var readers = AppConnect.model01.Readers
+            _allReaders = AppConnect.model01.Readers
                 .Select(r => new
                 {
                     r.ReaderId,
@@ -31,39 +42,28 @@ namespace LibraryAccounting.Pages
                     r.PassportData,
                     r.RegistrationDate
                 })
-                .ToList();
+                .ToList<dynamic>();
 
-            ReadersDataGrid.ItemsSource = readers;
+            ReadersDataGrid.ItemsSource = _allReaders;
         }
-
-        /// <summary>
-        /// Поиск читателей
-        /// </summary>
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string search = SearchTextBox.Text.Trim().ToLower();
 
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                ReadersDataGrid.ItemsSource = _allReaders;
+                return;
+            }
 
-            var result = AppConnect.model01.Readers
-                .Where(r =>
-                    r.FullName.ToLower().Contains(search) ||
-                    r.Phone.Contains(search) ||
-                    r.Email.ToLower().Contains(search))
-                .Select(r => new
-                {
-                    r.ReaderId,
-                    r.FullName,
-                    r.Phone,
-                    r.Email,
-                    r.PassportData,
-                    r.RegistrationDate
-                })
-                .ToList();
+            var filtered = _allReaders.Where(r =>
+                r.FullName.ToLower().Contains(search) ||
+                (!string.IsNullOrEmpty(r.Phone) && r.Phone.Contains(search)) ||
+                (!string.IsNullOrEmpty(r.Email) && r.Email.ToLower().Contains(search))
+            ).ToList();
 
-            ReadersDataGrid.ItemsSource = result;
+            ReadersDataGrid.ItemsSource = filtered;
         }
-
         /// <summary>
         /// Добавление читателя (заглушка)
         /// </summary>

@@ -56,7 +56,7 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"/>
 
-                    <Button Content="Удалить" Click="DeleteButton_Click"
+                    <Button x:Name="DeleteButton" Content="Удалить" Click="DeleteButton_Click"
                             Width="100"
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"/>

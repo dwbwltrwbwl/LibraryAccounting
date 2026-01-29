@@ -20,18 +20,17 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void ConfigureByRole()
         {
-            if (AppConnect.CurrentUser == null)
-                return;
-
-            string role = AppConnect.CurrentUser.Roles.RoleName;
-
-            // Пример: библиотекарь не видит отчеты
-            if (role == "Librarian")
+            if (AppConnect.IsLibrarian)
             {
-                ReportsButton.Visibility = Visibility.Collapsed;
+                UsersButton.Visibility = Visibility.Collapsed; // ❌ скрыто
+                ReportsButton.Visibility = Visibility.Visible; // ✅ доступно
             }
 
-            // Администратор видит всё (ничего не скрываем)
+            if (AppConnect.IsAdmin)
+            {
+                UsersButton.Visibility = Visibility.Visible; // ✅
+                ReportsButton.Visibility = Visibility.Visible;
+            }
         }
 
         /// <summary>
@@ -99,7 +98,8 @@ namespace LibraryAccounting.Pages
         LoansButton,
         ReportsButton,
         DirectoriesButton,
-        UsersButton
+        UsersButton,
+        AccountButton
     };
 
             // Сброс всех вкладок
@@ -125,5 +125,6 @@ namespace LibraryAccounting.Pages
             SetActiveButton(AccountButton);
             MainContentFrame.Navigate(new AccountView());
         }
+
     }
 }

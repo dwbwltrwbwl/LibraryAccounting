@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System;
+using System.Linq;
 
 namespace LibraryAccounting.Pages
 {
@@ -23,13 +24,11 @@ namespace LibraryAccounting.Pages
             if (AppConnect.CurrentUser == null)
                 return;
 
-            LoginText.Text = AppConnect.CurrentUser.Login;
+            LoginBox.Text = AppConnect.CurrentUser.Login;
+            LastNameBox.Text = AppConnect.CurrentUser.last_name;
+            FirstNameBox.Text = AppConnect.CurrentUser.first_name;
+            MiddleNameBox.Text = AppConnect.CurrentUser.middle_name;
 
-            string lastName = AppConnect.CurrentUser.last_name ?? "";
-            string firstName = AppConnect.CurrentUser.first_name ?? "";
-            string middleName = AppConnect.CurrentUser.middle_name ?? "";
-
-            FullNameText.Text = $"{lastName} {firstName} {middleName}".Trim();
             RoleText.Text = AppConnect.CurrentUser.Roles.RoleName;
 
             _photoBytes = AppConnect.CurrentUser.Photo;
@@ -136,5 +135,60 @@ namespace LibraryAccounting.Pages
             ((MainWindow)Application.Current.MainWindow)
                 .frameMain.Navigate(new LoginView());
         }
+        private void SaveProfile_Click(object sender, RoutedEventArgs e)
+        {
+            string newLogin = LoginBox.Text.Trim();
+            string lastName = LastNameBox.Text.Trim();
+            string firstName = FirstNameBox.Text.Trim();
+            string middleName = MiddleNameBox.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(newLogin))
+            {
+                ShowError("Логин не может быть пустым");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(firstName))
+            {
+                ShowError("Фамилия и имя обязательны");
+                return;
+            }
+
+            var db = AppConnect.model01;
+
+            // 🔥 Проверка уникальности логина
+            bool loginExists = db.Users.Any(u =>
+                u.Login == newLogin &&
+                u.UserId != AppConnect.CurrentUser.UserId);
+
+            if (loginExists)
+            {
+                ShowError("Пользователь с таким логином уже существует");
+                return;
+            }
+
+            // ✅ Сохраняем
+            AppConnect.CurrentUser.Login = newLogin;
+            AppConnect.CurrentUser.last_name = lastName;
+            AppConnect.CurrentUser.first_name = firstName;
+            AppConnect.CurrentUser.middle_name =
+                string.IsNullOrWhiteSpace(middleName) ? null : middleName;
+
+            db.SaveChanges();
+
+            ShowInfo("Данные профиля успешно обновлены");
+        }
+        private void ShowError(string message)
+        {
+            MessageBox.Show(message, "Ошибка",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        private void ShowInfo(string message)
+        {
+            MessageBox.Show(message, "Информация",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
     }
 }

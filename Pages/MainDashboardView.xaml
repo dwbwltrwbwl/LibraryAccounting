@@ -10,9 +10,15 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- Заголовок -->
             <RowDefinition Height="Auto"/>
+            <!-- Логотип -->
+            <RowDefinition Height="Auto"/>
+            <!-- Карточки -->
             <RowDefinition Height="*"/>
+            <!-- Описание -->
         </Grid.RowDefinitions>
+
 
         <!-- Заголовок -->
         <Border Background="#FFFDF9"
@@ -35,8 +41,41 @@
             </StackPanel>
         </Border>
 
+        <!-- ===== ЛОГОТИП ===== -->
+        <Border Grid.Row="1"
+        Background="#FFFDF9"
+        BorderBrush="#C8BFAF"
+        BorderThickness="1"
+        CornerRadius="10"
+        Padding="20"
+        Margin="0,0,0,25">
+
+            <StackPanel HorizontalAlignment="Center">
+
+                <Image Source="pack://application:,,,/Images/logo.png"
+               Width="260"
+               Height="120"
+               Stretch="Uniform"
+               RenderOptions.BitmapScalingMode="HighQuality"/>
+
+                <TextBlock Text="LibraryAccounting"
+                   FontSize="22"
+                   FontWeight="SemiBold"
+                   Foreground="#2F4F4F"
+                   Margin="0,12,0,0"
+                   HorizontalAlignment="Center"/>
+
+                <TextBlock Text="Система учета библиотечного фонда"
+                   FontSize="14"
+                   Foreground="#6F6F6F"
+                   Margin="0,4,0,0"
+                   HorizontalAlignment="Center"/>
+
+            </StackPanel>
+        </Border>
+
         <!-- Карточки -->
-        <Grid Grid.Row="1" Margin="0,0,0,25">
+        <Grid Grid.Row="2" Margin="0,0,0,25">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -122,7 +161,7 @@
         </Grid>
 
         <!-- Описание -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="3"
                 Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
