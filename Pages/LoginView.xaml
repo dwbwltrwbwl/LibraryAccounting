@@ -83,7 +83,7 @@
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Padding="10"
-                                 FontSize="14"/>
+                                 FontSize="14" MaxLength="50"/>
                     </Border>
 
                     <!-- Пароль -->
@@ -102,7 +102,7 @@
                                      Background="Transparent"
                                      BorderThickness="0"
                                      Padding="10"
-                                     FontSize="14"/>
+                                     FontSize="14" MaxLength="50"/>
                     </Border>
 
                     <!-- Кнопка -->

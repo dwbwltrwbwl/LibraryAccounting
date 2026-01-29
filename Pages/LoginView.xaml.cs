@@ -1,4 +1,5 @@
 ﻿using LibraryAccounting.AppData;
+using LibraryAccounting.Services;
 using LibraryAccounting.Windows;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -31,7 +32,17 @@ namespace LibraryAccounting.Pages
             AppConnect.model01 = new LibraryAccountingEntities();
 
             var user = AppConnect.model01.Users
-                .FirstOrDefault(u => u.Login == login && u.PasswordHash == password);
+    .FirstOrDefault(u => u.Login == login);
+
+            //if (user == null)
+            //{
+            //    // ошибка
+            //}
+
+            //if (!PasswordHasher.Verify(password, user.PasswordHash))
+            //{
+            //    // ошибка
+            //}
 
             if (user == null)
             {

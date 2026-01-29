@@ -22,14 +22,15 @@ namespace LibraryAccounting.Pages
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
             var copies = AppConnect.model01.BookCopies
-                .Select(c => new
-                {
-                    c.CopyId,
-                    BookTitle = c.Books.Title,
-                    c.InventoryNumber,
-                    c.Status
-                })
-                .ToList();
+    .Select(c => new
+    {
+        c.CopyId,
+        BookTitle = c.Books.Title,
+        c.InventoryNumber,
+        Location = "Ряд " + c.Row + ", полка " + c.Shelf,
+        c.Status
+    })
+    .ToList();
 
             CopiesDataGrid.ItemsSource = copies;
         }

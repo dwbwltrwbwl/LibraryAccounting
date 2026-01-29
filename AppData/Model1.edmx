@@ -20,6 +20,8 @@
           <Property Name="BookId" Type="int" Nullable="false" />
           <Property Name="InventoryNumber" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Status" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Shelf" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Row" Type="nvarchar" MaxLength="20" Nullable="false" />
         </EntityType>
         <EntityType Name="Books">
           <Key>
@@ -224,6 +226,8 @@
           <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Books" Relationship="Self.FK_BookCopies_Books" FromRole="BookCopies" ToRole="Books" />
           <NavigationProperty Name="Loans" Relationship="Self.FK_Loans_BookCopies" FromRole="BookCopies" ToRole="Loans" />
+          <Property Name="Shelf" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Row" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Books">
           <Key>
@@ -432,6 +436,8 @@
           <EntitySetMapping Name="BookCopies">
             <EntityTypeMapping TypeName="LibraryAccountingModel.BookCopies">
               <MappingFragment StoreEntitySet="BookCopies">
+                <ScalarProperty Name="Row" ColumnName="Row" />
+                <ScalarProperty Name="Shelf" ColumnName="Shelf" />
                 <ScalarProperty Name="CopyId" ColumnName="CopyId" />
                 <ScalarProperty Name="BookId" ColumnName="BookId" />
                 <ScalarProperty Name="InventoryNumber" ColumnName="InventoryNumber" />

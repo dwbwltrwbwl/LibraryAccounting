@@ -107,6 +107,7 @@
     <Compile Include="Pages\UsersView.xaml.cs">
       <DependentUpon>UsersView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\PasswordHasher.cs" />
     <Compile Include="Services\RegistrationService.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

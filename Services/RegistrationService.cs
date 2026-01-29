@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using LibraryAccounting.Services;
 using LibraryAccounting.AppData;
 using System.Text.RegularExpressions;
 
@@ -43,7 +44,7 @@ namespace LibraryAccounting.Services
                 var user = new Users
                 {
                     Login = login,
-                    PasswordHash = password, // ⚠️ хэш — позже
+                    PasswordHash = PasswordHasher.Hash(password),
                     last_name = lastName,
                     first_name = firstName,
                     middle_name = string.IsNullOrWhiteSpace(middleName)

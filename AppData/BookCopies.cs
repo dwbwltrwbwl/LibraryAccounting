@@ -24,6 +24,8 @@ namespace LibraryAccounting.AppData
         public int BookId { get; set; }
         public string InventoryNumber { get; set; }
         public string Status { get; set; }
+        public string Shelf { get; set; }
+        public string Row { get; set; }
     
         public virtual Books Books { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

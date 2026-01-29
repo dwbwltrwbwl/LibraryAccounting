@@ -84,6 +84,10 @@
                                         Binding="{Binding InventoryNumber}"
                                         Width="1.5*"/>
 
+                    <DataGridTextColumn Header="Местоположение"
+                                        Binding="{Binding Location}"
+                                        Width="1.5*"/>
+
                     <DataGridTextColumn Header="Статус"
                                         Binding="{Binding Status}"
                                         Width="1*"/>
