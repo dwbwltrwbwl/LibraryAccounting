@@ -98,6 +98,9 @@
     <Compile Include="Pages\MainDashboardView.xaml.cs">
       <DependentUpon>MainDashboardView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\ReaderEditWindow.xaml.cs">
+      <DependentUpon>ReaderEditWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\ReadersView.xaml.cs">
       <DependentUpon>ReadersView.xaml</DependentUpon>
     </Compile>
@@ -214,6 +217,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\MessageDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ReaderEditWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

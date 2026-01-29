@@ -25,7 +25,10 @@ namespace LibraryAccounting.Pages
                 .Where(l => l.ReturnDate == null)
                 .Select(l => new
                 {
-                    Reader = l.Readers.FullName,
+                    Reader =
+    l.Readers.last_name + " " +
+    l.Readers.first_name + " " +
+    (l.Readers.middle_name ?? ""),
                     Book = l.BookCopies.Books.Title,
                     l.BookCopies.InventoryNumber,
                     l.LoanDate,
@@ -49,7 +52,10 @@ namespace LibraryAccounting.Pages
                 .Where(l => l.ReturnDate == null && l.DueDate < today)
                 .Select(l => new
                 {
-                    Reader = l.Readers.FullName,
+                    Reader =
+    l.Readers.last_name + " " +
+    l.Readers.first_name + " " +
+    (l.Readers.middle_name ?? ""),
                     Book = l.BookCopies.Books.Title,
                     l.BookCopies.InventoryNumber,
                     l.DueDate

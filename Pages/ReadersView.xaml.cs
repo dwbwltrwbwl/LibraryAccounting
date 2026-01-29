@@ -19,8 +19,6 @@ namespace LibraryAccounting.Pages
                 DeleteButton.Visibility = Visibility.Collapsed; // можно оставить только IsEnabled=false
                 AddButton.IsEnabled = false;
                 AddButton.Visibility = Visibility.Collapsed;
-                EditButton.IsEnabled = false;
-                EditButton.Visibility = Visibility.Collapsed;
             }
             LoadReaders();
         }
@@ -33,16 +31,22 @@ namespace LibraryAccounting.Pages
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
             _allReaders = AppConnect.model01.Readers
-                .Select(r => new
-                {
-                    r.ReaderId,
-                    r.FullName,
-                    r.Phone,
-                    r.Email,
-                    r.PassportData,
-                    r.RegistrationDate
-                })
-                .ToList<dynamic>();
+    .Select(r => new
+    {
+        r.ReaderId,
+        FullName =
+            r.last_name + " " +
+            r.first_name +
+            (r.middle_name != null ? " " + r.middle_name : ""),
+        r.last_name,
+        r.first_name,
+        r.middle_name,
+        r.Phone,
+        r.Email,
+        r.PassportData,
+        r.RegistrationDate
+    })
+    .ToList<dynamic>();
 
             ReadersDataGrid.ItemsSource = _allReaders;
         }
@@ -57,10 +61,10 @@ namespace LibraryAccounting.Pages
             }
 
             var filtered = _allReaders.Where(r =>
-                r.FullName.ToLower().Contains(search) ||
-                (!string.IsNullOrEmpty(r.Phone) && r.Phone.Contains(search)) ||
-                (!string.IsNullOrEmpty(r.Email) && r.Email.ToLower().Contains(search))
-            ).ToList();
+    r.FullName.ToLower().Contains(search) ||
+    (!string.IsNullOrEmpty(r.Phone) && r.Phone.Contains(search)) ||
+    (!string.IsNullOrEmpty(r.Email) && r.Email.ToLower().Contains(search))
+).ToList();
 
             ReadersDataGrid.ItemsSource = filtered;
         }
@@ -69,21 +73,35 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            ShowInfo("Окно добавления читателя будет реализовано позже.");
+            var win = new ReaderEditWindow();
+            win.Owner = Window.GetWindow(this);
+
+            if (win.ShowDialog() == true)
+                LoadReaders();
         }
 
         /// <summary>
         /// Редактирование читателя (заглушка)
         /// </summary>
-        private void EditButton_Click(object sender, RoutedEventArgs e)
+        private void ReadersDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (ReadersDataGrid.SelectedItem == null)
-            {
-                ShowError("Выберите читателя для редактирования");
                 return;
-            }
 
-            ShowInfo("Окно редактирования читателя будет реализовано позже.");
+            dynamic selected = ReadersDataGrid.SelectedItem;
+            int readerId = selected.ReaderId;
+
+            var reader = AppConnect.model01.Readers
+                .FirstOrDefault(r => r.ReaderId == readerId);
+
+            if (reader == null)
+                return;
+
+            var win = new ReaderEditWindow(reader);
+            win.Owner = Window.GetWindow(this);
+
+            if (win.ShowDialog() == true)
+                LoadReaders();
         }
 
         /// <summary>
