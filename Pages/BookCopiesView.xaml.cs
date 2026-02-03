@@ -45,12 +45,35 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new MessageDialog(
-                "Добавление экземпляра",
-                "Окно добавления экземпляра будет реализовано позже."
-            );
-            dialog.Owner = Window.GetWindow(this);
-            dialog.ShowDialog();
+            var window = new BookCopyAddWindow
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (window.ShowDialog() == true)
+                LoadCopies();
+        }
+        private void CopiesDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (CopiesDataGrid.SelectedItem == null)
+                return;
+
+            dynamic selected = CopiesDataGrid.SelectedItem;
+            int copyId = selected.CopyId;
+
+            var copy = AppConnect.model01.BookCopies
+                .FirstOrDefault(c => c.CopyId == copyId);
+
+            if (copy == null)
+                return;
+
+            var window = new BookCopyAddWindow(copy)
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (window.ShowDialog() == true)
+                LoadCopies();
         }
 
         /// <summary>
@@ -69,18 +92,45 @@ namespace LibraryAccounting.Pages
 
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
+            // 🔥 ПРОВЕРКА: используется ли экземпляр в выдачах
+            bool isUsed = AppConnect.model01.Loans
+                .Any(l => l.CopyId == copyId);
+
+            if (isUsed)
+            {
+                ShowError(
+                    "Невозможно удалить экземпляр.\n" +
+                    "Для него существует история выдач."
+                );
+                return;
+            }
+
             var copy = AppConnect.model01.BookCopies
                 .FirstOrDefault(c => c.CopyId == copyId);
 
-            if (copy != null)
+            if (copy == null)
             {
-                AppConnect.model01.BookCopies.Remove(copy);
-                AppConnect.model01.SaveChanges();
-
-                LoadCopies();
-                ShowInfo("Экземпляр успешно удален");
+                ShowError("Экземпляр не найден");
+                return;
             }
+
+            // 🧨 подтверждение
+            var dialog = new DeleteMessageDialog(
+                "Подтверждение удаления",
+                $"Удалить экземпляр с инвентарным номером {copy.InventoryNumber}?"
+            );
+            dialog.Owner = Window.GetWindow(this);
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            AppConnect.model01.BookCopies.Remove(copy);
+            AppConnect.model01.SaveChanges();
+
+            LoadCopies();
+            ShowInfo("Экземпляр успешно удалён");
         }
+
 
         private void ShowError(string message)
         {

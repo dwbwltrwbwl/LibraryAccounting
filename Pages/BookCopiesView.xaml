@@ -68,6 +68,7 @@
 
             <DataGrid x:Name="CopiesDataGrid"
                       IsReadOnly="True"
+                      MouseDoubleClick="CopiesDataGrid_MouseDoubleClick"
                       Style="{StaticResource BooksDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
                       RowStyle="{StaticResource BooksDataGridRowStyle}"

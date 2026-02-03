@@ -74,6 +74,9 @@
     <Compile Include="Pages\BookCopiesView.xaml.cs">
       <DependentUpon>BookCopiesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\BookCopyAddWindow.xaml.cs">
+      <DependentUpon>BookCopyAddWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\BookEditWindow.xaml.cs">
       <DependentUpon>BookEditWindow.xaml</DependentUpon>
     </Compile>
@@ -173,6 +176,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\BookCopiesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\BookCopyAddWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
