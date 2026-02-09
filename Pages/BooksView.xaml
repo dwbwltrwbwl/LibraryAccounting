@@ -11,9 +11,7 @@
     <Page.Resources>
         <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
     </Page.Resources>
-
     <Grid>
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
