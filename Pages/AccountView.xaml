@@ -18,8 +18,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- ===== Заголовок ===== -->
         <Border Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
@@ -39,8 +37,6 @@
                            Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
-
-        <!-- ===== Контент ===== -->
         <Border Grid.Row="1"
                 Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
@@ -57,9 +53,6 @@
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-
-                <!-- ===== ФОТО ===== -->
-                <!-- ===== ФОТО ===== -->
                 <StackPanel HorizontalAlignment="Center">
 
                     <Border Width="140"
@@ -79,8 +72,6 @@
                RenderOptions.BitmapScalingMode="HighQuality"
                SnapsToDevicePixels="True"/>
                     </Border>
-
-                    <!-- КНОПКИ КАК У КНИГ -->
                     <Button Content="Загрузить фото"
             Style="{StaticResource ActionButtonStyle}"
             Margin="0,15,0,0"
@@ -95,9 +86,6 @@
             Click="RemovePhoto_Click"/>
 
                 </StackPanel>
-
-
-                <!-- ===== ДАННЫЕ ===== -->
                 <StackPanel Grid.Column="1" Margin="30,0,0,0">
 
                     <TextBlock Text="Логин" Foreground="#6F6F6F" FontSize="13"/>
@@ -112,14 +100,10 @@
 
                     <TextBlock Text="Фамилия" Foreground="#6F6F6F" FontSize="13"/>
                     <TextBox x:Name="LastNameBox" Margin="0,4,0,10"/>
-
                     <TextBlock Text="Имя" Foreground="#6F6F6F" FontSize="13"/>
                     <TextBox x:Name="FirstNameBox" Margin="0,4,0,10"/>
-
                     <TextBlock Text="Отчество" Foreground="#6F6F6F" FontSize="13"/>
                     <TextBox x:Name="MiddleNameBox" Margin="0,4,0,18"/>
-
-
                     <TextBlock Text="Роль" Foreground="#6F6F6F" FontSize="13"/>
                     <TextBlock x:Name="RoleText"
                                FontSize="16"
@@ -131,8 +115,6 @@
         Margin="0,0,0,10"
         Style="{StaticResource ActionButtonStyle}"
         Click="SaveProfile_Click"/>
-
-
                     <StackPanel Orientation="Horizontal">
                         
                         <Button Content="Сменить пароль"
