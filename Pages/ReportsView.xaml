@@ -2,25 +2,24 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:LibraryAccounting.Pages"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
-      d:DesignHeight="600"
-      d:DesignWidth="1000"
+      d:DesignHeight="700"
+      d:DesignWidth="1200"
       Background="#F4F1EC"
       Title="ReportsView">
 
     <Page.Resources>
-        <!-- Стиль для кнопок отчетов -->
-        <Style x:Key="ReportButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="38"/>
+        <!-- Стиль для кнопок -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="16,0"/>
-            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#2F4F4F"/>
-            <Setter Property="Background" Value="#FFFDF9"/>
-            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2F4F4F"/>
+            <Setter Property="BorderBrush" Value="#1F3A3A"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -38,29 +37,52 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#E8E4DD"/>
-                    <Setter Property="BorderBrush" Value="#2F4F4F"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#D4CFC8"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Стиль для активной кнопки -->
-        <Style x:Key="ActiveReportButtonStyle" TargetType="Button" BasedOn="{StaticResource ReportButtonStyle}">
-            <Setter Property="Background" Value="#2F4F4F"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#2F4F4F"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#1F3A3A"/>
                 </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#0F2A2A"/>
+                </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Стиль для DataGrid (улучшенный) -->
-        <Style x:Key="ModernDataGridStyle" TargetType="DataGrid">
+        <!-- Стиль для выделенной кнопки (Создать отчет) -->
+        <Style x:Key="HighlightButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#2F6F6F"/>
+            <Setter Property="BorderBrush" Value="#1F5F5F"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1F5F5F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для кнопок удаления -->
+        <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#5F3E40"/>
+            <Setter Property="BorderBrush" Value="#4A2F30"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4A2F30"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для второстепенных кнопок -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="Foreground" Value="#2F4F4F"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F4F1EC"/>
+                    <Setter Property="BorderBrush" Value="#2F4F4F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для DataGrid -->
+        <Style x:Key="BooksDataGridStyle" TargetType="DataGrid">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="BorderBrush" Value="#D4CFC8"/>
@@ -68,75 +90,32 @@
             <Setter Property="Background" Value="#FFFDF9"/>
             <Setter Property="RowBackground" Value="#FFFDF9"/>
             <Setter Property="AlternatingRowBackground" Value="#F9F8F6"/>
-            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#E8E4DD"/>
             <Setter Property="HorizontalGridLinesBrush" Value="#E8E4DD"/>
-            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="SelectionUnit" Value="FullRow"/>
-            <Setter Property="CanUserSortColumns" Value="True"/>
-            <Setter Property="CanUserReorderColumns" Value="False"/>
-            <Setter Property="CanUserResizeColumns" Value="True"/>
-            <Setter Property="RowHeight" Value="45"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
         </Style>
 
         <!-- Стиль для заголовков колонок -->
-        <Style x:Key="ModernColumnHeaderStyle" TargetType="DataGridColumnHeader">
+        <Style x:Key="BooksDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="Height" Value="45"/>
             <Setter Property="Background" Value="#2F4F4F"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderBrush" Value="#1F3A3A"/>
-            <Setter Property="BorderThickness" Value="0,0,1,0"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Padding" Value="12,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DataGridColumnHeader">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <Grid>
-                                <ContentPresenter Margin="{TemplateBinding Padding}"
-                                                  VerticalAlignment="Center"/>
-                                <Path x:Name="SortArrow"
-                                      HorizontalAlignment="Right"
-                                      VerticalAlignment="Center"
-                                      Width="8"
-                                      Height="6"
-                                      Margin="0,0,12,0"
-                                      Fill="White"
-                                      Visibility="Collapsed"
-                                      Data="M 0,0 L 4,4 L 8,0 Z"/>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="SortDirection" Value="Ascending">
-                                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="SortArrow" Property="Data" Value="M 0,4 L 4,0 L 8,4 Z"/>
-                            </Trigger>
-                            <Trigger Property="SortDirection" Value="Descending">
-                                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="SortArrow" Property="Data" Value="M 0,0 L 4,4 L 8,0 Z"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="BorderBrush" Value="#1F3A3A"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
         </Style>
 
-        <!-- Стиль для строк таблицы -->
-        <Style x:Key="ModernRowStyle" TargetType="DataGridRow">
+        <!-- Стиль для строк -->
+        <Style x:Key="BooksDataGridRowStyle" TargetType="DataGridRow">
             <Setter Property="Background" Value="#FFFDF9"/>
-            <Setter Property="BorderBrush" Value="#E8E4DD"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="#D4E8E8"/>
-                    <Setter Property="BorderBrush" Value="#2F4F4F"/>
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#F0EDE8"/>
@@ -145,22 +124,11 @@
         </Style>
 
         <!-- Стиль для ячеек -->
-        <Style x:Key="ModernCellStyle" TargetType="DataGridCell">
+        <Style x:Key="BooksDataGridCellStyle" TargetType="DataGridCell">
             <Setter Property="Padding" Value="12,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DataGridCell">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="BorderBrush" Value="#E8E4DD"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="#D4E8E8"/>
@@ -168,18 +136,11 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
-        <!-- Стиль для заголовка панели -->
-        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#2F4F4F"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-        </Style>
     </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -187,242 +148,322 @@
         </Grid.RowDefinitions>
 
         <!-- Заголовок страницы -->
-        <Border Grid.Row="0"
-                Background="#FFFDF9"
-                BorderBrush="#C8BFAF"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="20"
+        <Border Grid.Row="0" 
+                Background="#FFFDF9" 
+                BorderBrush="#C8BFAF" 
+                BorderThickness="1" 
+                CornerRadius="10" 
+                Padding="20" 
                 Margin="0,0,0,20">
-
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel>
-                    <TextBlock Text="📊 Отчёты"
-                               FontSize="24"
-                               FontWeight="SemiBold"
-                               Foreground="#2F4F4F"/>
-                    <TextBlock Text="Аналитика и контроль работы библиотеки"
-                               FontSize="13"
-                               Foreground="#6F6F6F"
-                               Margin="0,4,0,0"/>
-                </StackPanel>
-
-                <!-- Информационная панель -->
-                <Border Grid.Column="1"
-                        Background="#F4F1EC"
-                        CornerRadius="6"
-                        Padding="10,5">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="ReportInfoText" 
-                                   Text="Готов к работе"
-                                   Foreground="#2F4F4F"
-                                   FontSize="12"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Border>
-
-        <!-- Панель фильтров (общая для всех отчетов) -->
-        <Border Grid.Row="1"
-                Background="#FFFDF9"
-                BorderBrush="#C8BFAF"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="15"
-                Margin="0,0,0,20">
-
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Text="📅 Период:" 
-                           VerticalAlignment="Center" 
-                           Foreground="#2F4F4F"
+            <StackPanel>
+                <TextBlock Text="Отчёты"
+                           FontSize="22"
                            FontWeight="SemiBold"
-                           Margin="0,0,10,0"/>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <DatePicker x:Name="DateFrom" 
-                                Width="130" 
-                                Height="32"
-                                SelectedDate="{x:Null}"
-                                FontSize="12"/>
-                    <TextBlock Text="—" 
-                               VerticalAlignment="Center" 
-                               Margin="8,0"
-                               Foreground="#6F6F6F"/>
-                    <DatePicker x:Name="DateTo" 
-                                Width="130" 
-                                Height="32"
-                                SelectedDate="{x:Null}"
-                                FontSize="12"/>
-                    <Button Content="Применить"
-                            Width="80"
-                            Height="32"
-                            Margin="12,0,0,0"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="ApplyFilter_Click"/>
-                    <Button Content="Сбросить"
-                            Width="80"
-                            Height="32"
-                            Margin="8,0,0,0"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="ResetFilter_Click"/>
-                </StackPanel>
-
-                <!-- Кнопка экспорта -->
-                <Button Grid.Column="2"
-                        Content="📎 Экспорт в Excel"
-                        Width="140"
-                        Height="32"
-                        Style="{StaticResource ReportButtonStyle}"
-                        Click="ExportToExcel_Click"/>
-            </Grid>
+                           Foreground="#2F4F4F"/>
+                <TextBlock Text="Аналитика и контроль работы библиотеки"
+                           FontSize="13"
+                           Foreground="#6F6F6F"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
         </Border>
 
-        <!-- Панель выбора отчета и таблица -->
-        <Border Grid.Row="2"
-                Background="#FFFDF9"
-                BorderBrush="#C8BFAF"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="15">
-
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <!-- Заголовок секции отчетов -->
-                <TextBlock Grid.Row="0" 
-                           Text="📋 Доступные отчеты"
-                           Style="{StaticResource SectionHeaderStyle}"/>
-
-                <!-- Кнопки отчетов -->
-                <WrapPanel Grid.Row="1" Margin="0,0,0,16">
-                    <Button x:Name="IssuedBooksBtn"
-                            Content="📚 Выданные книги"
-                            Width="160"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="IssuedBooks_Click"/>
-
-                    <Button x:Name="OverdueBtn"
-                            Content="⚠️ Просрочки"
-                            Width="140"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="Overdue_Click"/>
-
-                    <Button x:Name="PopularBooksBtn"
-                            Content="⭐ Популярные книги"
-                            Width="180"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="PopularBooks_Click"/>
-
-                    <Button x:Name="ActiveReadersBtn"
-                            Content="👥 Активные читатели"
-                            Width="160"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="ActiveReaders_Click"/>
-
-                    <Button x:Name="GenreStatsBtn"
-                            Content="📖 По жанрам"
-                            Width="130"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="GenreStats_Click"/>
-                </WrapPanel>
-
-                <!-- Заголовок текущего отчета -->
-                <Border Grid.Row="2"
-                        Background="#F4F1EC"
-                        CornerRadius="6"
-                        Padding="12,8"
-                        Margin="0,0,0,12">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="CurrentReportTitle" 
-                                   Text="Выберите отчет из списка выше"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"
-                                   Foreground="#2F4F4F"/>
-                        <TextBlock x:Name="RecordsCount" 
-                                   Text=""
-                                   FontSize="12"
-                                   Foreground="#6F6F6F"
-                                   Margin="12,0,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- DataGrid с улучшенным стилем -->
-                <DataGrid x:Name="ReportsDataGrid"
-                          Grid.Row="3"
-                          Style="{StaticResource ModernDataGridStyle}"
-                          ColumnHeaderStyle="{StaticResource ModernColumnHeaderStyle}"
-                          RowStyle="{StaticResource ModernRowStyle}"
-                          CellStyle="{StaticResource ModernCellStyle}"
-                          AutoGenerateColumns="True"
-                          CanUserAddRows="False"
-                          CanUserDeleteRows="False"
-                          IsReadOnly="True">
-
-                    <!-- Настройка поведения -->
-                    <DataGrid.Resources>
-                        <!-- Форматирование дат -->
-                        <Style TargetType="DataGridCell">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=Column.Header, RelativeSource={RelativeSource Self}}" 
-                                             Value="LoanDate">
-                                    <Setter Property="ContentStringFormat" Value="dd.MM.yyyy"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Path=Column.Header, RelativeSource={RelativeSource Self}}" 
-                                             Value="DueDate">
-                                    <Setter Property="ContentStringFormat" Value="dd.MM.yyyy"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.Resources>
-                </DataGrid>
-
-                <!-- Индикатор загрузки -->
-                <StackPanel x:Name="LoadingPanel" 
-                            Grid.Row="3" 
-                            HorizontalAlignment="Center" 
-                            VerticalAlignment="Center"
-                            Visibility="Collapsed">
-                    <Border Background="White" 
-                            CornerRadius="8" 
-                            Padding="20" 
-                            Opacity="0.9">
-                        <StackPanel>
-                            <TextBlock Text="⏳" 
-                                       FontSize="30" 
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="Загрузка данных..." 
-                                       Margin="0,10,0,0"
-                                       Foreground="#2F4F4F"/>
+        <!-- Панель параметров -->
+        <Border Grid.Row="1" 
+                Background="#FFFDF9" 
+                BorderBrush="#C8BFAF" 
+                BorderThickness="1" 
+                CornerRadius="10" 
+                Padding="15" 
+                Margin="0,0,0,20">
+            <StackPanel>
+                <!-- Строка 1: Поиск, сортировка, период -->
+                <WrapPanel Margin="0,0,0,15">
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10,5" Margin="0,0,15,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Поиск:" VerticalAlignment="Center" 
+                                       Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <TextBox x:Name="SearchBox" Width="200" Height="30"
+                                     TextChanged="SearchBox_TextChanged"/>
                         </StackPanel>
                     </Border>
+
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10,5" Margin="0,0,15,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Сортировка:" VerticalAlignment="Center" 
+                                       Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="SortByCombo" Width="150" Height="30" 
+                                      SelectionChanged="SortByCombo_SelectionChanged">
+                                <ComboBoxItem Content="По умолчанию"/>
+                                <ComboBoxItem Content="По названию (А-Я)"/>
+                                <ComboBoxItem Content="По названию (Я-А)"/>
+                                <ComboBoxItem Content="По дате (сначала новые)"/>
+                                <ComboBoxItem Content="По дате (сначала старые)"/>
+                                <ComboBoxItem Content="По количеству (убыв.)"/>
+                                <ComboBoxItem Content="По количеству (возр.)"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10,5">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Период:" VerticalAlignment="Center" 
+                                       Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <DatePicker x:Name="DateFrom" Width="110" Height="30"/>
+                            <TextBlock Text="—" VerticalAlignment="Center" Margin="8,0"/>
+                            <DatePicker x:Name="DateTo" Width="110" Height="30"/>
+                            <Button x:Name="ApplyFilterBtn" 
+                                    Content="Применить" 
+                                    Width="80" 
+                                    Height="30" 
+                                    Margin="10,0,0,0"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="ApplyFilter_Click"/>
+                            <Button x:Name="ResetFilterBtn" 
+                                    Content="Сбросить" 
+                                    Width="80" 
+                                    Height="30" 
+                                    Margin="5,0,0,0"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="ResetFilter_Click"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <!-- Строка 2: Быстрые фильтры и экспорт -->
+                <WrapPanel>
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10,5" Margin="0,0,15,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Быстрые фильтры:" VerticalAlignment="Center" 
+                                       Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <Button Content="Сегодня" Width="70" Height="30" Margin="0,0,5,0"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="QuickFilterToday_Click"/>
+                            <Button Content="Неделя" Width="70" Height="30" Margin="0,0,5,0"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="QuickFilterWeek_Click"/>
+                            <Button Content="Месяц" Width="70" Height="30" Margin="0,0,5,0"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="QuickFilterMonth_Click"/>
+                            <Button Content="Квартал" Width="70" Height="30"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="QuickFilterQuarter_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10,5">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Экспорт:" VerticalAlignment="Center" 
+                                       Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <Button x:Name="ExportCSVBtn" 
+                                    Content="CSV" 
+                                    Width="70" Height="30"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Click="ExportToCSV_Click"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Кнопки отчетов -->
+        <WrapPanel Grid.Row="2" Margin="0,0,0,15">
+            <Button x:Name="IssuedBooksBtn" 
+                    Content="Выданные книги" 
+                    Width="140" Height="35" Margin="0,0,10,0"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Click="IssuedBooks_Click"/>
+
+            <Button x:Name="OverdueBtn" 
+                    Content="Просрочки" 
+                    Width="120" Height="35" Margin="0,0,10,0"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Click="Overdue_Click"/>
+
+            <Button x:Name="PopularBooksBtn" 
+                    Content="Популярные книги" 
+                    Width="150" Height="35" Margin="0,0,10,0"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Click="PopularBooks_Click"/>
+
+            <Button x:Name="ActiveReadersBtn" 
+                    Content="Активные читатели" 
+                    Width="150" Height="35" Margin="0,0,10,0"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Click="ActiveReaders_Click"/>
+
+            <Button x:Name="GenreStatsBtn" 
+                    Content="По жанрам" 
+                    Width="120" Height="35" Margin="0,0,10,0"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Click="GenreStats_Click"/>
+
+            <!-- Выделенная кнопка Создать отчет -->
+            <Button x:Name="CustomReportBtn" 
+                    Content="Создать отчет" 
+                    Width="150" Height="35" Margin="10,0,0,0"
+                    Style="{StaticResource HighlightButtonStyle}"
+                    Click="CustomReport_Click"/>
+        </WrapPanel>
+
+        <!-- Заголовок текущего отчета -->
+        <Border Grid.Row="3" 
+                Background="#F4F1EC" 
+                CornerRadius="6" 
+                Padding="12,8" 
+                Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="CurrentReportTitle" 
+                               Text="Выберите отчет из списка выше"
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Foreground="#2F4F4F"/>
+                    <TextBlock x:Name="RecordsCount" 
+                               Text="" 
+                               FontSize="12" 
+                               Foreground="#6F6F6F" 
+                               Margin="12,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Нижняя панель с итогами -->
-        <Border Grid.Row="3"
-                Background="#FFFDF9"
-                BorderBrush="#C8BFAF"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="15"
-                Margin="0,20,0,0">
+        <!-- DataGrid -->
+        <DataGrid x:Name="ReportsDataGrid" 
+                  Grid.Row="3"
+                  Margin="0,50,0,0"
+                  AutoGenerateColumns="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  IsReadOnly="True"
+                  Style="{StaticResource BooksDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                  RowStyle="{StaticResource BooksDataGridRowStyle}"
+                  CellStyle="{StaticResource BooksDataGridCellStyle}"/>
 
+        <!-- Панель создания отчета (изначально скрыта) -->
+        <Border x:Name="CustomReportPanel" 
+        Grid.Row="3"
+        Background="#FFFDF9" 
+        BorderBrush="#C8BFAF" 
+        BorderThickness="1" 
+        CornerRadius="10" 
+        Padding="15"
+        Margin="0,50,0,0"
+        Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="450">
+                <StackPanel Margin="0">
+
+                    <TextBlock Text="Конструктор отчетов" FontSize="16" 
+                       FontWeight="Bold" Foreground="#2F4F4F" Margin="0,0,0,15"/>
+
+                    <!-- Выбор типа отчета -->
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Тип отчета:" VerticalAlignment="Center" 
+                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                            <ComboBox x:Name="ReportTypeCombo" Grid.Column="1" Width="200" Height="28"
+                              SelectionChanged="ReportTypeCombo_SelectionChanged">
+                                <ComboBoxItem Content="Выдача книг" IsSelected="True"/>
+                                <ComboBoxItem Content="Читатели"/>
+                                <ComboBoxItem Content="Книжный фонд"/>
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- Выбор полей -->
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Поля для отображения:" 
+                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <ListBox x:Name="FieldsListBox" Grid.Row="1" Height="120" 
+                             SelectionMode="Multiple"
+                             BorderBrush="#C8BFAF" BorderThickness="1">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}"
+                                          Margin="5,2"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- Дополнительные параметры в одной строке -->
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Тип визуализации:" VerticalAlignment="Center" 
+                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="VisualTypeCombo" Grid.Column="1" Width="150" Height="28">
+                                <ComboBoxItem Content="Таблица" IsSelected="True"/>
+                                <ComboBoxItem Content="Столбчатая диаграмма"/>
+                                <ComboBoxItem Content="Круговая диаграмма"/>
+                                <ComboBoxItem Content="Линейный график"/>
+                            </ComboBox>
+
+                            <TextBlock Text="Лимит:" Grid.Column="2" VerticalAlignment="Center" 
+                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="15,0,10,0"/>
+                            <TextBox x:Name="LimitTextBox" Grid.Column="3" Text="100" Width="80" Height="28" 
+                             TextAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Кнопки -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
+                        <Button Content="Предпросмотр" Width="100" Height="32" Margin="0,0,8,0"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Click="PreviewCustomReport_Click"/>
+                        <Button Content="Экспорт" Width="80" Height="32" Margin="0,0,8,0"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Click="ExportCustomReport_Click"/>
+                        <Button Content="Закрыть" Width="80" Height="32"
+                        Style="{StaticResource DeleteButtonStyle}"
+                        Click="CloseCustomReport_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Индикатор загрузки -->
+        <StackPanel x:Name="LoadingPanel" 
+                    Grid.Row="3" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed">
+            <Border Background="White" CornerRadius="8" Padding="20" Opacity="0.9">
+                <StackPanel>
+                    <TextBlock Text="Загрузка..." Margin="0,10,0,0" Foreground="#2F4F4F"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Нижняя панель с итогами -->
+        <Border x:Name="BottomPanel" 
+        Grid.Row="4" 
+        Background="#FFFDF9" 
+        BorderBrush="#C8BFAF" 
+        BorderThickness="1" 
+        CornerRadius="10" 
+        Padding="15" 
+        Margin="0,20,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -430,27 +471,28 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="📌 Итого:" 
-                               Foreground="#2F4F4F" 
-                               FontWeight="SemiBold"
-                               Margin="0,0,15,0"/>
+                    <TextBlock Text="Итого:" 
+                       Foreground="#2F4F4F" 
+                       FontWeight="SemiBold" 
+                       Margin="0,0,15,0"/>
                     <TextBlock x:Name="SummaryText" 
-                               Text=""
-                               Foreground="#6F6F6F"/>
+                       Text="" 
+                       Foreground="#6F6F6F"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="🖨️ Печать"
-                            Width="90"
-                            Height="30"
-                            Margin="0,0,10,0"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="Print_Click"/>
-                    <Button Content="📋 Копировать"
-                            Width="100"
-                            Height="30"
-                            Style="{StaticResource ReportButtonStyle}"
-                            Click="CopyToClipboard_Click"/>
+                    <Button x:Name="BackToConstructorBtn" 
+                    Content="Назад к конструктору" 
+                    Width="140" Height="30"
+                    Margin="0,0,10,0"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Visibility="Collapsed"
+                    Click="BackToConstructor_Click"/>
+                    <Button x:Name="CopyBtn" 
+                    Content="Копировать" 
+                    Width="100" Height="30"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Click="CopyToClipboard_Click"/>
                 </StackPanel>
             </Grid>
         </Border>

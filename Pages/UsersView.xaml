@@ -4,21 +4,141 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
-      d:DesignHeight="600"
-      d:DesignWidth="1000"
+      d:DesignHeight="700"
+      d:DesignWidth="1200"
       Background="#F4F1EC">
+
+    <Page.Resources>
+        <!-- Стиль для кнопок -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2F4F4F"/>
+            <Setter Property="BorderBrush" Value="#1F3A3A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1F3A3A"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#0F2A2A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для кнопок удаления -->
+        <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#5F3E40"/>
+            <Setter Property="BorderBrush" Value="#4A2F30"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4A2F30"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для второстепенных кнопок -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="Foreground" Value="#2F4F4F"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F4F1EC"/>
+                    <Setter Property="BorderBrush" Value="#2F4F4F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для DataGrid -->
+        <Style x:Key="BooksDataGridStyle" TargetType="DataGrid">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#D4CFC8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="RowBackground" Value="#FFFDF9"/>
+            <Setter Property="AlternatingRowBackground" Value="#F9F8F6"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#E8E4DD"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E8E4DD"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+        </Style>
+
+        <!-- Стиль для заголовков колонок -->
+        <Style x:Key="BooksDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Background" Value="#2F4F4F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderBrush" Value="#1F3A3A"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+        </Style>
+
+        <!-- Стиль для строк -->
+        <Style x:Key="BooksDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#D4E8E8"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F0EDE8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для ячеек -->
+        <Style x:Key="BooksDataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#E8E4DD"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#D4E8E8"/>
+                    <Setter Property="Foreground" Value="#1F3A3A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- ===== ЗАГОЛОВОК И ДЕЙСТВИЯ ===== -->
-        <Border Background="#FFFDF9"
+        <Border Grid.Row="0"
+                Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
-                CornerRadius="8"
+                CornerRadius="10"
                 Padding="20"
                 Margin="0,0,0,20">
 
@@ -28,7 +148,6 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Заголовок -->
                 <StackPanel>
                     <TextBlock Text="Пользователи системы"
                                FontSize="22"
@@ -40,68 +159,131 @@
                                Margin="0,4,0,0"/>
                 </StackPanel>
 
-                <!-- Кнопки -->
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
-
+                    <Button Content="Экспорт CSV"
+                            Width="120"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="ExportCSV_Click"/>
                     <Button Content="Заблокировать"
-                            Width="140"
-                            Margin="0,0,10,0"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="#5F3E40"
+                            Width="120"
+                            Style="{StaticResource DeleteButtonStyle}"
                             Click="BlockButton_Click"/>
-
                     <Button Content="Разблокировать"
-                            Width="160"
-                            Margin="0,0,10,0"
+                            Width="120"
                             Style="{StaticResource ActionButtonStyle}"
-                            Background="#4F6F5F"
                             Click="UnblockButton_Click"/>
-
                     <Button Content="Удалить"
-                            Width="110"
-                            Style="{StaticResource ActionButtonStyle}"
+                            Width="100"
+                            Style="{StaticResource DeleteButtonStyle}"
                             Click="DeleteButton_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ===== ТАБЛИЦА ПОЛЬЗОВАТЕЛЕЙ ===== -->
+        <!-- ===== ФИЛЬТР И ПОИСК ===== -->
         <Border Grid.Row="1"
                 Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
-                CornerRadius="8"
-                Padding="15">
+                CornerRadius="10"
+                Padding="15"
+                Margin="0,0,0,20">
 
-            <DataGrid x:Name="UsersDataGrid"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      Style="{StaticResource BooksDataGridStyle}"
-                      ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-                      RowStyle="{StaticResource BooksDataGridRowStyle}"
-                      CellStyle="{StaticResource BooksDataGridCellStyle}"
-                      SelectionMode="Single"
-                      SelectionUnit="FullRow">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <DataGrid.Columns>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                    <DataGridTextColumn Header="Логин"
-                                        Binding="{Binding Login}"
-                                        Width="2*"/>
+                <!-- Поиск -->
+                <Border Grid.Column="0" Grid.Row="0" Background="#F4F1EC" CornerRadius="6" Padding="10,5" Margin="0,0,15,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Поиск:" VerticalAlignment="Center" 
+                                   Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                        <TextBox x:Name="SearchTextBox" Width="200" Height="30"
+                                 TextChanged="SearchTextBox_TextChanged"/>
+                    </StackPanel>
+                </Border>
 
-                    <DataGridTextColumn Header="Роль"
-                                        Binding="{Binding Role}"
-                                        Width="1.5*"/>
+                <!-- Фильтр по роли -->
+                <Border Grid.Column="1" Grid.Row="0" Background="#F4F1EC" CornerRadius="6" Padding="10,5" Margin="0,0,15,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Фильтр по роли:" VerticalAlignment="Center" 
+                                   Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                        <ComboBox x:Name="RoleFilterComboBox" Width="150" Height="30"
+                                  SelectionChanged="RoleFilterComboBox_SelectionChanged"/>
+                    </StackPanel>
+                </Border>
 
-                    <DataGridTextColumn Header="Статус"
-                                        Binding="{Binding Status}"
-                                        Width="1.5*"/>
+                <!-- Фильтр по статусу -->
+                <Border Grid.Column="2" Grid.Row="0" Background="#F4F1EC" CornerRadius="6" Padding="10,5" Margin="0,0,15,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Фильтр по статусу:" VerticalAlignment="Center" 
+                                   Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                        <ComboBox x:Name="StatusFilterComboBox" Width="120" Height="30"
+                                  SelectionChanged="StatusFilterComboBox_SelectionChanged">
+                            <ComboBoxItem Content="Все" IsSelected="True"/>
+                            <ComboBoxItem Content="Активен"/>
+                            <ComboBoxItem Content="Заблокирован"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
 
-                </DataGrid.Columns>
-            </DataGrid>
+                <!-- Кнопка сброса -->
+                <Button Grid.Column="3" Grid.Row="0"
+                        Content="Сбросить фильтры"
+                        Width="120" Height="35"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Click="ResetFilters_Click"/>
+            </Grid>
+        </Border>
 
+        <!-- ===== ТАБЛИЦА ПОЛЬЗОВАТЕЛЕЙ ===== -->
+        <Border Grid.Row="2"
+        Background="#FFFDF9"
+        BorderBrush="#C8BFAF"
+        BorderThickness="1"
+        CornerRadius="10"
+        Padding="15">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <DataGrid x:Name="UsersDataGrid"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserSortColumns="True"
+                  Sorting="UsersDataGrid_Sorting"
+                  Style="{StaticResource BooksDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                  RowStyle="{StaticResource BooksDataGridRowStyle}"
+                  CellStyle="{StaticResource BooksDataGridCellStyle}"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Логин" Binding="{Binding Login}" Width="120"/>
+                        <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}" Width="120"/>
+                        <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="120"/>
+                        <DataGridTextColumn Header="Отчество" Binding="{Binding MiddleName}" Width="120"/>
+                        <DataGridTextColumn Header="Роль" Binding="{Binding Role}" Width="100"/>
+                        <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="100"/>
+                        <DataGridTextColumn Header="Стаж (лет)" Binding="{Binding Experience}" Width="80"/>
+                        <DataGridTextColumn Header="Дата рождения" Binding="{Binding BirthDate}" Width="100"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="180"/>
+                        <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="120"/>
+                        <DataGridTextColumn Header="Дата регистрации" Binding="{Binding RegistrationDate}" Width="130"/>
+                        <DataGridTextColumn Header="Последний вход" Binding="{Binding LastLoginDate}" Width="130"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
         </Border>
     </Grid>
 </Page>

@@ -83,10 +83,11 @@
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Padding="10"
-                                 FontSize="14" MaxLength="50"/>
+                                 FontSize="14" 
+                                 MaxLength="50"/>
                     </Border>
 
-                    <!-- Пароль -->
+                    <!-- Пароль с кнопкой показа -->
                     <TextBlock Text="Пароль"
                                FontWeight="SemiBold"
                                Foreground="#3A3A3A"/>
@@ -97,28 +98,48 @@
                             BorderThickness="1"
                             Margin="0,6,0,24">
 
-                        <PasswordBox x:Name="PasswordBox"
-                                     Height="36"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     Padding="10"
-                                     FontSize="14" MaxLength="50"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <PasswordBox x:Name="PasswordBox"
+                                         Height="36"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="10"
+                                         FontSize="14"
+                                         MaxLength="50"/>
+
+                            <Button x:Name="TogglePasswordBtn"
+                                    Grid.Column="1"
+                                    Content="👁️"
+                                    Width="30"
+                                    Height="30"
+                                    Margin="0,0,5,0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    FontSize="14"
+                                    Click="TogglePassword_Click"/>
+                        </Grid>
                     </Border>
 
-                    <!-- Кнопка -->
+                    <!-- Кнопка входа -->
                     <Border CornerRadius="5"
-        Background="#2F4F4F"
-        Margin="0,0,0,0">
+                            Background="#2F4F4F"
+                            Margin="0,0,0,0">
 
                         <Button Content="Войти"
-            Height="40"
-            FontSize="14"
-            FontWeight="SemiBold"
-            Background="Transparent"
-            Foreground="White"
-            BorderThickness="0"
-            Cursor="Hand"
-            Click="LoginButton_Click"/>
+                                Height="40"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Background="Transparent"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Click="LoginButton_Click"/>
                     </Border>
 
                     <!-- Переход на регистрацию -->

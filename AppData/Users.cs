@@ -23,6 +23,12 @@ namespace LibraryAccounting.AppData
         public string middle_name { get; set; }
         public bool IsBlocked { get; set; }
         public byte[] Photo { get; set; }
+        public Nullable<int> ExperienceYears { get; set; }
+        public Nullable<System.DateTime> BirthDate { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public Nullable<System.DateTime> RegistrationDate { get; set; }
+        public Nullable<System.DateTime> LastLoginDate { get; set; }
     
         public virtual Roles Roles { get; set; }
     }

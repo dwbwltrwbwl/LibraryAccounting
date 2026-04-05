@@ -98,6 +98,12 @@
           <Property Name="RoleId" Type="int" />
           <Property Name="IsBlocked" Type="bit" Nullable="false" />
           <Property Name="Photo" Type="varbinary(max)" />
+          <Property Name="ExperienceYears" Type="int" />
+          <Property Name="BirthDate" Type="date" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" />
+          <Property Name="Phone" Type="nvarchar" MaxLength="20" />
+          <Property Name="RegistrationDate" Type="datetime" />
+          <Property Name="LastLoginDate" Type="datetime" />
         </EntityType>
         <Association Name="FK_BookCopies_Books">
           <End Role="Books" Type="Self.Books" Multiplicity="1" />
@@ -315,6 +321,12 @@
           <Property Name="middle_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="IsBlocked" Type="Boolean" Nullable="false" />
           <Property Name="Photo" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="ExperienceYears" Type="Int32" />
+          <Property Name="BirthDate" Type="DateTime" Precision="0" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Phone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="RegistrationDate" Type="DateTime" Precision="3" />
+          <Property Name="LastLoginDate" Type="DateTime" Precision="3" />
         </EntityType>
         <Association Name="FK_Books_Authors">
           <End Role="Authors" Type="Self.Authors" Multiplicity="1" />
@@ -520,6 +532,12 @@
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="LibraryAccountingModel.Users">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="LastLoginDate" ColumnName="LastLoginDate" />
+                <ScalarProperty Name="RegistrationDate" ColumnName="RegistrationDate" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="BirthDate" ColumnName="BirthDate" />
+                <ScalarProperty Name="ExperienceYears" ColumnName="ExperienceYears" />
                 <ScalarProperty Name="Photo" ColumnName="Photo" />
                 <ScalarProperty Name="IsBlocked" ColumnName="IsBlocked" />
                 <ScalarProperty Name="middle_name" ColumnName="middle_name" />

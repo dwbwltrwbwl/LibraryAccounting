@@ -13,7 +13,8 @@ namespace LibraryAccounting.Windows
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            Close();
+            DialogResult = true;
+            this.Close();
         }
     }
 }

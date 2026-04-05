@@ -31,22 +31,17 @@
                        TextWrapping="Wrap"
                        Margin="0,0,0,25"/>
 
-            <!-- Кнопка -->
-            <Border CornerRadius="6"
-        Background="#2F4F4F"
-        HorizontalAlignment="Center">
-
-                <Button Content="OK"
-            Width="90"
-            Height="34"
-            Background="Transparent"
-            Foreground="White"
-            BorderThickness="0"
-            Cursor="Hand"
-            Click="OkButton_Click"/>
-            </Border>
-
-
+            <!-- Кнопка OK - убедитесь, что она есть -->
+            <Button x:Name="OkButton"
+                    Content="OK"
+                    Width="90"
+                    Height="34"
+                    HorizontalAlignment="Center"
+                    Background="#2F4F4F"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="OkButton_Click"/>
         </StackPanel>
     </Border>
 </Window>
