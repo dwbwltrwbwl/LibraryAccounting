@@ -12,22 +12,10 @@ namespace LibraryAccounting.AppData
     using System;
     using System.Collections.Generic;
     
-    public partial class Authors
+    public partial class Publishers
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Authors()
-        {
-            this.Books = new HashSet<Books>();
-        }
-    
-        public int AuthorId { get; set; }
-        public string FullName { get; set; }
-        public Nullable<System.DateTime> BirthDate { get; set; }
-        public Nullable<System.DateTime> DeathDate { get; set; }
-        public string Country { get; set; }
+        public int PublisherId { get; set; }
+        public string PublisherName { get; set; }
         public string City { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Books> Books { get; set; }
     }
 }

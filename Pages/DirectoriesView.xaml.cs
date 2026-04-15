@@ -17,15 +17,18 @@ namespace LibraryAccounting.Pages
     {
         private List<Genres> allGenres = new List<Genres>();
         private List<Authors> allAuthors = new List<Authors>();
+        private List<Publishers> allPublishers = new List<Publishers>();
 
         private string currentGenreSortColumn = "Name";
         private ListSortDirection currentGenreSortDirection = ListSortDirection.Ascending;
-
         private string currentAuthorSortColumn = "FullName";
         private ListSortDirection currentAuthorSortDirection = ListSortDirection.Ascending;
+        private string currentPublisherSortColumn = "PublisherName";
+        private ListSortDirection currentPublisherSortDirection = ListSortDirection.Ascending;
 
         private bool isGenreGrouping = false;
         private bool isAuthorGrouping = false;
+        private bool isPublisherGrouping = false;
 
         public DirectoriesView()
         {
@@ -54,9 +57,11 @@ namespace LibraryAccounting.Pages
 
             allGenres = AppConnect.model01.Genres.ToList();
             allAuthors = AppConnect.model01.Authors.ToList();
+            allPublishers = AppConnect.model01.Publishers.ToList();
 
             ApplyGenreFiltersAndSort();
             ApplyAuthorFiltersAndSort();
+            ApplyPublisherFiltersAndSort();
         }
 
         #region Жанры
@@ -71,7 +76,10 @@ namespace LibraryAccounting.Pages
             string searchText = GenreSearchTextBox?.Text?.Trim().ToLower() ?? "";
             if (!string.IsNullOrEmpty(searchText))
             {
-                filtered = filtered.Where(g => g.Name.ToLower().Contains(searchText));
+                filtered = filtered.Where(g =>
+    g.Name.ToLower().Contains(searchText) ||
+    (g.Description != null && g.Description.ToLower().Contains(searchText))
+);
             }
 
             // Сортировка
@@ -105,6 +113,10 @@ namespace LibraryAccounting.Pages
                     return currentGenreSortDirection == ListSortDirection.Ascending
                         ? genres.OrderBy(g => g.Name)
                         : genres.OrderByDescending(g => g.Name);
+                case "AgeRating":
+                    return currentGenreSortDirection == ListSortDirection.Ascending
+                        ? genres.OrderBy(g => g.AgeRating)
+                        : genres.OrderByDescending(g => g.AgeRating);
                 default:
                     return currentGenreSortDirection == ListSortDirection.Ascending
                         ? genres.OrderBy(g => g.Name)
@@ -273,7 +285,11 @@ namespace LibraryAccounting.Pages
             string searchText = AuthorSearchTextBox?.Text?.Trim().ToLower() ?? "";
             if (!string.IsNullOrEmpty(searchText))
             {
-                filtered = filtered.Where(a => a.FullName.ToLower().Contains(searchText));
+                filtered = filtered.Where(a =>
+    a.FullName.ToLower().Contains(searchText) ||
+    (a.Country != null && a.Country.ToLower().Contains(searchText)) ||
+    (a.City != null && a.City.ToLower().Contains(searchText))
+);
             }
 
             // Сортировка
@@ -303,14 +319,24 @@ namespace LibraryAccounting.Pages
                     return currentAuthorSortDirection == ListSortDirection.Ascending
                         ? authors.OrderBy(a => a.AuthorId)
                         : authors.OrderByDescending(a => a.AuthorId);
+
                 case "FullName":
                     return currentAuthorSortDirection == ListSortDirection.Ascending
                         ? authors.OrderBy(a => a.FullName)
                         : authors.OrderByDescending(a => a.FullName);
-                default:
+
+                case "BirthDate":
                     return currentAuthorSortDirection == ListSortDirection.Ascending
-                        ? authors.OrderBy(a => a.FullName)
-                        : authors.OrderByDescending(a => a.FullName);
+                        ? authors.OrderBy(a => a.BirthDate)
+                        : authors.OrderByDescending(a => a.BirthDate);
+
+                case "Country":
+                    return currentAuthorSortDirection == ListSortDirection.Ascending
+                        ? authors.OrderBy(a => a.Country)
+                        : authors.OrderByDescending(a => a.Country);
+
+                default:
+                    return authors.OrderBy(a => a.FullName);
             }
         }
 
@@ -459,6 +485,146 @@ namespace LibraryAccounting.Pages
         {
             isAuthorGrouping = false;
             ApplyAuthorFiltersAndSort();
+        }
+
+        #endregion
+
+        #region Издательства
+
+        private void ApplyPublisherFiltersAndSort()
+        {
+            if (PublishersGrid == null) return;
+
+            var filtered = allPublishers.AsEnumerable();
+
+            string searchText = PublisherSearchTextBox?.Text?.Trim().ToLower() ?? "";
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                filtered = filtered.Where(p => p.PublisherName.ToLower().Contains(searchText));
+            }
+
+            var sorted = SortPublishers(filtered).ToList();
+
+            if (isPublisherGrouping)
+            {
+                var viewSource = new CollectionViewSource();
+                viewSource.Source = sorted;
+                viewSource.GroupDescriptions.Clear();
+                viewSource.GroupDescriptions.Add(new PropertyGroupDescription("PublisherName", new FirstLetterConverter()));
+
+                PublishersGrid.ItemsSource = viewSource.View;
+            }
+            else
+            {
+                PublishersGrid.ItemsSource = sorted;
+            }
+        }
+
+        private IEnumerable<Publishers> SortPublishers(IEnumerable<Publishers> publishers)
+        {
+            switch (currentPublisherSortColumn)
+            {
+                case "PublisherId":
+                    return currentPublisherSortDirection == ListSortDirection.Ascending
+                        ? publishers.OrderBy(p => p.PublisherId)
+                        : publishers.OrderByDescending(p => p.PublisherId);
+
+                case "PublisherName":
+                    return currentPublisherSortDirection == ListSortDirection.Ascending
+                        ? publishers.OrderBy(p => p.PublisherName)
+                        : publishers.OrderByDescending(p => p.PublisherName);
+
+                default:
+                    return publishers.OrderBy(p => p.PublisherName);
+            }
+        }
+
+        private bool IsPublisherExists(string name, int? excludeId = null)
+        {
+            name = name?.Trim();
+            return allPublishers.Any(p => p.PublisherName.ToLower() == name.ToLower() && p.PublisherId != excludeId);
+        }
+
+        private void AddPublisher_Click(object sender, RoutedEventArgs e)
+        {
+            string name = Prompt("Введите название издательства");
+            name = name?.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ShowError("Название издательства не может быть пустым");
+                return;
+            }
+
+            if (IsPublisherExists(name))
+            {
+                ShowError($"Издательство «{name}» уже существует");
+                return;
+            }
+
+            AppConnect.model01.Publishers.Add(new Publishers { PublisherName = name });
+            AppConnect.model01.SaveChanges();
+            LoadAll();
+        }
+
+        private void PublishersGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (!IsAdmin()) return;
+
+            var publisher = PublishersGrid.SelectedItem as Publishers;
+            if (publisher == null) return;
+
+            string newName = Prompt("Редактирование издательства", publisher.PublisherName);
+            newName = newName?.Trim();
+
+            if (string.IsNullOrWhiteSpace(newName))
+            {
+                ShowError("Название не может быть пустым");
+                return;
+            }
+
+            if (IsPublisherExists(newName, publisher.PublisherId))
+            {
+                ShowError($"Издательство «{newName}» уже существует");
+                return;
+            }
+
+            if (newName == publisher.PublisherName) return;
+
+            publisher.PublisherName = newName;
+            AppConnect.model01.SaveChanges();
+            LoadAll();
+        }
+
+        private void DeletePublisher_Click(object sender, RoutedEventArgs e)
+        {
+            var publisher = PublishersGrid.SelectedItem as Publishers;
+            if (publisher == null)
+            {
+                ShowError("Выберите издательство");
+                return;
+            }
+
+            //bool used = AppConnect.model01.Books.Any(b => b.PublisherId == publisher.PublisherId);
+            //if (used)
+            //{
+            //    ShowError("Нельзя удалить — используется в книгах");
+            //    return;
+            //}
+
+            var dialog = new DeleteMessageDialog("Удаление", $"Удалить «{publisher.PublisherName}»?");
+            dialog.Owner = Window.GetWindow(this);
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            AppConnect.model01.Publishers.Remove(publisher);
+            AppConnect.model01.SaveChanges();
+            LoadAll();
+        }
+        private void PublisherSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ApplyPublisherFiltersAndSort();
         }
 
         #endregion

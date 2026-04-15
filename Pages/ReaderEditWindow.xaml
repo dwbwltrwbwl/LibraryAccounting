@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Читатель"
-        Height="460"
+        Height="570"
         Width="420"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -23,22 +23,30 @@
                        Margin="0,0,0,20"/>
 
             <TextBlock Text="Фамилия"/>
-            <TextBox x:Name="LastNameBox"/>
+            <TextBox x:Name="LastNameBox" MaxLength="50" PreviewTextInput="OnlyLetters_PreviewTextInput"/>
 
             <TextBlock Text="Имя" Margin="0,10,0,0"/>
-            <TextBox x:Name="FirstNameBox"/>
+            <TextBox x:Name="FirstNameBox" MaxLength="50" PreviewTextInput="OnlyLetters_PreviewTextInput"/>
 
             <TextBlock Text="Отчество" Margin="0,10,0,0"/>
-            <TextBox x:Name="MiddleNameBox"/>
+            <TextBox x:Name="MiddleNameBox" MaxLength="50" PreviewTextInput="OnlyLetters_PreviewTextInput"/>
 
             <TextBlock Text="Телефон" Margin="0,10,0,0"/>
-            <TextBox x:Name="PhoneBox"/>
+            <TextBox x:Name="PhoneBox" MaxLength="18" PreviewTextInput="Phone_PreviewTextInput"
+         TextChanged="Phone_TextChanged"/>
 
             <TextBlock Text="Email" Margin="0,10,0,0"/>
-            <TextBox x:Name="EmailBox"/>
+            <TextBox x:Name="EmailBox" MaxLength="100"/>
 
             <TextBlock Text="Паспорт" Margin="0,10,0,0"/>
-            <TextBox x:Name="PassportBox"/>
+            <TextBox x:Name="PassportBox" MaxLength="10" PreviewTextInput="OnlyDigits_PreviewTextInput"/>
+
+            <TextBlock Text="Дата рождения" Margin="0,10,0,0"/>
+            <DatePicker x:Name="BirthDatePicker"/>
+
+            <TextBlock Text="Категория" Margin="0,10,0,0"/>
+            <ComboBox x:Name="CategoryBox"
+          Height="30"/>
 
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right"

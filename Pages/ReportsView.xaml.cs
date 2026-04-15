@@ -11,6 +11,9 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
+using LiveCharts;
+using LiveCharts.Wpf;
 
 namespace LibraryAccounting.Pages
 {
@@ -19,6 +22,7 @@ namespace LibraryAccounting.Pages
         private List<dynamic> currentReportData;
         private string currentReportName;
         private List<ReportField> availableFields;
+        private bool isCustomReport = false;
 
         public class ReportField : INotifyPropertyChanged
         {
@@ -52,6 +56,11 @@ namespace LibraryAccounting.Pages
             CurrentReportTitle.Text = "Отчет: Выданные книги";
             HideCustomReportPanel();
             ShowDataGrid();
+            SwitchViewBtn.Visibility = Visibility.Visible;
+            SwitchViewBtn.Content = "📊 График";
+
+            ReportsDataGrid.Columns.Clear();
+            ReportsDataGrid.AutoGenerateColumns = true;
 
             try
             {
@@ -74,6 +83,7 @@ namespace LibraryAccounting.Pages
                 ReportsDataGrid.ItemsSource = currentReportData;
                 UpdateStatistics();
                 RecordsCount.Text = $"{currentReportData.Count} записей";
+                isCustomReport = false;
             }
             catch (Exception ex)
             {
@@ -92,6 +102,11 @@ namespace LibraryAccounting.Pages
             CurrentReportTitle.Text = "Отчет: Просроченные книги";
             HideCustomReportPanel();
             ShowDataGrid();
+            SwitchViewBtn.Visibility = Visibility.Visible;
+            SwitchViewBtn.Content = "📊 График";
+
+            ReportsDataGrid.Columns.Clear();
+            ReportsDataGrid.AutoGenerateColumns = true;
 
             try
             {
@@ -119,6 +134,7 @@ namespace LibraryAccounting.Pages
                 ReportsDataGrid.ItemsSource = currentReportData;
                 UpdateStatistics();
                 RecordsCount.Text = $"{currentReportData.Count} просроченных книг";
+                isCustomReport = false;
             }
             catch (Exception ex)
             {
@@ -137,6 +153,11 @@ namespace LibraryAccounting.Pages
             CurrentReportTitle.Text = "Отчет: Популярные книги";
             HideCustomReportPanel();
             ShowDataGrid();
+            SwitchViewBtn.Visibility = Visibility.Visible;
+            SwitchViewBtn.Content = "📊 График";
+
+            ReportsDataGrid.Columns.Clear();
+            ReportsDataGrid.AutoGenerateColumns = true;
 
             try
             {
@@ -157,6 +178,7 @@ namespace LibraryAccounting.Pages
                 ReportsDataGrid.ItemsSource = currentReportData;
                 UpdateStatistics();
                 RecordsCount.Text = $"Топ {currentReportData.Count} книг";
+                isCustomReport = false;
             }
             catch (Exception ex)
             {
@@ -175,6 +197,11 @@ namespace LibraryAccounting.Pages
             CurrentReportTitle.Text = "Отчет: Активные читатели";
             HideCustomReportPanel();
             ShowDataGrid();
+            SwitchViewBtn.Visibility = Visibility.Visible;
+            SwitchViewBtn.Content = "📊 График";
+
+            ReportsDataGrid.Columns.Clear();
+            ReportsDataGrid.AutoGenerateColumns = true;
 
             try
             {
@@ -195,6 +222,7 @@ namespace LibraryAccounting.Pages
                 ReportsDataGrid.ItemsSource = currentReportData;
                 UpdateStatistics();
                 RecordsCount.Text = $"Топ {currentReportData.Count} читателей";
+                isCustomReport = false;
             }
             catch (Exception ex)
             {
@@ -213,6 +241,11 @@ namespace LibraryAccounting.Pages
             CurrentReportTitle.Text = "Отчет: Статистика по жанрам";
             HideCustomReportPanel();
             ShowDataGrid();
+            SwitchViewBtn.Visibility = Visibility.Visible;
+            SwitchViewBtn.Content = "📊 График";
+
+            ReportsDataGrid.Columns.Clear();
+            ReportsDataGrid.AutoGenerateColumns = true;
 
             try
             {
@@ -232,6 +265,7 @@ namespace LibraryAccounting.Pages
                 ReportsDataGrid.ItemsSource = currentReportData;
                 UpdateStatistics();
                 RecordsCount.Text = $"{currentReportData.Count} жанров";
+                isCustomReport = false;
             }
             catch (Exception ex)
             {
@@ -245,6 +279,229 @@ namespace LibraryAccounting.Pages
 
         #endregion
 
+        #region Переключение между таблицей и графиками
+
+        private void SwitchView_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentReportData == null || currentReportData.Count == 0)
+            {
+                ShowError("Нет данных для отображения");
+                return;
+            }
+
+            if (ReportsDataGrid.Visibility == Visibility.Visible)
+            {
+                ShowChartView();
+                SwitchViewBtn.Content = "📋 Таблица";
+            }
+            else
+            {
+                ShowDataGrid();
+                SwitchViewBtn.Content = "📊 График";
+            }
+        }
+
+        private void ShowChartView()
+        {
+            try
+            {
+                ReportsDataGrid.Visibility = Visibility.Collapsed;
+                ChartViewPanel.Visibility = Visibility.Visible;
+
+                BarChart.Visibility = Visibility.Collapsed;
+                PieChart.Visibility = Visibility.Collapsed;
+                LineChart.Visibility = Visibility.Collapsed;
+                ChartMessage.Text = "";
+
+                var chartData = PrepareChartData();
+
+                if (chartData.Labels.Count == 0 || chartData.Values.Count == 0)
+                {
+                    ChartMessage.Text = "Недостаточно данных для построения графика";
+                    return;
+                }
+
+                string chartType = DetermineChartType();
+
+                switch (chartType)
+                {
+                    case "Столбчатая диаграмма":
+                        ShowBarChart(chartData);
+                        break;
+                    case "Круговая диаграмма":
+                        ShowPieChart(chartData);
+                        break;
+                    case "Линейный график":
+                        ShowLineChart(chartData);
+                        break;
+                    default:
+                        ShowBarChart(chartData);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ChartMessage.Text = $"Ошибка построения графика: {ex.Message}";
+            }
+        }
+
+        private (List<string> Labels, List<double> Values) PrepareChartData()
+        {
+            var labels = new List<string>();
+            var values = new List<double>();
+
+            if (currentReportData == null || currentReportData.Count == 0)
+                return (labels, values);
+
+            // Пытаемся найти числовые поля
+            var firstItem = (object)currentReportData[0];
+            var props = firstItem.GetType().GetProperties();
+
+            string labelProp = null;
+            string valueProp = null;
+
+            foreach (var prop in props)
+            {
+                if (labelProp == null && prop.PropertyType == typeof(string))
+                    labelProp = prop.Name;
+
+                if (valueProp == null && (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(double) || prop.PropertyType == typeof(long)))
+                    valueProp = prop.Name;
+            }
+
+            // Если нашли и текстовое и числовое поле
+            if (labelProp != null && valueProp != null)
+            {
+                var grouped = currentReportData
+                    .Select(x => new
+                    {
+                        Label = ((object)x).GetType().GetProperty(labelProp).GetValue(x)?.ToString() ?? "Не указано",
+                        Value = Convert.ToDouble(((object)x).GetType().GetProperty(valueProp).GetValue(x) ?? 0)
+                    })
+                    .GroupBy(x => x.Label)
+                    .Select(g => new { Label = g.Key, Value = g.Sum(x => x.Value) })
+                    .OrderByDescending(x => x.Value)
+                    .Take(15)
+                    .ToList();
+
+                foreach (var item in grouped)
+                {
+                    var displayLabel = item.Label.Length > 30 ? item.Label.Substring(0, 27) + "..." : item.Label;
+                    labels.Add(displayLabel);
+                    values.Add(item.Value);
+                }
+            }
+            else if (labelProp != null)
+            {
+                // Только текстовое поле - считаем количество
+                var grouped = currentReportData
+                    .Select(x => ((object)x).GetType().GetProperty(labelProp).GetValue(x)?.ToString() ?? "Не указано")
+                    .GroupBy(x => x)
+                    .Select(g => new { Label = g.Key, Count = g.Count() })
+                    .OrderByDescending(x => x.Count)
+                    .Take(15)
+                    .ToList();
+
+                foreach (var item in grouped)
+                {
+                    var displayLabel = item.Label.Length > 30 ? item.Label.Substring(0, 27) + "..." : item.Label;
+                    labels.Add(displayLabel);
+                    values.Add(item.Count);
+                }
+            }
+
+            return (labels, values);
+        }
+
+        private string DetermineChartType()
+        {
+            if (currentReportName.Contains("просроч"))
+                return "Линейный график";
+
+            if (currentReportData.Count <= 8)
+                return "Круговая диаграмма";
+
+            return "Столбчатая диаграмма";
+        }
+
+        private void ShowBarChart((List<string> Labels, List<double> Values) chartData)
+        {
+            BarChart.Visibility = Visibility.Visible;
+            BarChart.Series.Clear();
+            BarChart.AxisX.Clear();
+            BarChart.AxisY.Clear();
+
+            var series = new LiveCharts.Wpf.ColumnSeries
+            {
+                Title = currentReportName,
+                Values = new LiveCharts.ChartValues<double>(chartData.Values),
+                Fill = new SolidColorBrush(Color.FromRgb(47, 79, 79))
+            };
+
+            BarChart.Series.Add(series);
+            BarChart.AxisX.Add(new LiveCharts.Wpf.Axis
+            {
+                Labels = chartData.Labels,
+                LabelsRotation = 45,
+                Separator = new LiveCharts.Wpf.Separator { Step = 1 }
+            });
+            BarChart.AxisY.Add(new LiveCharts.Wpf.Axis
+            {
+                LabelFormatter = value => value.ToString("N0"),
+                MinValue = 0
+            });
+        }
+
+        private void ShowPieChart((List<string> Labels, List<double> Values) chartData)
+        {
+            PieChart.Visibility = Visibility.Visible;
+            PieChart.Series.Clear();
+
+            var series = new LiveCharts.Wpf.PieSeries
+            {
+                Title = currentReportName,
+                Values = new LiveCharts.ChartValues<double>(chartData.Values),
+                DataLabels = true,
+                LabelPoint = point => $"{point.Y:N0}"
+            };
+
+            PieChart.Series.Add(series);
+        }
+
+        private void ShowLineChart((List<string> Labels, List<double> Values) chartData)
+        {
+            LineChart.Visibility = Visibility.Visible;
+            LineChart.Series.Clear();
+            LineChart.AxisX.Clear();
+            LineChart.AxisY.Clear();
+
+            var series = new LiveCharts.Wpf.LineSeries
+            {
+                Title = currentReportName,
+                Values = new LiveCharts.ChartValues<double>(chartData.Values),
+                Fill = System.Windows.Media.Brushes.Transparent,
+                Stroke = new SolidColorBrush(Color.FromRgb(47, 79, 79)),
+                StrokeThickness = 2,
+                PointGeometry = LiveCharts.Wpf.DefaultGeometries.Circle,
+                PointGeometrySize = 8
+            };
+
+            LineChart.Series.Add(series);
+            LineChart.AxisX.Add(new LiveCharts.Wpf.Axis
+            {
+                Labels = chartData.Labels,
+                LabelsRotation = 45,
+                Separator = new LiveCharts.Wpf.Separator { Step = 1 }
+            });
+            LineChart.AxisY.Add(new LiveCharts.Wpf.Axis
+            {
+                LabelFormatter = value => value.ToString("N0"),
+                MinValue = 0
+            });
+        }
+
+        #endregion
+
         #region Создание своего отчета
 
         private void CustomReport_Click(object sender, RoutedEventArgs e)
@@ -252,8 +509,10 @@ namespace LibraryAccounting.Pages
             try
             {
                 ReportsDataGrid.Visibility = Visibility.Collapsed;
+                ChartViewPanel.Visibility = Visibility.Collapsed;
                 CustomReportPanel.Visibility = Visibility.Visible;
                 CurrentReportTitle.Text = "Конструктор отчетов";
+                SwitchViewBtn.Visibility = Visibility.Collapsed;
 
                 if (ReportTypeCombo.SelectedIndex == -1)
                 {
@@ -272,19 +531,24 @@ namespace LibraryAccounting.Pages
         {
             CustomReportPanel.Visibility = Visibility.Collapsed;
             ReportsDataGrid.Visibility = Visibility.Visible;
+            SwitchViewBtn.Visibility = Visibility.Visible;
+
             if (currentReportData != null)
             {
                 ReportsDataGrid.ItemsSource = currentReportData;
                 CurrentReportTitle.Text = currentReportName;
             }
+
+            RemoveBackButton();
         }
 
         private void BackToConstructor_Click(object sender, RoutedEventArgs e)
         {
-            // Возвращаемся к конструктору отчетов
             ReportsDataGrid.Visibility = Visibility.Collapsed;
+            ChartViewPanel.Visibility = Visibility.Collapsed;
             CustomReportPanel.Visibility = Visibility.Visible;
             CurrentReportTitle.Text = "Конструктор отчетов";
+            SwitchViewBtn.Visibility = Visibility.Collapsed;
             RemoveBackButton();
         }
 
@@ -324,8 +588,7 @@ namespace LibraryAccounting.Pages
                     {
                         new ReportField { Name = "Фамилия", FieldName = "LastName", IsSelected = true },
                         new ReportField { Name = "Имя", FieldName = "FirstName", IsSelected = true },
-                        new ReportField { Name = "Отчество", FieldName = "MiddleName", IsSelected = true },
-                        new ReportField { Name = "Телефон", FieldName = "Phone", IsSelected = true }
+                        new ReportField { Name = "Отчество", FieldName = "MiddleName", IsSelected = true }
                     });
                     break;
                 case "Книжный фонд":
@@ -360,82 +623,183 @@ namespace LibraryAccounting.Pages
                     return;
                 }
 
+                // Получаем выбранный тип визуализации
+                var selectedVisualType = (VisualTypeCombo.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Таблица";
+
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
                 var selectedType = (ReportTypeCombo.SelectedItem as ComboBoxItem)?.Content.ToString();
 
-                // Получаем данные в зависимости от типа
-                List<dynamic> fullReportData = new List<dynamic>();
+                ReportsDataGrid.Columns.Clear();
+
+                foreach (var field in selectedFields)
+                {
+                    ReportsDataGrid.Columns.Add(new DataGridTextColumn
+                    {
+                        Header = field.Name,
+                        Binding = new Binding(field.Name)
+                    });
+                }
+
+                List<dynamic> reportData = new List<dynamic>();
 
                 switch (selectedType)
                 {
                     case "Выдача книг":
                         var loans = AppConnect.model01.Loans.ToList();
-                        fullReportData = loans.Select(l => new
+                        foreach (var loan in loans)
                         {
-                            Читатель = l.Readers.last_name + " " + l.Readers.first_name + " " + (l.Readers.middle_name ?? ""),
-                            Книга = l.BookCopies.Books.Title,
-                            Инвентарный_номер = l.BookCopies.InventoryNumber,
-                            Дата_выдачи = l.LoanDate.ToString("dd.MM.yyyy"),
-                            Срок_возврата = l.DueDate.ToString("dd.MM.yyyy")
-                        }).Cast<dynamic>().ToList();
+                            var expando = new ExpandoObject();
+                            var dict = (IDictionary<string, object>)expando;
+
+                            foreach (var field in selectedFields)
+                            {
+                                switch (field.FieldName)
+                                {
+                                    case "Reader":
+                                        dict[field.Name] = loan.Readers.last_name + " " + loan.Readers.first_name + " " + (loan.Readers.middle_name ?? "");
+                                        break;
+                                    case "Book":
+                                        dict[field.Name] = loan.BookCopies.Books.Title;
+                                        break;
+                                    case "InventoryNumber":
+                                        dict[field.Name] = loan.BookCopies.InventoryNumber;
+                                        break;
+                                    case "LoanDate":
+                                        dict[field.Name] = loan.LoanDate;
+                                        break;
+                                    case "DueDate":
+                                        dict[field.Name] = loan.DueDate.ToString("dd.MM.yyyy");
+                                        break;
+                                }
+                            }
+                            reportData.Add(expando);
+                        }
                         break;
+
                     case "Читатели":
                         var readers = AppConnect.model01.Readers.ToList();
-                        fullReportData = readers.Select(r => new
+                        foreach (var reader in readers)
                         {
-                            Фамилия = r.last_name,
-                            Имя = r.first_name,
-                            Отчество = r.middle_name ?? ""
-                        }).Cast<dynamic>().ToList();
+                            var expando = new ExpandoObject();
+                            var dict = (IDictionary<string, object>)expando;
+
+                            foreach (var field in selectedFields)
+                            {
+                                switch (field.FieldName)
+                                {
+                                    case "LastName":
+                                        dict[field.Name] = reader.last_name;
+                                        break;
+                                    case "FirstName":
+                                        dict[field.Name] = reader.first_name;
+                                        break;
+                                    case "MiddleName":
+                                        dict[field.Name] = reader.middle_name ?? "";
+                                        break;
+                                }
+                            }
+                            reportData.Add(expando);
+                        }
                         break;
+
                     case "Книжный фонд":
-                        var books = AppConnect.model01.BookCopies.ToList();
-                        fullReportData = books.Select(b => new
+                        var copies = AppConnect.model01.BookCopies.ToList();
+                        foreach (var copy in copies)
                         {
-                            Название = b.Books.Title,
-                            Автор = b.Books.Authors.FullName,
-                            Жанр = b.Books.Genres?.Name ?? "Не указан"
-                        }).Cast<dynamic>().ToList();
+                            var expando = new ExpandoObject();
+                            var dict = (IDictionary<string, object>)expando;
+
+                            foreach (var field in selectedFields)
+                            {
+                                switch (field.FieldName)
+                                {
+                                    case "Title":
+                                        dict[field.Name] = copy.Books.Title;
+                                        break;
+                                    case "Author":
+                                        dict[field.Name] = copy.Books.Authors?.FullName ?? "Не указан";
+                                        break;
+                                    case "Genre":
+                                        dict[field.Name] = copy.Books.Genres?.Name ?? "Не указан";
+                                        break;
+                                    case "Year":
+                                        dict[field.Name] = copy.Books.PublishYear ?? 0;
+                                        break;
+                                }
+                            }
+                            reportData.Add(expando);
+                        }
                         break;
                 }
 
-                // Фильтруем только выбранные поля
-                var selectedFieldNames = selectedFields.Select(f => f.Name).ToList();
-                var filteredReportData = new List<dynamic>();
-
-                foreach (var item in fullReportData)
+                if (int.TryParse(LimitInput.Text, out int limit) && limit > 0 && limit < reportData.Count)
                 {
-                    var properties = item.GetType().GetProperties();
-                    var filteredItem = new ExpandoObject();
-                    var dict = (IDictionary<string, object>)filteredItem;
+                    reportData = reportData.Take(limit).ToList();
+                }
 
-                    foreach (var prop in properties)
+                currentReportData = reportData;
+                foreach (var item in reportData)
+                {
+                    var dict = (IDictionary<string, object>)item;
+
+                    if (!dict.ContainsKey("Количество"))
+                        dict["Количество"] = 1;
+                }
+                currentReportName = "Пользовательский отчет";
+                isCustomReport = true;
+
+                // Показываем в зависимости от выбранного типа визуализации
+                if (selectedVisualType == "Таблица")
+                {
+                    ReportsDataGrid.ItemsSource = currentReportData;
+                    ReportsDataGrid.Visibility = Visibility.Visible;
+                    ChartViewPanel.Visibility = Visibility.Collapsed;
+                    SwitchViewBtn.Content = "📊 График";
+                }
+                else
+                {
+                    ReportsDataGrid.Visibility = Visibility.Collapsed;
+                    ChartViewPanel.Visibility = Visibility.Visible;
+                    SwitchViewBtn.Content = "📋 Таблица";
+
+                    // Скрываем все графики
+                    BarChart.Visibility = Visibility.Collapsed;
+                    PieChart.Visibility = Visibility.Collapsed;
+                    LineChart.Visibility = Visibility.Collapsed;
+                    ChartMessage.Text = "";
+
+                    // Подготавливаем данные для графика
+                    var chartData = PrepareChartData();
+
+                    if (chartData.Labels.Count == 0 || chartData.Values.Count == 0)
                     {
-                        if (selectedFieldNames.Contains(prop.Name))
+                        ChartMessage.Text = "Недостаточно данных для построения графика";
+                    }
+                    else
+                    {
+                        // Показываем выбранный тип графика
+                        switch (selectedVisualType)
                         {
-                            dict[prop.Name] = prop.GetValue(item);
+                            case "Столбчатая диаграмма":
+                                ShowBarChart(chartData);
+                                break;
+                            case "Круговая диаграмма":
+                                ShowPieChart(chartData);
+                                break;
+                            case "Линейный график":
+                                ShowLineChart(chartData);
+                                break;
                         }
                     }
-                    filteredReportData.Add(filteredItem);
                 }
 
-                // Применяем лимит
-                if (int.TryParse(LimitTextBox.Text, out int limit) && limit > 0 && limit < filteredReportData.Count)
-                {
-                    filteredReportData = filteredReportData.Take(limit).ToList();
-                }
-
-                currentReportData = filteredReportData;
-                ReportsDataGrid.ItemsSource = currentReportData;
                 UpdateStatistics();
                 RecordsCount.Text = $"{currentReportData.Count} записей (пользовательский отчет)";
 
-                // Показываем результат с кнопкой назад
-                ReportsDataGrid.Visibility = Visibility.Visible;
                 CustomReportPanel.Visibility = Visibility.Collapsed;
                 CurrentReportTitle.Text = "Пользовательский отчет";
+                SwitchViewBtn.Visibility = Visibility.Visible;
 
-                // Добавляем кнопку назад в нижнюю панель
                 AddBackButton();
             }
             catch (Exception ex)
@@ -477,12 +841,15 @@ namespace LibraryAccounting.Pages
         private void HideCustomReportPanel()
         {
             CustomReportPanel.Visibility = Visibility.Collapsed;
+            ChartViewPanel.Visibility = Visibility.Collapsed;
             RemoveBackButton();
         }
 
         private void ShowDataGrid()
         {
             ReportsDataGrid.Visibility = Visibility.Visible;
+            ChartViewPanel.Visibility = Visibility.Collapsed;
+            SwitchViewBtn.Content = "📊 График";
             RemoveBackButton();
         }
 
@@ -508,8 +875,7 @@ namespace LibraryAccounting.Pages
                         var dateProp = GetDateProperty(item);
                         if (dateProp != null)
                         {
-                            DateTime itemDate;
-                            if (DateTime.TryParse(dateProp.ToString(), out itemDate))
+                            if (DateTime.TryParse(dateProp.ToString(), out DateTime itemDate))
                             {
                                 if (DateFrom.SelectedDate.HasValue && itemDate < DateFrom.SelectedDate.Value)
                                     include = false;
@@ -628,9 +994,11 @@ namespace LibraryAccounting.Pages
                     break;
                 case "По количеству (убыв.)":
                     view.SortDescriptions.Add(new SortDescription("Количество_выдач", ListSortDirection.Descending));
+                    view.SortDescriptions.Add(new SortDescription("Количество_книг", ListSortDirection.Descending));
                     break;
                 case "По количеству (возр.)":
                     view.SortDescriptions.Add(new SortDescription("Количество_выдач", ListSortDirection.Ascending));
+                    view.SortDescriptions.Add(new SortDescription("Количество_книг", ListSortDirection.Ascending));
                     break;
             }
         }
@@ -664,7 +1032,7 @@ namespace LibraryAccounting.Pages
 
         private void ExportToCSV_Click(object sender, RoutedEventArgs e)
         {
-            if (ReportsDataGrid.ItemsSource == null)
+            if (ReportsDataGrid.ItemsSource == null && currentReportData == null)
             {
                 ShowError("Нет данных для экспорта");
                 return;
@@ -682,42 +1050,35 @@ namespace LibraryAccounting.Pages
                 try
                 {
                     var sb = new StringBuilder();
-                    var data = ReportsDataGrid.ItemsSource as System.Collections.IEnumerable;
+                    var data = currentReportData;
 
-                    if (data != null)
+                    if (data != null && data.Count > 0)
                     {
-                        var enumerator = data.GetEnumerator();
-                        if (enumerator.MoveNext())
-                        {
-                            var firstItem = enumerator.Current;
-                            var properties = firstItem.GetType().GetProperties();
+                        var firstItem = data[0];
+                        var properties = ((object)firstItem).GetType().GetProperties();
 
+                        for (int i = 0; i < properties.Length; i++)
+                        {
+                            sb.Append($"\"{properties[i].Name}\"");
+                            if (i < properties.Length - 1) sb.Append(";");
+                        }
+                        sb.AppendLine();
+
+                        foreach (var item in data)
+                        {
                             for (int i = 0; i < properties.Length; i++)
                             {
-                                sb.Append($"\"{properties[i].Name}\"");
+                                var value = properties[i].GetValue(item)?.ToString() ?? "";
+                                value = value.Replace("\"", "\"\"");
+                                sb.Append($"\"{value}\"");
                                 if (i < properties.Length - 1) sb.Append(";");
                             }
                             sb.AppendLine();
-
-                            enumerator.Reset();
-                            while (enumerator.MoveNext())
-                            {
-                                var item = enumerator.Current;
-                                for (int i = 0; i < properties.Length; i++)
-                                {
-                                    var value = properties[i].GetValue(item)?.ToString() ?? "";
-                                    value = value.Replace("\"", "\"\"");
-                                    sb.Append($"\"{value}\"");
-                                    if (i < properties.Length - 1) sb.Append(";");
-                                }
-                                sb.AppendLine();
-                            }
                         }
                     }
 
                     File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
 
-                    // Используем MessageDialog как раньше
                     var successDialog = new MessageDialog("Информация", $"Отчет успешно экспортирован в CSV\n{dialog.FileName}");
                     successDialog.Owner = Window.GetWindow(this);
                     successDialog.ShowDialog();
@@ -739,40 +1100,34 @@ namespace LibraryAccounting.Pages
 
         private void CopyToClipboard_Click(object sender, RoutedEventArgs e)
         {
-            if (ReportsDataGrid.ItemsSource == null) return;
+            if (currentReportData == null) return;
 
             try
             {
                 var sb = new StringBuilder();
-                var data = ReportsDataGrid.ItemsSource as System.Collections.IEnumerable;
+                var data = currentReportData;
 
-                if (data != null)
+                if (data != null && data.Count > 0)
                 {
-                    var enumerator = data.GetEnumerator();
-                    if (enumerator.MoveNext())
-                    {
-                        var firstItem = enumerator.Current;
-                        var properties = firstItem.GetType().GetProperties();
+                    var firstItem = data[0];
+                    var properties = ((object)firstItem).GetType().GetProperties();
 
+                    for (int i = 0; i < properties.Length; i++)
+                    {
+                        sb.Append(properties[i].Name);
+                        if (i < properties.Length - 1) sb.Append("\t");
+                    }
+                    sb.AppendLine();
+
+                    foreach (var item in data)
+                    {
                         for (int i = 0; i < properties.Length; i++)
                         {
-                            sb.Append(properties[i].Name);
+                            var value = properties[i].GetValue(item)?.ToString() ?? "";
+                            sb.Append(value);
                             if (i < properties.Length - 1) sb.Append("\t");
                         }
                         sb.AppendLine();
-
-                        enumerator.Reset();
-                        while (enumerator.MoveNext())
-                        {
-                            var item = enumerator.Current;
-                            for (int i = 0; i < properties.Length; i++)
-                            {
-                                var value = properties[i].GetValue(item)?.ToString() ?? "";
-                                sb.Append(value);
-                                if (i < properties.Length - 1) sb.Append("\t");
-                            }
-                            sb.AppendLine();
-                        }
                     }
                 }
 
@@ -800,24 +1155,13 @@ namespace LibraryAccounting.Pages
 
         private void UpdateStatistics()
         {
-            if (ReportsDataGrid.ItemsSource == null)
+            if (currentReportData == null)
             {
                 SummaryText.Text = "Нет данных";
                 return;
             }
 
-            var data = ReportsDataGrid.ItemsSource as System.Collections.IEnumerable;
-            if (data == null)
-            {
-                SummaryText.Text = "Нет данных";
-                return;
-            }
-
-            int count = 0;
-            var enumerator = data.GetEnumerator();
-            while (enumerator.MoveNext()) count++;
-
-            SummaryText.Text = $"Всего записей: {count}";
+            SummaryText.Text = $"Всего записей: {currentReportData.Count}";
         }
 
         private void ShowError(string message)

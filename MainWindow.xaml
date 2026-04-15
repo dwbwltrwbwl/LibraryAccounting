@@ -7,7 +7,9 @@
         mc:Ignorable="d"
         Title="Система учета книг в библиотеке"
         WindowState="Maximized"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        MinWidth="900"
+MinHeight="600">
     <Grid>
         <Frame x:Name="frameMain" Content="Frame" NavigationUIVisibility="Hidden" />
 

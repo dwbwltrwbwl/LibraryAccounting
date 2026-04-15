@@ -273,14 +273,26 @@
                                   RowStyle="{StaticResource BooksDataGridRowStyle}"
                                   CellStyle="{StaticResource BooksDataGridCellStyle}">
                             <DataGrid.Columns>
+
                                 <DataGridTextColumn Header="ID" 
-                                                    Binding="{Binding GenreId}" 
-                                                    Width="60"
-                                                    SortMemberPath="GenreId"/>
+                        Binding="{Binding GenreId}" 
+                        Width="60"
+                        SortMemberPath="GenreId"/>
+
                                 <DataGridTextColumn Header="Название жанра"
-                                                    Binding="{Binding Name}"
-                                                    Width="*"
-                                                    SortMemberPath="Name"/>
+                        Binding="{Binding Name}"
+                        Width="2*"
+                        SortMemberPath="Name"/>
+
+                                <DataGridTextColumn Header="Описание"
+                        Binding="{Binding Description}"
+                        Width="3*"/>
+
+                                <DataGridTextColumn Header="Возраст"
+                        Binding="{Binding AgeRating}"
+                        Width="1*"
+                        SortMemberPath="AgeRating"/>
+
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -373,14 +385,80 @@
                                   RowStyle="{StaticResource BooksDataGridRowStyle}"
                                   CellStyle="{StaticResource BooksDataGridCellStyle}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="ID" 
-                                                    Binding="{Binding AuthorId}" 
-                                                    Width="60"
-                                                    SortMemberPath="AuthorId"/>
+
+                                <DataGridTextColumn Header="ID"
+                        Binding="{Binding AuthorId}"
+                        Width="60"
+                        SortMemberPath="AuthorId"/>
+
                                 <DataGridTextColumn Header="ФИО"
-                                                    Binding="{Binding FullName}"
-                                                    Width="*"
-                                                    SortMemberPath="FullName"/>
+                        Binding="{Binding FullName}"
+                        Width="2*"
+                        SortMemberPath="FullName"/>
+
+                                <DataGridTextColumn Header="Дата рождения"
+                        Binding="{Binding BirthDate, StringFormat=d}"
+                        Width="1.2*"
+                        SortMemberPath="BirthDate"/>
+
+                                <DataGridTextColumn Header="Дата смерти"
+                        Binding="{Binding DeathDate, StringFormat=d}"
+                        Width="1.2*"
+                        SortMemberPath="DeathDate"/>
+
+                                <DataGridTextColumn Header="Страна"
+                        Binding="{Binding Country}"
+                        Width="1.5*"
+                        SortMemberPath="Country"/>
+
+                                <DataGridTextColumn Header="Город"
+                        Binding="{Binding City}"
+                        Width="1.5*"
+                        SortMemberPath="City"/>
+
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Издательства">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Добавить"
+                    Width="120"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Click="AddPublisher_Click"/>
+
+                            <Button Content="Удалить"
+                    Width="120"
+                    Margin="10,0,0,0"
+                    Background="#5F3E40"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Click="DeletePublisher_Click"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Поиск:" Margin="0,0,10,0"/>
+                            <TextBox x:Name="PublisherSearchTextBox"
+                     Width="250"
+                     TextChanged="PublisherSearchTextBox_TextChanged"/>
+                        </StackPanel>
+
+                        <DataGrid x:Name="PublishersGrid"
+                  Grid.Row="3"
+                  AutoGenerateColumns="False"
+                  MouseDoubleClick="PublishersGrid_MouseDoubleClick"
+                  Style="{StaticResource BooksDataGridStyle}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding PublisherId}" Width="60"/>
+                                <DataGridTextColumn Header="Название" Binding="{Binding PublisherName}" Width="*"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

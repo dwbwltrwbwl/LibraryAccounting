@@ -54,6 +54,11 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="DeleteButton_Click"/>
+                    <Button Content="Экспорт CSV"
+                            Width="120"
+                            Margin="0,0,10,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="ExportButton_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -72,24 +77,62 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Поиск -->
                 <StackPanel Orientation="Horizontal"
-                            Margin="0,0,0,10">
+            Margin="0,0,0,10"
+            VerticalAlignment="Center" Grid.Row="0">
 
+                    <!-- Категория -->
+                    <ComboBox x:Name="CategoryFilter"
+              Width="150"
+              Margin="0,0,10,0"
+              SelectionChanged="FilterChanged">
+                    </ComboBox>
+
+                    <!-- Статус -->
+                    <ComboBox x:Name="StatusFilter"
+              Width="140"
+              Margin="0,0,10,0"
+              SelectionChanged="FilterChanged">
+                        <ComboBoxItem Content="Все статусы" IsSelected="True"/>
+                        <ComboBoxItem Content="Активный"/>
+                        <ComboBoxItem Content="Заблокирован"/>
+                    </ComboBox>
+
+                    <!-- Книги -->
+                    <ComboBox x:Name="BooksFilter"
+              Width="160"
+              Margin="0,0,10,0"
+              SelectionChanged="FilterChanged">
+                        <ComboBoxItem Content="Все"/>
+                        <ComboBoxItem Content="Есть книги"/>
+                        <ComboBoxItem Content="Нет книг"/>
+                    </ComboBox>
+
+                    <!-- Сортировка -->
+                    <ComboBox x:Name="SortBox"
+              Width="180"
+              SelectionChanged="FilterChanged">
+                        <ComboBoxItem Content="Без сортировки" IsSelected="True"/>
+                        <ComboBoxItem Content="ФИО (А-Я)"/>
+                        <ComboBoxItem Content="Дата регистрации"/>
+                        <ComboBoxItem Content="Книг на руках"/>
+                    </ComboBox>
                     <TextBlock Text="Поиск:"
-                               VerticalAlignment="Center"
-                               Foreground="#3A3A3A"
-                               Margin="0,0,10,0"/>
+           VerticalAlignment="Center"
+           Foreground="#3A3A3A"
+           Margin="0,0,10,0"/>
 
                     <TextBox x:Name="SearchTextBox"
-                             Width="250"
-                             Height="32"
-                             Padding="8"
-                             Background="#F4F1EC"
-                             BorderBrush="#C8BFAF"
-                             BorderThickness="1"
-                             TextChanged="SearchTextBox_TextChanged"/>
+         Width="250"
+         Height="32"
+         Padding="8"
+         Background="#F4F1EC"
+         BorderBrush="#C8BFAF"
+         BorderThickness="1"
+         TextChanged="SearchTextBox_TextChanged"/>
                 </StackPanel>
+
+                
 
                 <!-- DataGrid -->
                 <DataGrid x:Name="ReadersDataGrid"
@@ -123,6 +166,22 @@
                         <DataGridTextColumn Header="Дата регистрации"
                                             Binding="{Binding RegistrationDate, StringFormat=d}"
                                             Width="1*"/>
+
+                        <DataGridTextColumn Header="Дата рождения"
+                    Binding="{Binding BirthDate, StringFormat=d}"
+                    Width="1*"/>
+
+                        <DataGridTextColumn Header="Категория"
+                    Binding="{Binding Category}"
+                    Width="1.2*"/>
+
+                        <DataGridTextColumn Header="Книг на руках"
+                    Binding="{Binding BooksOnHands}"
+                    Width="1*"/>
+
+                        <DataGridTextColumn Header="Статус"
+                    Binding="{Binding Status}"
+                    Width="1*"/>
 
                     </DataGrid.Columns>
                 </DataGrid>

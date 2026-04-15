@@ -12,7 +12,6 @@
         <EntityTypeShape EntityType="LibraryAccountingModel.Loans" Width="1.5" PointX="7.5" PointY="1.125" IsExpanded="true" />
         <EntityTypeShape EntityType="LibraryAccountingModel.Readers" Width="1.5" PointX="5.25" PointY="5.25" IsExpanded="true" />
         <EntityTypeShape EntityType="LibraryAccountingModel.Roles" Width="1.5" PointX="7.75" PointY="5" IsExpanded="true" />
-        <EntityTypeShape EntityType="LibraryAccountingModel.sysdiagrams" Width="1.5" PointX="7.75" PointY="7.75" IsExpanded="true" />
         <EntityTypeShape EntityType="LibraryAccountingModel.Users" Width="1.5" PointX="10" PointY="4.875" IsExpanded="true" />
         <AssociationConnector Association="LibraryAccountingModel.FK_Books_Authors" ManuallyRouted="false" />
         <AssociationConnector Association="LibraryAccountingModel.FK_BookCopies_Books" ManuallyRouted="false" />
@@ -20,6 +19,9 @@
         <AssociationConnector Association="LibraryAccountingModel.FK_Books_Genres" ManuallyRouted="false" />
         <AssociationConnector Association="LibraryAccountingModel.FK_Loans_Readers" ManuallyRouted="false" />
         <AssociationConnector Association="LibraryAccountingModel.FK_Users_Roles" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.ReaderCategories" Width="1.5" PointX="3" PointY="6.125" />
+        <AssociationConnector Association="LibraryAccountingModel.FK_Readers_ReaderCategories" />
+        <EntityTypeShape EntityType="LibraryAccountingModel.Publishers" Width="1.5" PointX="0.75" PointY="8.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
