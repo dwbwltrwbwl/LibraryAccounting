@@ -84,6 +84,12 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="ExtendButton_Click"/>
+                    <Button Content="🗺️ Карта книг"
+        Width="120"
+        Height="30"
+        Margin="10,0,0,0"
+        Style="{StaticResource ActionButtonStyle}"
+        Click="ShowMap_Click"/>
                 </StackPanel>
             </Grid>
         </Border>

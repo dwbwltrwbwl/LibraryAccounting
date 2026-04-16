@@ -361,5 +361,11 @@ namespace LibraryAccounting.Pages
             dialog.Owner = Window.GetWindow(this);
             dialog.ShowDialog();
         }
+        private void ShowMap_Click(object sender, RoutedEventArgs e)
+        {
+            var mapWindow = new BookMapWindow();
+            mapWindow.Owner = Window.GetWindow(this);
+            mapWindow.ShowDialog();
+        }
     }
 }

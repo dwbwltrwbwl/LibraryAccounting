@@ -6,7 +6,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       mc:Ignorable="d"
       d:DesignHeight="600"
-      d:DesignWidth="1000"
+      d:DesignWidth="1200"
       Background="#F4F1EC">
     <Page.Resources>
         <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
@@ -58,6 +58,14 @@
                             Width="100"
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"/>
+                    <Button Content="Экспорт CSV" Click="ExportToCsv_Click"
+            Width="120"
+            Margin="0,0,0,0"
+            Style="{StaticResource ActionButtonStyle}"/>
+                    <Button Content="Аналитика" Click="Analytics_Click"
+        Width="120"
+        Margin="10,0,0,0"
+        Style="{StaticResource ActionButtonStyle}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -71,123 +79,118 @@
                 Padding="15">
 
             <Grid>
-
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Поиск -->
-                <StackPanel Orientation="Horizontal"
-            Margin="0,0,0,10">
-
+                <!-- Поиск и фильтры -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <TextBlock Text="Поиск:"
-               VerticalAlignment="Center"
-               Foreground="#3A3A3A"
-               Margin="0,0,10,0"/>
+                               VerticalAlignment="Center"
+                               Foreground="#3A3A3A"
+                               Margin="0,0,10,0"/>
 
                     <TextBox x:Name="SearchTextBox"
-             Width="250"
-             Height="32"
-             Padding="8"
-             Background="#F4F1EC"
-             BorderBrush="#C8BFAF"
-             BorderThickness="1"
-             TextChanged="SearchTextBox_TextChanged"/>
+                             Width="250"
+                             Height="32"
+                             Padding="8"
+                             Background="#F4F1EC"
+                             BorderBrush="#C8BFAF"
+                             BorderThickness="1"
+                             TextChanged="SearchTextBox_TextChanged"/>
 
                     <!-- Фильтр по жанру -->
                     <ComboBox x:Name="GenreComboBox"
-              Width="180"
-              Margin="20,0,0,0"
-              SelectionChanged="Filter_Changed"/>
+                              Width="180"
+                              Margin="20,0,0,0"
+                              SelectionChanged="Filter_Changed"/>
+
+                    <!-- Фильтр по издательству -->
+                    <ComboBox x:Name="PublisherComboBox"
+                              Width="180"
+                              Margin="10,0,0,0"
+                              SelectionChanged="Filter_Changed"/>
 
                     <!-- Сортировка -->
                     <ComboBox x:Name="SortComboBox"
-              Width="180"
-              Margin="10,0,0,0"
-              SelectionChanged="SortComboBox_SelectionChanged">
+                              Width="180"
+                              Margin="10,0,0,0"
+                              SelectionChanged="SortComboBox_SelectionChanged">
                         <ComboBoxItem Content="Без сортировки"/>
                         <ComboBoxItem Content="По названию"/>
                         <ComboBoxItem Content="По автору"/>
                         <ComboBoxItem Content="По году"/>
+                        <ComboBoxItem Content="По количеству"/>
                     </ComboBox>
-
                 </StackPanel>
 
-
-                <!-- DataGrid -->
                 <DataGrid x:Name="BooksDataGrid"
-                          Grid.Row="1"
-                          RowHeight="130"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled"
-                          ScrollViewer.CanContentScroll="True"
-                          Style="{StaticResource BooksDataGridStyle}"
-                          ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-                          RowStyle="{StaticResource BooksDataGridRowStyle}"
-                          CellStyle="{StaticResource BooksDataGridCellStyle}"
-                          AutoGenerateColumns="False"
-                          MouseDoubleClick="BooksDataGrid_MouseDoubleClick">
+          Grid.Row="1"
+          RowHeight="130"
+          VerticalScrollBarVisibility="Auto"
+          HorizontalScrollBarVisibility="Auto"
+          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+          ScrollViewer.VerticalScrollBarVisibility="Auto"
+          FrozenColumnCount="2"
+          Style="{StaticResource BooksDataGridStyle}"
+          ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+          RowStyle="{StaticResource BooksDataGridRowStyle}"
+          CellStyle="{StaticResource BooksDataGridCellStyle}"
+          AutoGenerateColumns="False"
+          MouseDoubleClick="BooksDataGrid_MouseDoubleClick">
 
                     <DataGrid.Columns>
-
                         <!-- Обложка -->
-                        <DataGridTemplateColumn Header="Обложка" Width="120">
+                        <DataGridTemplateColumn Header="Обложка" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Border Width="80"
-                    Height="110"
-                    CornerRadius="6"
-                    BorderBrush="#C8BFAF"
-                    BorderThickness="1"
-                    Background="#F4F1EC"
-                    SnapsToDevicePixels="True"
-                    UseLayoutRounding="True">
-
+                                    <Border Width="70" Height="100"
+                            CornerRadius="6"
+                            BorderBrush="#C8BFAF"
+                            BorderThickness="1"
+                            Background="#F4F1EC">
                                         <Image Source="{Binding CoverImage, Converter={StaticResource ByteArrayToImageConverter}}"
-                       Stretch="UniformToFill"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       SnapsToDevicePixels="True"
-                       RenderOptions.BitmapScalingMode="HighQuality"/>
-
+                               Stretch="UniformToFill"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
+                        <!-- Основная информация -->
+                        <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="250"/>
+                        <DataGridTextColumn Header="Автор" Binding="{Binding AuthorName}" Width="200"/>
+                        <DataGridTextColumn Header="Жанр" Binding="{Binding GenreName}" Width="150"/>
+                        <DataGridTextColumn Header="Издательство" Binding="{Binding PublisherName}" Width="180"/>
+                        <DataGridTextColumn Header="Год" Binding="{Binding PublishYear}" Width="80"/>
+                        <DataGridTextColumn Header="ISBN" Binding="{Binding ISBN}" Width="150"/>
 
+                        <!-- Физические характеристики -->
+                        <DataGridTextColumn Header="Страниц" Binding="{Binding Pages}" Width="80"/>
+                        <DataGridTextColumn Header="Язык" Binding="{Binding Language}" Width="100"/>
+                        <DataGridTextColumn Header="Переплет" Binding="{Binding Binding}" Width="100"/>
+                        <DataGridTextColumn Header="Формат" Binding="{Binding Format}" Width="100"/>
 
-                        <DataGridTextColumn Header="Название"
-                        Binding="{Binding Title}"
-                        Width="2*"/>
+                        <!-- Издание -->
+                        <DataGridTextColumn Header="Серия" Binding="{Binding Series}" Width="150"/>
+                        <DataGridTextColumn Header="Издание" Binding="{Binding Edition}" Width="100"/>
+                        <DataGridTextColumn Header="Тираж" Binding="{Binding Circulation}" Width="100"/>
 
-                        <DataGridTextColumn Header="Автор"
-                        Binding="{Binding Authors.FullName}"
-                        Width="1.5*"/>
+                        <!-- Количество -->
+                        <DataGridTextColumn Header="Экз." Binding="{Binding Quantity}" Width="70"/>
+                        <DataGridTextColumn Header="Доступно" Binding="{Binding AvailableQuantity}" Width="80"/>
 
-                        <DataGridTextColumn Header="Жанр"
-                        Binding="{Binding Genres.Name}"
-                        Width="1*"/>
+                        <!-- Даты -->
+                        <DataGridTextColumn Header="Дата добавления" Binding="{Binding AddedDate, StringFormat=d}" Width="120"/>
+                        <DataGridTextColumn Header="Изменено" Binding="{Binding LastModified, StringFormat=d}" Width="120"/>
 
-                        <DataGridTextColumn Header="Издательство"
-                        Binding="{Binding Publisher}"
-                        Width="1*"/>
-
-                        <DataGridTextColumn Header="Год"
-                        Binding="{Binding PublishYear}"
-                        Width="0.7*"/>
-
-                        <DataGridTextColumn Header="ISBN"
-                        Binding="{Binding ISBN}"
-                        Width="1.2*"/>
-
+                        <!-- Описание (широкое поле) -->
+                        <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="300"/>
                     </DataGrid.Columns>
-
                 </DataGrid>
-
             </Grid>
         </Border>
-
     </Grid>
 </Page>

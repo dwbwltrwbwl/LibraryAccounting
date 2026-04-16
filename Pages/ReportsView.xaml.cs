@@ -697,7 +697,7 @@ namespace LibraryAccounting.Pages
                                         dict[field.Name] = copy.Books?.PublishYear ?? 0;
                                         break;
                                     case "Publisher":
-                                        dict[field.Name] = copy.Books?.Publisher ?? "Не указано";
+                                        //dict[field.Name] = copy.Books?.Publisher ?? "Не указано";
                                         break;
                                     case "InventoryNumber":
                                         dict[field.Name] = copy.InventoryNumber ?? "Не указан";

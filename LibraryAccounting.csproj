@@ -165,12 +165,18 @@
     </Compile>
     <Compile Include="Converters\ByteArrayToImageConverter.cs" />
     <Compile Include="Converters\OverdueConverter.cs" />
+    <Compile Include="Controls\BookLocationMap.xaml.cs">
+      <DependentUpon>BookLocationMap.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Models\CustomReport.cs" />
     <Compile Include="Pages\AccountView.xaml.cs">
       <DependentUpon>AccountView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\AuthorWindow.xaml.cs">
       <DependentUpon>AuthorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BookAnalyticsWindow.xaml.cs">
+      <DependentUpon>BookAnalyticsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\BookCopiesView.xaml.cs">
       <DependentUpon>BookCopiesView.xaml</DependentUpon>
@@ -180,6 +186,9 @@
     </Compile>
     <Compile Include="Pages\BookEditWindow.xaml.cs">
       <DependentUpon>BookEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BookMapWindow.xaml.cs">
+      <DependentUpon>BookMapWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\BooksView.xaml.cs">
       <DependentUpon>BooksView.xaml</DependentUpon>
@@ -245,11 +254,19 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Controls\BookLocationMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\AccountView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\AuthorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\BookAnalyticsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -262,6 +279,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\BookEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\BookMapWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -416,6 +437,7 @@
       <LastGenOutput>Model1.cs</LastGenOutput>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.2\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets" Condition="Exists('packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.2\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

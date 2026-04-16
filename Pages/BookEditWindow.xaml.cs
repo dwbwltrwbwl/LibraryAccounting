@@ -72,7 +72,7 @@ namespace LibraryAccounting.Pages
             if (_book == null) return;
 
             TitleBox.Text = _book.Title ?? "";
-            PublisherBox.Text = _book.Publisher ?? "";
+            //PublisherBox.Text = _book.Publisher ?? "";
             YearBox.Text = _book.PublishYear?.ToString() ?? DateTime.Now.Year.ToString();
             IsbnBox.Text = _book.ISBN ?? "";
 
@@ -210,7 +210,7 @@ namespace LibraryAccounting.Pages
 
                 // Заполнение данных
                 _book.Title = TitleBox.Text.Trim();
-                _book.Publisher = PublisherBox.Text?.Trim();
+                //_book.Publisher = PublisherBox.Text?.Trim();
                 _book.PublishYear = year;
                 _book.ISBN = IsbnBox.Text?.Trim();
 
