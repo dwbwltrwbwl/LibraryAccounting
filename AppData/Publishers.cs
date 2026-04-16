@@ -14,8 +14,17 @@ namespace LibraryAccounting.AppData
     
     public partial class Publishers
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Publishers()
+        {
+            this.Books = new HashSet<Books>();
+        }
+    
         public int PublisherId { get; set; }
         public string PublisherName { get; set; }
         public string City { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Books> Books { get; set; }
     }
 }

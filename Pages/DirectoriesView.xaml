@@ -99,41 +99,6 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
-        <!-- Шаблон заголовка группы -->
-        <Style x:Key="GroupHeaderStyle" TargetType="GroupItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="GroupItem">
-                        <Expander IsExpanded="True" 
-                                  Background="#F4F1EC" 
-                                  BorderBrush="#C8BFAF" 
-                                  BorderThickness="1" 
-                                  Margin="0,2,0,2">
-                            <Expander.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Name}" 
-                                               FontWeight="Bold" 
-                                               Foreground="#2F4F4F" 
-                                               FontSize="14"
-                                               Margin="5,5,0,5"/>
-                                    <TextBlock Text=" (" 
-                                               Foreground="#6F6F6F"
-                                               VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding ItemCount}" 
-                                               Foreground="#6F6F6F"
-                                               VerticalAlignment="Center"/>
-                                    <TextBlock Text=")" 
-                                               Foreground="#6F6F6F"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Expander.Header>
-                            <ItemsPresenter Margin="20,5,0,5"/>
-                        </Expander>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Page.Resources>
 
     <Grid>
@@ -192,7 +157,6 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
@@ -213,88 +177,80 @@
                                     Click="DeleteGenre_Click"/>
                         </StackPanel>
 
-                        <!-- Панель фильтрации и группировки -->
+                        <!-- Панель поиска -->
                         <Border Grid.Row="1"
                                 Background="#F4F1EC"
                                 CornerRadius="6"
                                 Padding="10"
                                 Margin="0,0,0,10">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Поиск:" VerticalAlignment="Center" 
+                                           Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                                <TextBox x:Name="GenreSearchTextBox" 
+                                         Width="250" 
+                                         Height="30"
+                                         TextChanged="GenreSearchTextBox_TextChanged"
+                                         ToolTip="Поиск по названию и описанию жанра"/>
 
-                                <!-- Поиск -->
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <TextBlock Text="Поиск:" VerticalAlignment="Center" 
-                                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="GenreSearchTextBox" 
-                                             Width="250" 
-                                             Height="30"
-                                             TextChanged="GenreSearchTextBox_TextChanged"
-                                             ToolTip="Поиск по названию жанра"/>
-
-                                    <Button Grid.Column="1"
-                                            Content="Сбросить поиск"
-                                            Width="100"
-                                            Height="30"
-                                            Margin="10,0,0,0"
-                                            Background="#FFFDF9"
-                                            Foreground="#2F4F4F"
-                                            BorderBrush="#C8BFAF"
-                                            BorderThickness="1"
-                                            Cursor="Hand"
-                                            Click="ResetGenreSearch_Click"/>
-                                </StackPanel>
-
-                                <!-- Группировка -->
-                                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                    <TextBlock Text="Группировка:" VerticalAlignment="Center" 
-                                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                                    <CheckBox x:Name="GenreGroupingCheckBox" 
-                                              Content="Группировать по первой букве"
-                                              VerticalAlignment="Center"
-                                              Checked="GenreGroupingCheckBox_Checked"
-                                              Unchecked="GenreGroupingCheckBox_Unchecked"/>
-                                </StackPanel>
-                            </Grid>
+                                <Button Content="Сбросить поиск"
+                                        Width="100"
+                                        Height="30"
+                                        Margin="10,0,0,0"
+                                        Background="#FFFDF9"
+                                        Foreground="#2F4F4F"
+                                        BorderBrush="#C8BFAF"
+                                        BorderThickness="1"
+                                        Cursor="Hand"
+                                        Click="ResetGenreSearch_Click"/>
+                            </StackPanel>
                         </Border>
 
                         <!-- Таблица -->
-                        <DataGrid x:Name="GenresGrid"
-                                  Grid.Row="3"
-                                  AutoGenerateColumns="False"
-                                  MouseDoubleClick="GenresGrid_MouseDoubleClick"
-                                  Sorting="GenresGrid_Sorting"
-                                  CanUserSortColumns="True"
-                                  Style="{StaticResource BooksDataGridStyle}"
-                                  ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-                                  RowStyle="{StaticResource BooksDataGridRowStyle}"
-                                  CellStyle="{StaticResource BooksDataGridCellStyle}">
-                            <DataGrid.Columns>
+                        <Grid Grid.Row="2">
+                            <DataGrid x:Name="GenresGrid"
+                                      AutoGenerateColumns="False"
+                                      MouseDoubleClick="GenresGrid_MouseDoubleClick"
+                                      Sorting="GenresGrid_Sorting"
+                                      CanUserSortColumns="True"
+                                      Style="{StaticResource BooksDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource BooksDataGridRowStyle}"
+                                      CellStyle="{StaticResource BooksDataGridCellStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" 
+                                                        Binding="{Binding GenreId}" 
+                                                        Width="60"
+                                                        SortMemberPath="GenreId"/>
 
-                                <DataGridTextColumn Header="ID" 
-                        Binding="{Binding GenreId}" 
-                        Width="60"
-                        SortMemberPath="GenreId"/>
+                                    <DataGridTextColumn Header="Название жанра"
+                                                        Binding="{Binding Name}"
+                                                        Width="2*"
+                                                        SortMemberPath="Name"/>
 
-                                <DataGridTextColumn Header="Название жанра"
-                        Binding="{Binding Name}"
-                        Width="2*"
-                        SortMemberPath="Name"/>
+                                    <DataGridTextColumn Header="Описание"
+                                                        Binding="{Binding Description}"
+                                                        Width="3*"
+                                                        SortMemberPath="Description"/>
 
-                                <DataGridTextColumn Header="Описание"
-                        Binding="{Binding Description}"
-                        Width="3*"/>
+                                    <DataGridTextColumn Header="Возрастной рейтинг"
+                                                        Binding="{Binding AgeRating}"
+                                                        Width="1*"
+                                                        SortMemberPath="AgeRating"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
 
-                                <DataGridTextColumn Header="Возраст"
-                        Binding="{Binding AgeRating}"
-                        Width="1*"
-                        SortMemberPath="AgeRating"/>
-
-                            </DataGrid.Columns>
-                        </DataGrid>
+                            <StackPanel x:Name="GenresEmptyPanel"
+                                        Visibility="Collapsed"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="😢" FontSize="40" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Ничего не найдено"
+                                           FontSize="16"
+                                           Foreground="#6F6F6F"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </TabItem>
 
@@ -302,7 +258,6 @@
                 <TabItem Header="Авторы">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -325,142 +280,188 @@
                                     Click="DeleteAuthor_Click"/>
                         </StackPanel>
 
-                        <!-- Панель фильтрации и группировки -->
+                        <!-- Панель поиска -->
                         <Border Grid.Row="1"
                                 Background="#F4F1EC"
                                 CornerRadius="6"
                                 Padding="10"
                                 Margin="0,0,0,10">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Поиск:" VerticalAlignment="Center" 
+                                           Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                                <TextBox x:Name="AuthorSearchTextBox" 
+                                         Width="250" 
+                                         Height="30"
+                                         TextChanged="AuthorSearchTextBox_TextChanged"
+                                         ToolTip="Поиск по ФИО, стране и городу автора"/>
 
-                                <!-- Поиск -->
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <TextBlock Text="Поиск:" VerticalAlignment="Center" 
-                                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="AuthorSearchTextBox" 
-                                             Width="250" 
-                                             Height="30"
-                                             TextChanged="AuthorSearchTextBox_TextChanged"
-                                             ToolTip="Поиск по ФИО автора"/>
-
-                                    <Button Grid.Column="1"
-                                            Content="Сбросить поиск"
-                                            Width="100"
-                                            Height="30"
-                                            Margin="10,0,0,0"
-                                            Background="#FFFDF9"
-                                            Foreground="#2F4F4F"
-                                            BorderBrush="#C8BFAF"
-                                            BorderThickness="1"
-                                            Cursor="Hand"
-                                            Click="ResetAuthorSearch_Click"/>
-                                </StackPanel>
-
-                                <!-- Группировка -->
-                                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                    <TextBlock Text="Группировка:" VerticalAlignment="Center" 
-                                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                                    <CheckBox x:Name="AuthorGroupingCheckBox" 
-                                              Content="Группировать по первой букве"
-                                              VerticalAlignment="Center"
-                                              Checked="AuthorGroupingCheckBox_Checked"
-                                              Unchecked="AuthorGroupingCheckBox_Unchecked"/>
-                                </StackPanel>
-                            </Grid>
+                                <Button Content="Сбросить поиск"
+                                        Width="100"
+                                        Height="30"
+                                        Margin="10,0,0,0"
+                                        Background="#FFFDF9"
+                                        Foreground="#2F4F4F"
+                                        BorderBrush="#C8BFAF"
+                                        BorderThickness="1"
+                                        Cursor="Hand"
+                                        Click="ResetAuthorSearch_Click"/>
+                            </StackPanel>
                         </Border>
 
                         <!-- Таблица -->
-                        <DataGrid x:Name="AuthorsGrid"
-                                  Grid.Row="3"
-                                  AutoGenerateColumns="False"
-                                  MouseDoubleClick="AuthorsGrid_MouseDoubleClick"
-                                  Sorting="AuthorsGrid_Sorting"
-                                  CanUserSortColumns="True"
-                                  Style="{StaticResource BooksDataGridStyle}"
-                                  ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-                                  RowStyle="{StaticResource BooksDataGridRowStyle}"
-                                  CellStyle="{StaticResource BooksDataGridCellStyle}">
-                            <DataGrid.Columns>
+                        <Grid Grid.Row="2">
+                            <DataGrid x:Name="AuthorsGrid"
+                                      AutoGenerateColumns="False"
+                                      MouseDoubleClick="AuthorsGrid_MouseDoubleClick"
+                                      Sorting="AuthorsGrid_Sorting"
+                                      CanUserSortColumns="True"
+                                      Style="{StaticResource BooksDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource BooksDataGridRowStyle}"
+                                      CellStyle="{StaticResource BooksDataGridCellStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" 
+                                                        Binding="{Binding AuthorId}" 
+                                                        Width="60"
+                                                        SortMemberPath="AuthorId"/>
 
-                                <DataGridTextColumn Header="ID"
-                        Binding="{Binding AuthorId}"
-                        Width="60"
-                        SortMemberPath="AuthorId"/>
+                                    <DataGridTextColumn Header="ФИО" 
+                                                        Binding="{Binding FullName}" 
+                                                        Width="2*"
+                                                        SortMemberPath="FullName"/>
 
-                                <DataGridTextColumn Header="ФИО"
-                        Binding="{Binding FullName}"
-                        Width="2*"
-                        SortMemberPath="FullName"/>
+                                    <DataGridTextColumn Header="Дата рождения" 
+                                                        Binding="{Binding BirthDate, StringFormat=d}" 
+                                                        Width="1.2*"
+                                                        SortMemberPath="BirthDate"/>
 
-                                <DataGridTextColumn Header="Дата рождения"
-                        Binding="{Binding BirthDate, StringFormat=d}"
-                        Width="1.2*"
-                        SortMemberPath="BirthDate"/>
+                                    <DataGridTextColumn Header="Дата смерти" 
+                                                        Binding="{Binding DeathDate, StringFormat=d}" 
+                                                        Width="1.2*"
+                                                        SortMemberPath="DeathDate"/>
 
-                                <DataGridTextColumn Header="Дата смерти"
-                        Binding="{Binding DeathDate, StringFormat=d}"
-                        Width="1.2*"
-                        SortMemberPath="DeathDate"/>
+                                    <DataGridTextColumn Header="Страна" 
+                                                        Binding="{Binding Country}" 
+                                                        Width="1.5*"
+                                                        SortMemberPath="Country"/>
 
-                                <DataGridTextColumn Header="Страна"
-                        Binding="{Binding Country}"
-                        Width="1.5*"
-                        SortMemberPath="Country"/>
+                                    <DataGridTextColumn Header="Город" 
+                                                        Binding="{Binding City}" 
+                                                        Width="1.5*"
+                                                        SortMemberPath="City"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
 
-                                <DataGridTextColumn Header="Город"
-                        Binding="{Binding City}"
-                        Width="1.5*"
-                        SortMemberPath="City"/>
-
-                            </DataGrid.Columns>
-                        </DataGrid>
+                            <StackPanel x:Name="AuthorsEmptyPanel"
+                                        Visibility="Collapsed"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="😢" FontSize="40" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Ничего не найдено"
+                                           FontSize="16"
+                                           Foreground="#6F6F6F"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </TabItem>
 
+                <!-- ===== ИЗДАТЕЛЬСТВА ===== -->
                 <TabItem Header="Издательства">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
+                        <!-- Панель действий -->
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <Button Content="Добавить"
-                    Width="120"
-                    Style="{StaticResource ActionButtonStyle}"
-                    Click="AddPublisher_Click"/>
+                            <Button x:Name="AddPublisher"
+                                    Content="Добавить"
+                                    Width="120"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Click="AddPublisher_Click"/>
 
-                            <Button Content="Удалить"
-                    Width="120"
-                    Margin="10,0,0,0"
-                    Background="#5F3E40"
-                    Style="{StaticResource ActionButtonStyle}"
-                    Click="DeletePublisher_Click"/>
+                            <Button x:Name="DeletePublisher"
+                                    Content="Удалить"
+                                    Width="120"
+                                    Margin="10,0,0,0"
+                                    Background="#5F3E40"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Click="DeletePublisher_Click"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-                            <TextBlock Text="Поиск:" Margin="0,0,10,0"/>
-                            <TextBox x:Name="PublisherSearchTextBox"
-                     Width="250"
-                     TextChanged="PublisherSearchTextBox_TextChanged"/>
-                        </StackPanel>
+                        <!-- Панель поиска -->
+                        <Border Grid.Row="1"
+                                Background="#F4F1EC"
+                                CornerRadius="6"
+                                Padding="10"
+                                Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Поиск:" VerticalAlignment="Center" 
+                                           Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                                <TextBox x:Name="PublisherSearchTextBox" 
+                                         Width="250" 
+                                         Height="30"
+                                         TextChanged="PublisherSearchTextBox_TextChanged"
+                                         ToolTip="Поиск по названию и городу издательства"/>
 
-                        <DataGrid x:Name="PublishersGrid"
-                  Grid.Row="3"
-                  AutoGenerateColumns="False"
-                  MouseDoubleClick="PublishersGrid_MouseDoubleClick"
-                  Style="{StaticResource BooksDataGridStyle}">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="ID" Binding="{Binding PublisherId}" Width="60"/>
-                                <DataGridTextColumn Header="Название" Binding="{Binding PublisherName}" Width="*"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                                <Button Content="Сбросить поиск"
+                                        Width="100"
+                                        Height="30"
+                                        Margin="10,0,0,0"
+                                        Background="#FFFDF9"
+                                        Foreground="#2F4F4F"
+                                        BorderBrush="#C8BFAF"
+                                        BorderThickness="1"
+                                        Cursor="Hand"
+                                        Click="ResetPublisherSearch_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Таблица -->
+                        <Grid Grid.Row="2">
+                            <DataGrid x:Name="PublishersGrid"
+                                      AutoGenerateColumns="False"
+                                      MouseDoubleClick="PublishersGrid_MouseDoubleClick"
+                                      Sorting="PublishersGrid_Sorting"
+                                      CanUserSortColumns="True"
+                                      Style="{StaticResource BooksDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource BooksDataGridRowStyle}"
+                                      CellStyle="{StaticResource BooksDataGridCellStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" 
+                                                        Binding="{Binding PublisherId}" 
+                                                        Width="60"
+                                                        SortMemberPath="PublisherId"/>
+
+                                    <DataGridTextColumn Header="Название издательства" 
+                                                        Binding="{Binding PublisherName}" 
+                                                        Width="3*"
+                                                        SortMemberPath="PublisherName"/>
+
+                                    <DataGridTextColumn Header="Город" 
+                                                        Binding="{Binding City}" 
+                                                        Width="2*"
+                                                        SortMemberPath="City"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <StackPanel x:Name="PublishersEmptyPanel"
+                                        Visibility="Collapsed"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="😢" FontSize="40" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Ничего не найдено"
+                                           FontSize="16"
+                                           Foreground="#6F6F6F"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </TabItem>
 

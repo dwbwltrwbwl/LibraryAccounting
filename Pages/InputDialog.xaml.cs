@@ -18,9 +18,16 @@ namespace LibraryAccounting.Pages
 
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
-            Result = InputBox.Text;
+            string value = InputBox.Text?.Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                MessageBox.Show("Поле не может быть пустым", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return; // ❗ окно НЕ закрывается
+            }
+
+            Result = value;
             DialogResult = true;
-            Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

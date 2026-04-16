@@ -115,71 +115,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AppData\Publishers.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
-    </Compile>
-    <Compile Include="AppData\ReaderCategories.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Converters\ByteArrayToImageConverter.cs" />
-    <Compile Include="Models\CustomReport.cs" />
-    <Compile Include="Pages\AccountView.xaml.cs">
-      <DependentUpon>AccountView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\BookCopiesView.xaml.cs">
-      <DependentUpon>BookCopiesView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\BookCopyAddWindow.xaml.cs">
-      <DependentUpon>BookCopyAddWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\BookEditWindow.xaml.cs">
-      <DependentUpon>BookEditWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\BooksView.xaml.cs">
-      <DependentUpon>BooksView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\ChangePasswordWindow.xaml.cs">
-      <DependentUpon>ChangePasswordWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\DeleteMessageDialog.xaml.cs">
-      <DependentUpon>DeleteMessageDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\DirectoriesView.xaml.cs">
-      <DependentUpon>DirectoriesView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\InputDialog.xaml.cs">
-      <DependentUpon>InputDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\LoansView.xaml.cs">
-      <DependentUpon>LoansView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\MainDashboardView.xaml.cs">
-      <DependentUpon>MainDashboardView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\ReaderEditWindow.xaml.cs">
-      <DependentUpon>ReaderEditWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\ReadersView.xaml.cs">
-      <DependentUpon>ReadersView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\ReportsView.xaml.cs">
-      <DependentUpon>ReportsView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\UsersView.xaml.cs">
-      <DependentUpon>UsersView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Services\PasswordHasher.cs" />
-    <Compile Include="Services\RegistrationService.cs" />
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AppData\AppConnect.cs" />
-    <Compile Include="AppData\AppFrame.cs" />
     <Compile Include="AppData\Authors.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -210,20 +145,111 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Model1.edmx</DependentUpon>
     </Compile>
+    <Compile Include="AppData\Publishers.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AppData\ReaderCategories.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="AppData\Readers.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="AppData\Roles.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="AppData\sysdiagrams.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="AppData\Users.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Converters\ByteArrayToImageConverter.cs" />
+    <Compile Include="Converters\OverdueConverter.cs" />
+    <Compile Include="Models\CustomReport.cs" />
+    <Compile Include="Pages\AccountView.xaml.cs">
+      <DependentUpon>AccountView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\AuthorWindow.xaml.cs">
+      <DependentUpon>AuthorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BookCopiesView.xaml.cs">
+      <DependentUpon>BookCopiesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BookCopyAddWindow.xaml.cs">
+      <DependentUpon>BookCopyAddWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BookEditWindow.xaml.cs">
+      <DependentUpon>BookEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BooksView.xaml.cs">
+      <DependentUpon>BooksView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ChangePasswordWindow.xaml.cs">
+      <DependentUpon>ChangePasswordWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DeleteMessageDialog.xaml.cs">
+      <DependentUpon>DeleteMessageDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DirectoriesView.xaml.cs">
+      <DependentUpon>DirectoriesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\GenreWindow.xaml.cs">
+      <DependentUpon>GenreWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\InputDialog.xaml.cs">
+      <DependentUpon>InputDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\IssueLoanWindow.xaml.cs">
+      <DependentUpon>IssueLoanWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\LoanHistoryDialog.xaml.cs">
+      <DependentUpon>LoanHistoryDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\LoansView.xaml.cs">
+      <DependentUpon>LoansView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\MainDashboardView.xaml.cs">
+      <DependentUpon>MainDashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\PublisherWindow.xaml.cs">
+      <DependentUpon>PublisherWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ReaderEditWindow.xaml.cs">
+      <DependentUpon>ReaderEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ReaderSelectionDialog.xaml.cs">
+      <DependentUpon>ReaderSelectionDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ReadersView.xaml.cs">
+      <DependentUpon>ReadersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ReportsView.xaml.cs">
+      <DependentUpon>ReportsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\UsersView.xaml.cs">
+      <DependentUpon>UsersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\PasswordHasher.cs" />
+    <Compile Include="Services\RegistrationService.cs" />
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AppData\AppConnect.cs" />
+    <Compile Include="AppData\AppFrame.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Pages\AccountView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\AuthorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -255,7 +281,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\GenreWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\InputDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\IssueLoanWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\LoanHistoryDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -279,7 +317,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\PublisherWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\ReaderEditWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ReaderSelectionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -347,16 +393,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AppData\Model1.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Model1.Context.cs</LastGenOutput>
-      <DependentUpon>Model1.edmx</DependentUpon>
-    </Content>
-    <Content Include="AppData\Model1.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>Model1.edmx</DependentUpon>
-      <LastGenOutput>Model1.cs</LastGenOutput>
-    </Content>
     <Resource Include="Images\default-avatar.png" />
     <Resource Include="Images\logo.png" />
     <Resource Include="Images\nofoto.png" />
@@ -368,7 +404,18 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="AppData\Model1.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>Model1.edmx</DependentUpon>
+      <LastGenOutput>Model1.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="AppData\Model1.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>Model1.edmx</DependentUpon>
+      <LastGenOutput>Model1.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.2\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets" Condition="Exists('packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.2\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

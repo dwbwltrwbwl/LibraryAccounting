@@ -3,13 +3,37 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:LibraryAccounting.Pages"
+      xmlns:conv="clr-namespace:LibraryAccounting.Converters"
       mc:Ignorable="d"
       d:DesignHeight="600"
       d:DesignWidth="1000"
       Background="#F4F1EC">
 
+    <Page.Resources>
+        <conv:OverdueConverter x:Key="OverdueConverter"/>
+
+        <Style x:Key="LoanRowStyle"
+               TargetType="DataGridRow"
+               BasedOn="{StaticResource BooksDataGridRowStyle}">
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource OverdueConverter}">
+                            <Binding Path="DueDate"/>
+                            <Binding Path="ReturnDate"/>
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Background" Value="#FFD6D6"/>
+                    <Setter Property="ToolTip" Value="Книга просрочена"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -54,12 +78,80 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="ReturnButton_Click"/>
+
+                    <Button Content="Продлить"
+                            Width="120"
+                            Margin="0,0,10,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="ExtendButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Панель фильтрации -->
+        <Border Grid.Row="1"
+                Background="#FFFDF9"
+                BorderBrush="#C8BFAF"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="15"
+                Margin="0,0,0,20">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Фильтр по читателю:" 
+                               VerticalAlignment="Center" 
+                               Foreground="#2F4F4F" 
+                               FontWeight="SemiBold" 
+                               Margin="0,0,10,0"/>
+
+                    <ComboBox x:Name="ReaderFilterComboBox" 
+                              Width="250" 
+                              Height="30"
+                              DisplayMemberPath="FullName"
+                              SelectedValuePath="ReaderId"
+                              SelectionChanged="ReaderFilter_SelectionChanged"
+                              Background="#FFFDF9"
+                              BorderBrush="#C8BFAF"
+                              BorderThickness="1"/>
+
+                    <Button Content="Сбросить фильтр"
+                            Width="100"
+                            Height="30"
+                            Margin="10,0,0,0"
+                            Click="ResetFilter_Click"/>
+                    <TextBlock x:Name="RecordsCount" 
+           Grid.Column="1"
+           VerticalAlignment="Center"
+           Foreground="#6F6F6F"
+           Margin="15,0,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <CheckBox x:Name="ShowOnlyActiveCheckBox" 
+                              Content="Только активные (невозвращенные)"
+                              VerticalAlignment="Center"
+                              Margin="0,0,10,0"
+                              Checked="ShowOnlyActive_Changed"
+                              Unchecked="ShowOnlyActive_Changed"/>
+
+                    <Button Content="История читателя"
+                            Width="130"
+                            Height="30"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="ShowReaderHistory_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- Таблица выдач -->
-        <Border Grid.Row="1"
+        <Border Grid.Row="2"
                 Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
@@ -70,12 +162,11 @@
                       IsReadOnly="True"
                       Style="{StaticResource BooksDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-                      RowStyle="{StaticResource BooksDataGridRowStyle}"
                       CellStyle="{StaticResource BooksDataGridCellStyle}"
-                      AutoGenerateColumns="False">
+                      AutoGenerateColumns="False" 
+                      RowStyle="{StaticResource LoanRowStyle}">
 
                 <DataGrid.Columns>
-
                     <DataGridTextColumn Header="Читатель"
                                         Binding="{Binding Reader}"
                                         Width="2*"/>
@@ -100,6 +191,9 @@
                                         Binding="{Binding ReturnDate, StringFormat=d}"
                                         Width="1*"/>
 
+                    <DataGridTextColumn Header="Продлений"
+                                        Binding="{Binding ExtendCount}"
+                                        Width="0.8*"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

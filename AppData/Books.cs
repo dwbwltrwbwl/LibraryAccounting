@@ -24,14 +24,27 @@ namespace LibraryAccounting.AppData
         public string Title { get; set; }
         public int AuthorId { get; set; }
         public int GenreId { get; set; }
-        public string Publisher { get; set; }
+        public Nullable<int> PublisherId { get; set; }
         public Nullable<int> PublishYear { get; set; }
         public string ISBN { get; set; }
         public byte[] CoverImage { get; set; }
+        public Nullable<int> Pages { get; set; }
+        public string Language { get; set; }
+        public string Description { get; set; }
+        public string Series { get; set; }
+        public string Edition { get; set; }
+        public Nullable<int> Circulation { get; set; }
+        public string Binding { get; set; }
+        public string Format { get; set; }
+        public int Quantity { get; set; }
+        public int AvailableQuantity { get; set; }
+        public System.DateTime AddedDate { get; set; }
+        public Nullable<System.DateTime> LastModified { get; set; }
     
         public virtual Authors Authors { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BookCopies> BookCopies { get; set; }
         public virtual Genres Genres { get; set; }
+        public virtual Publishers Publishers { get; set; }
     }
 }

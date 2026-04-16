@@ -12,17 +12,12 @@ namespace LibraryAccounting.AppData
     using System;
     using System.Collections.Generic;
     
-    public partial class Loans
+    public partial class sysdiagrams
     {
-        public int LoanId { get; set; }
-        public int CopyId { get; set; }
-        public int ReaderId { get; set; }
-        public System.DateTime LoanDate { get; set; }
-        public System.DateTime DueDate { get; set; }
-        public Nullable<System.DateTime> ReturnDate { get; set; }
-        public Nullable<int> ExtendCount { get; set; }
-    
-        public virtual BookCopies BookCopies { get; set; }
-        public virtual Readers Readers { get; set; }
+        public string name { get; set; }
+        public int principal_id { get; set; }
+        public int diagram_id { get; set; }
+        public Nullable<int> version { get; set; }
+        public byte[] definition { get; set; }
     }
 }

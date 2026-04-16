@@ -446,29 +446,18 @@
                         </Grid>
                     </Border>
 
-                    <!-- Дополнительные параметры -->
+                    <!-- Блок с лимитом -->
                     <Border Background="#F4F1EC" CornerRadius="6" Padding="10" Margin="0,0,0,10">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Тип визуализации:" VerticalAlignment="Center" 
-                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                            <ComboBox x:Name="VisualTypeCombo" Grid.Column="1" Width="150" Height="28">
-                                <ComboBoxItem Content="Таблица" IsSelected="True"/>
-                                <ComboBoxItem Content="Столбчатая диаграмма"/>
-                                <ComboBoxItem Content="Круговая диаграмма"/>
-                                <ComboBoxItem Content="Линейный график"/>
-                            </ComboBox>
-
-                            <TextBlock Text="Лимит:" Grid.Column="2" VerticalAlignment="Center" 
-                               Foreground="#2F4F4F" FontWeight="SemiBold" Margin="15,0,10,0"/>
-                            <TextBox x:Name="LimitInput" Grid.Column="3" Text="100" Width="80" Height="28" 
-                             TextAlignment="Center" HorizontalAlignment="Left"/>
+                            <TextBlock Text="Лимит записей:" VerticalAlignment="Center" 
+                   Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <TextBox x:Name="LimitInput" Grid.Column="1" Text="100" Width="80" Height="28" 
+                 TextAlignment="Center" HorizontalAlignment="Left"/>
                         </Grid>
                     </Border>
 

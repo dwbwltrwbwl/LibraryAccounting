@@ -21,13 +21,13 @@ namespace LibraryAccounting.AppData
         }
     
         public int ReaderId { get; set; }
+        public string last_name { get; set; }
+        public string first_name { get; set; }
+        public string middle_name { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
         public string PassportData { get; set; }
         public System.DateTime RegistrationDate { get; set; }
-        public string last_name { get; set; }
-        public string first_name { get; set; }
-        public string middle_name { get; set; }
         public Nullable<System.DateTime> BirthDate { get; set; }
         public Nullable<int> CategoryId { get; set; }
         public string Status { get; set; }

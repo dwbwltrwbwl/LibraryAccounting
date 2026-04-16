@@ -1,0 +1,45 @@
+﻿<Window x:Class="LibraryAccounting.Pages.LoanHistoryDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="История выдач" Height="500" Width="800"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F1EC">
+
+    <Window.Resources>
+        <Style x:Key="HistoryDataGridStyle" TargetType="DataGrid">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#D4CFC8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="RowBackground" Value="#FFFDF9"/>
+            <Setter Property="AlternatingRowBackground" Value="#F9F8F6"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#E8E4DD"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E8E4DD"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="#FFFDF9" BorderBrush="#C8BFAF" BorderThickness="1" CornerRadius="10" Margin="15">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="ReaderNameText" FontSize="16" FontWeight="SemiBold" Foreground="#2F4F4F" Margin="0,0,0,10"/>
+            <TextBlock Grid.Row="1" Text="История выдач книг" FontSize="13" Foreground="#6F6F6F" Margin="0,0,0,15"/>
+
+            <DataGrid x:Name="HistoryDataGrid" Grid.Row="2" Style="{StaticResource HistoryDataGridStyle}" AutoGenerateColumns="True"/>
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                <Button Content="Закрыть" Width="100" Style="{StaticResource ActionButtonStyle}" Click="Close_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

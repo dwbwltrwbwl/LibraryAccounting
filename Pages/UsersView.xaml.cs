@@ -350,7 +350,12 @@ namespace LibraryAccounting.Pages
             var selected = UsersDataGrid.SelectedItem as UserDisplayModel;
             if (selected == null) return;
 
-            if (selected.Role == "Admin")
+            var userAdm = AppConnect.model01.Users
+    .FirstOrDefault(u => u.UserId == selected.UserId);
+
+            if (userAdm == null) return;
+
+            if (userAdm.RoleId == 1)
             {
                 ShowError("Невозможно заблокировать администратора");
                 return;
@@ -426,7 +431,13 @@ namespace LibraryAccounting.Pages
             var selected = UsersDataGrid.SelectedItem as UserDisplayModel;
             if (selected == null) return;
 
-            if (selected.Login == "admin" || selected.Role == "Admin")
+            var userAdm = AppConnect.model01.Users
+    .FirstOrDefault(u => u.UserId == selected.UserId);
+
+            if (userAdm == null) return;
+
+            // ✅ проверка по РЕАЛЬНЫМ данным
+            if (userAdm.Login == "admin" || userAdm.RoleId == 1)
             {
                 ShowError("Нельзя удалить администратора");
                 return;
