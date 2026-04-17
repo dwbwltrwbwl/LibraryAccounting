@@ -17,7 +17,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок и панель действий -->
         <Border Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
