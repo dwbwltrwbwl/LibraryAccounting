@@ -6,11 +6,40 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
       Background="#F4F1EC"
-      d:DesignHeight="600"
+      d:DesignHeight="700"
       d:DesignWidth="1000">
 
     <Page.Resources>
         <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
+
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#6F6F6F"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+
+        <Style x:Key="ValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="#2F4F4F"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Background" Value="#F4F1EC"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,4,0,15"/>
+        </Style>
+
+        <Style x:Key="ReadOnlyTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource TextBoxStyle}">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Background" Value="#EDE8DF"/>
+            <Setter Property="Foreground" Value="#6F6F6F"/>
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -18,6 +47,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
         <Border Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
@@ -37,101 +67,145 @@
                            Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
-        <Border Grid.Row="1"
-                Background="#FFFDF9"
-                BorderBrush="#C8BFAF"
-                BorderThickness="1"
-                CornerRadius="12"
-                Padding="30"
-                Width="700"
-                Height="450"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top">
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel HorizontalAlignment="Center">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Border Background="#FFFDF9"
+                    BorderBrush="#C8BFAF"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="30"
+                    Width="800"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Margin="0,0,0,20">
 
-                    <Border Width="140"
-            Height="190"
-            CornerRadius="10"
-            BorderBrush="#C8BFAF"
-            BorderThickness="1"
-            Background="#F4F1EC"
-            Padding="6"
-            SnapsToDevicePixels="True"
-            UseLayoutRounding="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                        <Image x:Name="UserPhoto"
-               Stretch="Uniform"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"
-               RenderOptions.BitmapScalingMode="HighQuality"
-               SnapsToDevicePixels="True"/>
-                    </Border>
-                    <Button Content="Загрузить фото"
-            Style="{StaticResource ActionButtonStyle}"
-            Margin="0,15,0,0"
-            Width="160"
-            Click="LoadPhoto_Click"/>
+                    <!-- Левая колонка - фото -->
+                    <StackPanel HorizontalAlignment="Center">
+                        <Border Width="150"
+                                Height="200"
+                                CornerRadius="10"
+                                BorderBrush="#C8BFAF"
+                                BorderThickness="1"
+                                Background="#F4F1EC"
+                                Padding="6">
+                            <Image x:Name="UserPhoto"
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Border>
 
-                    <Button Content="Удалить фото"
-            Style="{StaticResource ActionButtonStyle}"
-            Background="#5F3E40"
-            Margin="0,10,0,0"
-            Width="160"
-            Click="RemovePhoto_Click"/>
-
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="30,0,0,0">
-
-                    <TextBlock Text="Логин" Foreground="#6F6F6F" FontSize="13"/>
-                    <TextBox x:Name="LoginBox"
-         Height="34"
-         Padding="8"
-         Background="#F4F1EC"
-         BorderBrush="#C8BFAF"
-         BorderThickness="1"
-         Margin="0,4,0,18"/>
-
-
-                    <TextBlock Text="Фамилия" Foreground="#6F6F6F" FontSize="13"/>
-                    <TextBox x:Name="LastNameBox" Margin="0,4,0,10"/>
-                    <TextBlock Text="Имя" Foreground="#6F6F6F" FontSize="13"/>
-                    <TextBox x:Name="FirstNameBox" Margin="0,4,0,10"/>
-                    <TextBlock Text="Отчество" Foreground="#6F6F6F" FontSize="13"/>
-                    <TextBox x:Name="MiddleNameBox" Margin="0,4,0,18"/>
-                    <TextBlock Text="Роль" Foreground="#6F6F6F" FontSize="13"/>
-                    <TextBlock x:Name="RoleText"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="#2F4F4F"
-                               Margin="0,4,0,25"/>
-                    <Button Content="Сохранить изменения"
-        Width="160" HorizontalAlignment="Left"
-        Margin="0,0,0,10"
-        Style="{StaticResource ActionButtonStyle}"
-        Click="SaveProfile_Click"/>
-                    <StackPanel Orientation="Horizontal">
-                        
-                        <Button Content="Сменить пароль"
-                                Width="160"
+                        <Button Content="Загрузить фото"
                                 Style="{StaticResource ActionButtonStyle}"
-                                Click="ChangePassword_Click"/>
-
-                        <Button Content="Выйти из аккаунта"
+                                Margin="0,15,0,0"
                                 Width="160"
-                                Margin="15,0,0,0"
+                                Click="LoadPhoto_Click"/>
+
+                        <Button Content="Удалить фото"
+                                Style="{StaticResource ActionButtonStyle}"
                                 Background="#5F3E40"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Click="Logout_Click"/>
+                                Margin="0,10,0,0"
+                                Width="160"
+                                Click="RemovePhoto_Click"/>
                     </StackPanel>
 
-                </StackPanel>
-            </Grid>
-        </Border>
+                    <!-- Правая колонка - информация -->
+                    <ScrollViewer Grid.Column="1" Margin="30,0,0,0" VerticalScrollBarVisibility="Auto" MaxHeight="550">
+                        <StackPanel>
+                            <!-- Личная информация -->
+                            <TextBlock Text="Личная информация" 
+                                       FontSize="16" 
+                                       FontWeight="Bold" 
+                                       Foreground="#2F4F4F"
+                                       Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Фамилия" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="LastNameBox" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Text="Имя" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="FirstNameBox" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Text="Отчество" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="MiddleNameBox" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Text="Дата рождения" Style="{StaticResource LabelStyle}"/>
+                            <DatePicker x:Name="BirthDatePicker" 
+                                        Height="34"
+                                        Background="#F4F1EC"
+                                        BorderBrush="#C8BFAF"
+                                        BorderThickness="1"
+                                        Margin="0,4,0,15"/>
+
+                            <!-- Контактная информация -->
+                            <TextBlock Text="Контактная информация" 
+                                       FontSize="16" 
+                                       FontWeight="Bold" 
+                                       Foreground="#2F4F4F"
+                                       Margin="0,15,0,15"/>
+
+                            <TextBlock Text="Email" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="EmailBox" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Text="Телефон" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="PhoneBox" Style="{StaticResource TextBoxStyle}"/>
+
+                            <!-- Информация об аккаунте -->
+                            <TextBlock Text="Информация об аккаунте" 
+                                       FontSize="16" 
+                                       FontWeight="Bold" 
+                                       Foreground="#2F4F4F"
+                                       Margin="0,15,0,15"/>
+
+                            <TextBlock Text="Логин" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="LoginBox" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Text="Роль" Style="{StaticResource LabelStyle}"/>
+                            <TextBlock x:Name="RoleText" Style="{StaticResource ValueStyle}"/>
+
+                            <TextBlock Text="Стаж работы (лет)" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="ExperienceBox" 
+                                     Style="{StaticResource TextBoxStyle}"
+                                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
+
+                            <TextBlock Text="Дата регистрации" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="RegistrationDateBox" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+
+                            <TextBlock Text="Последний вход" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="LastLoginDateBox" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+
+                            <TextBlock Text="Статус" Style="{StaticResource LabelStyle}"/>
+                            <TextBlock x:Name="StatusText" Style="{StaticResource ValueStyle}"/>
+
+                            <!-- Кнопки -->
+                            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                                <Button Content="Сохранить изменения"
+                                        Width="160"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Click="SaveProfile_Click"/>
+
+                                <Button Content="Сменить пароль"
+                                        Width="160"
+                                        Margin="15,0,0,0"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Click="ChangePassword_Click"/>
+
+                                <Button Content="Выйти из аккаунта"
+                                        Width="160"
+                                        Margin="15,0,0,0"
+                                        Background="#5F3E40"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Click="Logout_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </ScrollViewer>
     </Grid>
 </Page>

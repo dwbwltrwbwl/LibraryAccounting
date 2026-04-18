@@ -23,8 +23,9 @@ namespace LibraryAccounting.AppData
         public int GenreId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string AgeRating { get; set; }
+        public Nullable<int> AgeRatingId { get; set; }
     
+        public virtual AgeRatings AgeRatings { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Books> Books { get; set; }
     }

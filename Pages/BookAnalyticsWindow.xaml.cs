@@ -163,8 +163,9 @@ namespace LibraryAccounting.Windows
 
                 var db = AppConnect.model01 ?? new LibraryAccountingEntities();
 
+                // Исправленный запрос - используем связанную таблицу Languages
                 var data = db.Books
-                    .GroupBy(b => string.IsNullOrEmpty(b.Language) ? "Не указан" : b.Language)
+                    .GroupBy(b => b.Languages != null ? b.Languages.LanguageName : "Не указан")
                     .Select(g => new { Language = g.Key, Count = g.Count() })
                     .OrderByDescending(x => x.Count)
                     .ToList();

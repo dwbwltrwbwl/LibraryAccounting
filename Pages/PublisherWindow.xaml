@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LibraryAccounting.Pages"
         mc:Ignorable="d"
-        Title="Издательство" Height="400" Width="600"
+        Title="Издательство" Height="450" Width="600"
         WindowStartupLocation="CenterOwner"
         Background="#F4F1EC">
 
@@ -109,6 +109,19 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Стиль для ComboBox -->
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="False"/>
+            <Setter Property="StaysOpenOnEdit" Value="True"/>
+        </Style>
+
         <!-- Стиль для подписей -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
@@ -144,7 +157,8 @@
             </Grid.RowDefinitions>
 
             <!-- Заголовок -->
-            <TextBlock Text="Добавление / Редактирование издательства"
+            <TextBlock x:Name="TitleText" 
+                       Text="Добавление / Редактирование издательства"
                        FontSize="18"
                        FontWeight="SemiBold"
                        Foreground="#2F4F4F"
@@ -158,13 +172,15 @@
                      MaxLength="200"
                      TextChanged="NameBox_TextChanged"/>
 
-            <!-- Город -->
+            <!-- Город (выпадающий список с поиском) -->
             <TextBlock Text="Город" Grid.Row="3" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
-            <TextBox x:Name="CityBox" 
-                     Grid.Row="4" 
-                     Style="{StaticResource TextFieldStyle}"
-                     MaxLength="100"
-                     TextChanged="CityBox_TextChanged"/>
+            <ComboBox x:Name="CityComboBox" 
+                      Grid.Row="4" 
+                      Style="{StaticResource ComboBoxStyle}"
+                      DisplayMemberPath="CityName"
+                      SelectedValuePath="CityId"
+                      SelectionChanged="CityComboBox_SelectionChanged"
+                      KeyUp="CityComboBox_KeyUp"/>
 
             <!-- Блок для ошибок -->
             <TextBlock x:Name="ErrorTextBlock" 

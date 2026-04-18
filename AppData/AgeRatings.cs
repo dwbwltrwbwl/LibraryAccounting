@@ -12,20 +12,21 @@ namespace LibraryAccounting.AppData
     using System;
     using System.Collections.Generic;
     
-    public partial class Publishers
+    public partial class AgeRatings
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Publishers()
+        public AgeRatings()
         {
-            this.Books = new HashSet<Books>();
+            this.Genres = new HashSet<Genres>();
         }
     
-        public int PublisherId { get; set; }
-        public string PublisherName { get; set; }
-        public Nullable<int> CityId { get; set; }
+        public int AgeRatingId { get; set; }
+        public string AgeRatingName { get; set; }
+        public int MinAge { get; set; }
+        public string Description { get; set; }
+        public int SortOrder { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Books> Books { get; set; }
-        public virtual Cities Cities { get; set; }
+        public virtual ICollection<Genres> Genres { get; set; }
     }
 }

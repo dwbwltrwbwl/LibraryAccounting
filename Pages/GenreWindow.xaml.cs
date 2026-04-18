@@ -1,4 +1,6 @@
 ﻿using LibraryAccounting.AppData;
+using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,42 +12,75 @@ namespace LibraryAccounting.Pages
     {
         public string NameValue { get; private set; }
         public string DescriptionValue { get; private set; }
-        public string AgeRatingValue { get; private set; }
+        public int? SelectedAgeRatingId { get; private set; }
 
-        public GenreWindow(string name = "", string desc = "", string age = "")
+        // Конструктор для добавления нового жанра
+        public GenreWindow()
         {
             InitializeComponent();
-            NameBox.Text = name;
-            DescriptionBox.Text = desc;
-
-            if (!string.IsNullOrEmpty(age))
-            {
-                foreach (ComboBoxItem item in AgeRatingBox.Items)
-                {
-                    if (item.Content.ToString() == age)
-                    {
-                        AgeRatingBox.SelectedItem = item;
-                        break;
-                    }
-                }
-            }
+            LoadAgeRatings();
+            TitleText.Text = "Добавление жанра";
+            ClearFields();
         }
 
+        // Конструктор для редактирования существующего жанра
         public GenreWindow(Genres genre)
         {
             InitializeComponent();
+            LoadAgeRatings();
+            TitleText.Text = "Редактирование жанра";
+
             NameBox.Text = genre.Name;
             DescriptionBox.Text = genre.Description;
 
-            // Выбираем элемент в ComboBox по тексту
-            foreach (ComboBoxItem item in AgeRatingBox.Items)
+            if (genre.AgeRatingId.HasValue)
             {
-                if (item.Content.ToString() == genre.AgeRating)
-                {
-                    AgeRatingBox.SelectedItem = item;
-                    break;
-                }
+                AgeRatingBox.SelectedValue = genre.AgeRatingId.Value;
             }
+        }
+
+        // Конструктор для восстановления данных при ошибке
+        public GenreWindow(string name, string description, int? ageRatingId)
+        {
+            InitializeComponent();
+            LoadAgeRatings();
+            TitleText.Text = "Добавление жанра";
+
+            NameBox.Text = name;
+            DescriptionBox.Text = description;
+
+            if (ageRatingId.HasValue)
+            {
+                AgeRatingBox.SelectedValue = ageRatingId.Value;
+            }
+        }
+
+        private void LoadAgeRatings()
+        {
+            try
+            {
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+                var ageRatings = AppConnect.model01.AgeRatings
+                    .OrderBy(ar => ar.SortOrder)
+                    .ToList();
+
+                AgeRatingBox.ItemsSource = ageRatings;
+                AgeRatingBox.DisplayMemberPath = "AgeRatingName";
+                AgeRatingBox.SelectedValuePath = "AgeRatingId";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки возрастных рейтингов: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ClearFields()
+        {
+            NameBox.Text = "";
+            DescriptionBox.Text = "";
+            AgeRatingBox.SelectedIndex = -1;
+            ErrorTextBlock.Visibility = Visibility.Collapsed;
         }
 
         private bool ValidateFields()
@@ -53,7 +88,6 @@ namespace LibraryAccounting.Pages
             bool isValid = true;
             string errorMessage = "";
 
-            // Валидация названия
             string name = NameBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -72,7 +106,6 @@ namespace LibraryAccounting.Pages
                 ClearErrorStyle(NameBox);
             }
 
-            // Валидация описания
             string description = DescriptionBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(description))
             {
@@ -85,7 +118,6 @@ namespace LibraryAccounting.Pages
                 ClearErrorStyle(DescriptionBox);
             }
 
-            // Валидация возрастного рейтинга
             if (AgeRatingBox.SelectedItem == null)
             {
                 SetErrorStyle(AgeRatingBox, "Выберите возрастной рейтинг.");
@@ -99,10 +131,12 @@ namespace LibraryAccounting.Pages
 
             if (!isValid)
             {
-                MessageBox.Show($"Пожалуйста, исправьте следующие ошибки:\n\n{errorMessage}",
-                    "Ошибка валидации",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                ErrorTextBlock.Text = $"Пожалуйста, исправьте следующие ошибки:\n\n{errorMessage}";
+                ErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ErrorTextBlock.Visibility = Visibility.Collapsed;
             }
 
             return isValid;
@@ -129,7 +163,7 @@ namespace LibraryAccounting.Pages
 
             NameValue = NameBox.Text.Trim();
             DescriptionValue = DescriptionBox.Text.Trim();
-            AgeRatingValue = (AgeRatingBox.SelectedItem as ComboBoxItem).Content.ToString();
+            SelectedAgeRatingId = (int)AgeRatingBox.SelectedValue;
 
             DialogResult = true;
         }
@@ -142,16 +176,19 @@ namespace LibraryAccounting.Pages
         private void NameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             ClearErrorStyle(NameBox);
+            ErrorTextBlock.Visibility = Visibility.Collapsed;
         }
 
         private void DescriptionBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             ClearErrorStyle(DescriptionBox);
+            ErrorTextBlock.Visibility = Visibility.Collapsed;
         }
 
         private void AgeRatingBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ClearErrorStyle(AgeRatingBox);
+            ErrorTextBlock.Visibility = Visibility.Collapsed;
         }
     }
 }

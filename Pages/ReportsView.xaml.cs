@@ -15,6 +15,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
+using System.Data.Entity;
 
 namespace LibraryAccounting.Pages
 {
@@ -565,7 +566,7 @@ namespace LibraryAccounting.Pages
                         new ReportField { Name = "Жанр", FieldName = "Genre", IsSelected = true },
                         new ReportField { Name = "Год издания", FieldName = "Year", IsSelected = true },
                         new ReportField { Name = "Издательство", FieldName = "Publisher", IsSelected = false },
-                        new ReportField { Name = "Инвентарный номер", FieldName = "InventoryNumber", IsSelected = false }
+                        new ReportField { Name = "Инвентарный номер", FieldName = "InventoryNumber", IsSelected = true }
                     });
                     break;
             }
@@ -603,6 +604,47 @@ namespace LibraryAccounting.Pages
 
                 switch (selectedType)
                 {
+                    case "Читатели":
+                        var readers = AppConnect.model01.Readers.ToList();
+                        System.Diagnostics.Debug.WriteLine($"=== ЧИТАТЕЛИ ===");
+                        System.Diagnostics.Debug.WriteLine($"Найдено читателей в БД: {readers.Count}");
+
+                        foreach (var reader in readers)
+                        {
+                            var expando = new ExpandoObject();
+                            var dict = (IDictionary<string, object>)expando;
+
+                            foreach (var field in selectedFields)
+                            {
+                                switch (field.FieldName)
+                                {
+                                    case "FullName":
+                                        var fullName = (reader.last_name + " " + reader.first_name + " " + (reader.middle_name ?? "")).Trim();
+                                        dict[field.Name] = fullName;
+                                        System.Diagnostics.Debug.WriteLine($"  Добавлен читатель: {fullName}");
+                                        break;
+                                    case "Phone":
+                                        dict[field.Name] = reader.Phone ?? "";
+                                        break;
+                                    case "Email":
+                                        dict[field.Name] = reader.Email ?? "";
+                                        break;
+                                    case "RegistrationDate":
+                                        dict[field.Name] = reader.RegistrationDate.ToString("dd.MM.yyyy");
+                                        break;
+                                    case "Category":
+                                        dict[field.Name] = reader.ReaderCategories?.CategoryName ?? "Не указана";
+                                        break;
+                                    case "Status":
+                                        dict[field.Name] = reader.Status ?? "Активный";
+                                        break;
+                                }
+                            }
+                            reportData.Add(expando);
+                        }
+                        System.Diagnostics.Debug.WriteLine($"Всего создано записей: {reportData.Count}");
+                        break;
+
                     case "Выдача книг":
                         var loans = AppConnect.model01.Loans.ToList();
                         foreach (var loan in loans)
@@ -638,41 +680,6 @@ namespace LibraryAccounting.Pages
                         }
                         break;
 
-                    case "Читатели":
-                        var readers = AppConnect.model01.Readers.ToList();
-                        foreach (var reader in readers)
-                        {
-                            var expando = new ExpandoObject();
-                            var dict = (IDictionary<string, object>)expando;
-
-                            foreach (var field in selectedFields)
-                            {
-                                switch (field.FieldName)
-                                {
-                                    case "FullName":
-                                        dict[field.Name] = (reader.last_name + " " + reader.first_name + " " + (reader.middle_name ?? "")).Trim();
-                                        break;
-                                    case "Phone":
-                                        dict[field.Name] = reader.Phone ?? "";
-                                        break;
-                                    case "Email":
-                                        dict[field.Name] = reader.Email ?? "";
-                                        break;
-                                    case "RegistrationDate":
-                                        dict[field.Name] = reader.RegistrationDate.ToString("dd.MM.yyyy");
-                                        break;
-                                    case "Category":
-                                        dict[field.Name] = reader.ReaderCategories?.CategoryName ?? "Не указана";
-                                        break;
-                                    case "Status":
-                                        dict[field.Name] = reader.Status ?? "Активный";
-                                        break;
-                                }
-                            }
-                            reportData.Add(expando);
-                        }
-                        break;
-
                     case "Книжный фонд":
                         var copies = AppConnect.model01.BookCopies.ToList();
                         foreach (var copy in copies)
@@ -697,7 +704,7 @@ namespace LibraryAccounting.Pages
                                         dict[field.Name] = copy.Books?.PublishYear ?? 0;
                                         break;
                                     case "Publisher":
-                                        //dict[field.Name] = copy.Books?.Publisher ?? "Не указано";
+                                        dict[field.Name] = copy.Books?.Publishers?.PublisherName ?? "Не указано";
                                         break;
                                     case "InventoryNumber":
                                         dict[field.Name] = copy.InventoryNumber ?? "Не указан";
@@ -714,9 +721,16 @@ namespace LibraryAccounting.Pages
                     reportData = reportData.Take(limit).ToList();
                 }
 
+                System.Diagnostics.Debug.WriteLine($"Создано записей: {reportData.Count}");
+                if (reportData.Count > 0)
+                {
+                    var first = (object)reportData[0];
+                    System.Diagnostics.Debug.WriteLine($"Первая запись содержит полей: {first.GetType().GetProperties().Length}");
+                }
+
                 currentReportData = reportData;
                 currentDisplayedData = currentReportData;
-                currentReportName = "Пользовательский отчет";
+                currentReportName = $"Отчет: {selectedType}";
                 isCustomReport = true;
 
                 // Очищаем и создаем колонки
@@ -731,19 +745,20 @@ namespace LibraryAccounting.Pages
                     });
                 }
 
-                // Всегда показываем таблицу
+                // Показываем таблицу
                 ReportsDataGrid.ItemsSource = currentReportData;
                 ReportsDataGrid.Visibility = Visibility.Visible;
                 ChartViewPanel.Visibility = Visibility.Collapsed;
                 SwitchViewBtn.Visibility = Visibility.Collapsed;
-                SwitchViewBtn.Content = "📊 График";
 
                 UpdateStatistics();
                 RecordsCount.Text = $"{currentReportData.Count} записей";
 
                 CustomReportPanel.Visibility = Visibility.Collapsed;
-                CurrentReportTitle.Text = "Пользовательский отчет";
+                CurrentReportTitle.Text = currentReportName;
                 AddBackButton();
+
+                System.Diagnostics.Debug.WriteLine($"DataGrid ItemsSource count: {(ReportsDataGrid.ItemsSource as IEnumerable)?.Cast<object>().Count()}");
             }
             catch (Exception ex)
             {
@@ -961,37 +976,17 @@ namespace LibraryAccounting.Pages
         #endregion
 
         #region Экспорт в CSV
-        private void DebugData(string step)
-        {
-            System.Diagnostics.Debug.WriteLine($"=== {step} ===");
-            System.Diagnostics.Debug.WriteLine($"currentReportData: {(currentReportData?.Count ?? 0)}");
-            System.Diagnostics.Debug.WriteLine($"currentDisplayedData: {(currentDisplayedData?.Count ?? 0)}");
 
-            var data = currentDisplayedData ?? currentReportData;
-            if (data != null && data.Any())
-            {
-                var first = (object)data.First();
-                System.Diagnostics.Debug.WriteLine($"First item type: {first.GetType()}");
-                foreach (var prop in first.GetType().GetProperties())
-                {
-                    System.Diagnostics.Debug.WriteLine($"  Prop: {prop.Name} = {prop.GetValue(first)}");
-                }
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("NO DATA!");
-            }
-        }
         private void ExportToCSV_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Получаем данные прямо из DataGrid
+                // Берём данные напрямую из DataGrid
                 var grid = ReportsDataGrid;
 
                 if (grid.Items.Count == 0)
                 {
-                    ShowError("В таблице нет данных для экспорта");
+                    ShowError("Нет данных для экспорта");
                     return;
                 }
 
@@ -1007,15 +1002,23 @@ namespace LibraryAccounting.Pages
 
                     var sb = new StringBuilder();
 
-                    // Заголовки из колонок
-                    for (int i = 0; i < grid.Columns.Count; i++)
+                    // Получаем заголовки из колонок DataGrid
+                    var headers = new List<string>();
+                    foreach (DataGridColumn column in grid.Columns)
                     {
-                        sb.Append($"\"{grid.Columns[i].Header}\"");
-                        if (i < grid.Columns.Count - 1) sb.Append(";");
+                        headers.Add(column.Header.ToString());
+                    }
+
+                    // Записываем заголовки
+                    for (int i = 0; i < headers.Count; i++)
+                    {
+                        sb.Append($"\"{headers[i]}\"");
+                        if (i < headers.Count - 1) sb.Append(";");
                     }
                     sb.AppendLine();
 
-                    // Данные из строк
+                    // Получаем данные из строк
+                    int rowCount = 0;
                     foreach (var item in grid.Items)
                     {
                         var row = (dynamic)item;
@@ -1028,9 +1031,16 @@ namespace LibraryAccounting.Pages
                                 if (binding != null)
                                 {
                                     var propName = binding.Path.Path;
-                                    var value = row.GetType().GetProperty(propName)?.GetValue(row)?.ToString() ?? "";
-                                    value = value.Replace("\"", "\"\"");
-                                    sb.Append($"\"{value}\"");
+                                    try
+                                    {
+                                        var value = row.GetType().GetProperty(propName)?.GetValue(row)?.ToString() ?? "";
+                                        value = value.Replace("\"", "\"\"");
+                                        sb.Append($"\"{value}\"");
+                                    }
+                                    catch
+                                    {
+                                        sb.Append("\"\"");
+                                    }
                                 }
                                 else
                                 {
@@ -1039,16 +1049,18 @@ namespace LibraryAccounting.Pages
                             }
                             else
                             {
+                                // Для TemplateColumn пробуем получить значение через FindName
                                 sb.Append("\"\"");
                             }
 
                             if (i < grid.Columns.Count - 1) sb.Append(";");
                         }
                         sb.AppendLine();
+                        rowCount++;
                     }
 
                     File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
-                    ShowInfo($"Отчет успешно экспортирован в CSV\n{dialog.FileName}\nЭкспортировано записей: {grid.Items.Count}");
+                    ShowInfo($"Отчет успешно экспортирован в CSV\n{dialog.FileName}\nЭкспортировано записей: {rowCount}");
                 }
             }
             catch (Exception ex)

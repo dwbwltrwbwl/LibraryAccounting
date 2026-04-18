@@ -265,28 +265,7 @@ namespace LibraryAccounting.Pages
 
         private void RemindOverdue_Click(object sender, RoutedEventArgs e)
         {
-            var overdueReaders = _allReaders.Where(r => r.HasOverdue).ToList();
-
-            if (!overdueReaders.Any())
-            {
-                ShowInfo("Нет читателей с просроченными книгами");
-                return;
-            }
-
-            var message = new StringBuilder();
-            message.AppendLine("Список читателей с просроченными книгами:");
-            message.AppendLine(new string('-', 50));
-
-            foreach (var reader in overdueReaders)
-            {
-                message.AppendLine($"📚 {reader.FullName}");
-                message.AppendLine($"   Телефон: {reader.Phone ?? "не указан"}");
-                message.AppendLine($"   Email: {reader.Email ?? "не указан"}");
-                message.AppendLine($"   Просрочка: {reader.OverdueDays} дней");
-                message.AppendLine();
-            }
-
-            var dialog = new MessageDialog("Напоминание о просрочках", message.ToString());
+            var dialog = new RemindOverdueWindow();
             dialog.Owner = Window.GetWindow(this);
             dialog.ShowDialog();
         }

@@ -29,7 +29,7 @@ namespace LibraryAccounting.AppData
         public string ISBN { get; set; }
         public byte[] CoverImage { get; set; }
         public Nullable<int> Pages { get; set; }
-        public string Language { get; set; }
+        public Nullable<int> LanguageId { get; set; }
         public string Description { get; set; }
         public string Series { get; set; }
         public string Edition { get; set; }
@@ -45,6 +45,7 @@ namespace LibraryAccounting.AppData
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BookCopies> BookCopies { get; set; }
         public virtual Genres Genres { get; set; }
+        public virtual Languages Languages { get; set; }
         public virtual Publishers Publishers { get; set; }
     }
 }

@@ -25,10 +25,14 @@ namespace LibraryAccounting.AppData
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<AgeRatings> AgeRatings { get; set; }
         public virtual DbSet<Authors> Authors { get; set; }
         public virtual DbSet<BookCopies> BookCopies { get; set; }
         public virtual DbSet<Books> Books { get; set; }
+        public virtual DbSet<Cities> Cities { get; set; }
+        public virtual DbSet<Countries> Countries { get; set; }
         public virtual DbSet<Genres> Genres { get; set; }
+        public virtual DbSet<Languages> Languages { get; set; }
         public virtual DbSet<Loans> Loans { get; set; }
         public virtual DbSet<Publishers> Publishers { get; set; }
         public virtual DbSet<ReaderCategories> ReaderCategories { get; set; }

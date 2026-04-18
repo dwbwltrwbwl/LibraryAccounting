@@ -1,5 +1,6 @@
 ﻿using LibraryAccounting.AppData;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,22 +13,137 @@ namespace LibraryAccounting.Pages
         public string FullName { get; private set; }
         public DateTime? BirthDate { get; private set; }
         public DateTime? DeathDate { get; private set; }
-        public string Country { get; private set; }
-        public string City { get; private set; }
+        public int? SelectedCityId { get; private set; }
 
         public bool IsDuplicateError { get; set; } = false;
 
         public AuthorWindow(Authors author = null)
         {
             InitializeComponent();
+            LoadCountries();
 
             if (author != null)
             {
+                // Режим редактирования
+                TitleText.Text = "Редактирование автора";
+
                 NameBox.Text = author.FullName;
                 BirthDatePicker.SelectedDate = author.BirthDate;
                 DeathDatePicker.SelectedDate = author.DeathDate;
-                CountryBox.Text = author.Country;
-                CityBox.Text = author.City;
+
+                if (author.CityId.HasValue)
+                {
+                    var city = AppConnect.model01.Cities.FirstOrDefault(c => c.CityId == author.CityId);
+                    if (city != null)
+                    {
+                        CountryComboBox.SelectedValue = city.CountryId;
+                        LoadCities(city.CountryId);
+                        CityComboBox.SelectedValue = author.CityId;
+                    }
+                }
+            }
+            else
+            {
+                // Режим добавления
+                TitleText.Text = "Добавление автора";
+                ClearFields();  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+            }
+        }
+        private void ClearFields()
+        {
+            NameBox.Text = "";
+            BirthDatePicker.SelectedDate = null;
+            DeathDatePicker.SelectedDate = null;
+            CountryComboBox.SelectedIndex = -1;
+            CityComboBox.ItemsSource = null;
+            CityComboBox.IsEnabled = false;
+            ErrorTextBlock.Visibility = Visibility.Collapsed;
+        }
+        private void LoadCountries()
+        {
+            try
+            {
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+                CountryComboBox.ItemsSource = AppConnect.model01.Countries
+                    .OrderBy(c => c.CountryName)
+                    .ToList();
+                CountryComboBox.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки стран: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void LoadCities(int? countryId)
+        {
+            try
+            {
+                if (countryId.HasValue)
+                {
+                    var cities = AppConnect.model01.Cities
+                        .Where(c => c.CountryId == countryId.Value)
+                        .OrderBy(c => c.CityName)
+                        .ToList();
+
+                    CityComboBox.ItemsSource = cities;
+                    CityComboBox.IsEnabled = cities.Any();
+                    CityComboBox.SelectedIndex = -1;
+                }
+                else
+                {
+                    CityComboBox.ItemsSource = null;
+                    CityComboBox.IsEnabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки городов: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void CountryComboBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox == null) return;
+
+            string searchText = comboBox.Text?.ToLower() ?? "";
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                // Если поиск пустой - показываем все страны
+                comboBox.ItemsSource = AppConnect.model01.Countries
+                    .OrderBy(c => c.CountryName)
+                    .ToList();
+            }
+            else
+            {
+                // Фильтруем страны по введенному тексту
+                var filteredCountries = AppConnect.model01.Countries
+                    .Where(c => c.CountryName.ToLower().Contains(searchText))
+                    .OrderBy(c => c.CountryName)
+                    .ToList();
+
+                comboBox.ItemsSource = filteredCountries;
+
+                // Если есть результат, открываем выпадающий список
+                if (filteredCountries.Any())
+                {
+                    comboBox.IsDropDownOpen = true;
+                }
+            }
+        }
+        private void CountryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CountryComboBox.SelectedItem != null)
+            {
+                var selectedCountry = (Countries)CountryComboBox.SelectedItem;
+                LoadCities(selectedCountry.CountryId);
+            }
+            else
+            {
+                LoadCities(null);
             }
         }
 
@@ -111,32 +227,6 @@ namespace LibraryAccounting.Pages
                 ClearErrorStyle(DeathDatePicker);
             }
 
-            // Валидация страны (необязательно, но если заполнена - проверяем)
-            string country = CountryBox.Text.Trim();
-            if (!string.IsNullOrEmpty(country) && !Regex.IsMatch(country, @"^[a-zA-Zа-яА-Я\s\-']+$"))
-            {
-                SetErrorStyle(CountryBox, "Страна может содержать только буквы, пробелы и дефисы");
-                errorMessage += "• Страна содержит недопустимые символы\n";
-                isValid = false;
-            }
-            else
-            {
-                ClearErrorStyle(CountryBox);
-            }
-
-            // Валидация города (необязательно, но если заполнен - проверяем)
-            string city = CityBox.Text.Trim();
-            if (!string.IsNullOrEmpty(city) && !Regex.IsMatch(city, @"^[a-zA-Zа-яА-Я\s\-']+$"))
-            {
-                SetErrorStyle(CityBox, "Город может содержать только буквы, пробелы и дефисы");
-                errorMessage += "• Город содержит недопустимые символы\n";
-                isValid = false;
-            }
-            else
-            {
-                ClearErrorStyle(CityBox);
-            }
-
             if (!isValid)
             {
                 ErrorTextBlock.Text = $"Пожалуйста, исправьте следующие ошибки:\n\n{errorMessage}";
@@ -173,7 +263,6 @@ namespace LibraryAccounting.Pages
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // Очищаем предыдущую ошибку
             ErrorTextBlock.Visibility = Visibility.Collapsed;
             ErrorTextBlock.Text = "";
             IsDuplicateError = false;
@@ -184,8 +273,7 @@ namespace LibraryAccounting.Pages
             FullName = NameBox.Text.Trim();
             BirthDate = BirthDatePicker.SelectedDate;
             DeathDate = DeathDatePicker.SelectedDate;
-            Country = string.IsNullOrWhiteSpace(CountryBox.Text) ? null : CountryBox.Text.Trim();
-            City = string.IsNullOrWhiteSpace(CityBox.Text) ? null : CityBox.Text.Trim();
+            SelectedCityId = CityComboBox.SelectedValue as int?;
 
             DialogResult = true;
         }
@@ -195,7 +283,6 @@ namespace LibraryAccounting.Pages
             DialogResult = false;
         }
 
-        // Обработчики для сброса ошибок при изменении полей
         private void NameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             ClearErrorStyle(NameBox);
@@ -208,7 +295,6 @@ namespace LibraryAccounting.Pages
             ClearErrorStyle(BirthDatePicker);
             ErrorTextBlock.Visibility = Visibility.Collapsed;
 
-            // Автоматическая валидация даты смерти
             if (DeathDatePicker.SelectedDate.HasValue && BirthDatePicker.SelectedDate.HasValue)
             {
                 if (DeathDatePicker.SelectedDate <= BirthDatePicker.SelectedDate)
@@ -227,7 +313,6 @@ namespace LibraryAccounting.Pages
             ClearErrorStyle(DeathDatePicker);
             ErrorTextBlock.Visibility = Visibility.Collapsed;
 
-            // Автоматическая валидация даты смерти
             if (DeathDatePicker.SelectedDate.HasValue && BirthDatePicker.SelectedDate.HasValue)
             {
                 if (DeathDatePicker.SelectedDate <= BirthDatePicker.SelectedDate)
@@ -239,18 +324,6 @@ namespace LibraryAccounting.Pages
                     ClearErrorStyle(DeathDatePicker);
                 }
             }
-        }
-
-        private void CountryBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ClearErrorStyle(CountryBox);
-            ErrorTextBlock.Visibility = Visibility.Collapsed;
-        }
-
-        private void CityBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ClearErrorStyle(CityBox);
-            ErrorTextBlock.Visibility = Visibility.Collapsed;
         }
     }
 }

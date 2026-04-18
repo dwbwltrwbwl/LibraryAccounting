@@ -10,7 +10,6 @@
         Background="#F4F1EC">
 
     <Window.Resources>
-        <!-- Стиль для кнопок -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="16,0"/>
@@ -29,8 +28,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -39,13 +37,9 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#1F3A3A"/>
                 </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#0F2A2A"/>
-                </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Стиль для кнопки отмены -->
         <Style x:Key="CancelButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="16,0"/>
@@ -63,8 +57,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -73,13 +66,9 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#F0EDE8"/>
                 </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#E8E4DD"/>
-                </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Стиль для текстовых полей -->
         <Style x:Key="TextFieldStyle" TargetType="TextBox">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Background" Value="#FFFDF9"/>
@@ -109,6 +98,16 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Foreground" Value="#2F4F4F"/>
+        </Style>
+
         <!-- Стиль для DatePicker -->
         <Style x:Key="DatePickerStyle" TargetType="DatePicker">
             <Setter Property="Height" Value="35"/>
@@ -120,33 +119,40 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="DatePicker">
-                        <Grid>
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="6"/>
-                            <Grid Margin="10,0,30,0">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
                                 <DatePickerTextBox x:Name="TextBox" 
-                                                   VerticalContentAlignment="Center"
-                                                   Background="Transparent"
-                                                   BorderThickness="0"/>
+                                           Grid.Column="0"
+                                           VerticalContentAlignment="Center"
+                                           Background="Transparent"
+                                           BorderThickness="0"
+                                           Margin="10,0,0,0"/>
+
+                                <Button x:Name="Button"
+                                Grid.Column="1"
+                                Content="📅"
+                                Width="35"
+                                Height="35"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                FontSize="14"
+                                Cursor="Hand"
+                                Focusable="False"/>
                             </Grid>
-                            <Button x:Name="Button"
-                                    Content="📅"
-                                    Width="30"
-                                    Height="30"
-                                    HorizontalAlignment="Right"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    FontSize="14"
-                                    Cursor="Hand"/>
-                        </Grid>
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- Стиль для подписей -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -154,7 +160,6 @@
             <Setter Property="Margin" Value="0,0,0,5"/>
         </Style>
 
-        <!-- Стиль для ошибок -->
         <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#D32F2F"/>
             <Setter Property="FontSize" Value="12"/>
@@ -181,13 +186,12 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
                 <!-- Заголовок -->
                 <TextBlock Text="Добавление / Редактирование автора"
+                           x:Name="TitleText"
                            FontSize="18"
                            FontWeight="SemiBold"
                            Foreground="#2F4F4F"
@@ -204,32 +208,54 @@
                 <!-- Дата рождения -->
                 <TextBlock Text="Дата рождения*" Grid.Row="3" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
                 <DatePicker x:Name="BirthDatePicker" 
-                            Grid.Row="4" 
-                            Style="{StaticResource DatePickerStyle}"
-                            SelectedDateChanged="BirthDatePicker_SelectedDateChanged"/>
+            Grid.Row="4" 
+            Height="35"
+            SelectedDateChanged="BirthDatePicker_SelectedDateChanged">
+                    <DatePicker.Resources>
+                        <Style TargetType="DatePickerTextBox">
+                            <Setter Property="IsReadOnly" Value="True"/>
+                            <Setter Property="Background" Value="#FFFDF9"/>
+                            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+                        </Style>
+                    </DatePicker.Resources>
+                </DatePicker>
 
                 <!-- Дата смерти -->
                 <TextBlock Text="Дата смерти" Grid.Row="5" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
                 <DatePicker x:Name="DeathDatePicker" 
-                            Grid.Row="6" 
-                            Style="{StaticResource DatePickerStyle}"
-                            SelectedDateChanged="DeathDatePicker_SelectedDateChanged"/>
-
-                <!-- Страна -->
+            Grid.Row="6" 
+            Height="35"
+            SelectedDateChanged="DeathDatePicker_SelectedDateChanged">
+                    <DatePicker.Resources>
+                        <Style TargetType="DatePickerTextBox">
+                            <Setter Property="IsReadOnly" Value="True"/>
+                            <Setter Property="Background" Value="#FFFDF9"/>
+                            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+                        </Style>
+                    </DatePicker.Resources>
+                </DatePicker>
+                <!-- Страна (выпадающий список с поиском) -->
                 <TextBlock Text="Страна" Grid.Row="7" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
-                <TextBox x:Name="CountryBox" 
-                         Grid.Row="8" 
-                         Style="{StaticResource TextFieldStyle}"
-                         MaxLength="100"
-                         TextChanged="CountryBox_TextChanged"/>
+                <ComboBox x:Name="CountryComboBox" 
+          Grid.Row="8" 
+          Style="{StaticResource ComboBoxStyle}"
+          DisplayMemberPath="CountryName"
+          SelectedValuePath="CountryId"
+          IsEditable="True"
+          IsTextSearchEnabled="True"
+          TextSearch.TextPath="CountryName"
+          StaysOpenOnEdit="True"
+          SelectionChanged="CountryComboBox_SelectionChanged"
+          KeyUp="CountryComboBox_KeyUp"/>
 
-                <!-- Город -->
+                <!-- Город (выпадающий список, зависит от страны) -->
                 <TextBlock Text="Город" Grid.Row="9" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
-                <TextBox x:Name="CityBox" 
-                         Grid.Row="10" 
-                         Style="{StaticResource TextFieldStyle}"
-                         MaxLength="100"
-                         TextChanged="CityBox_TextChanged"/>
+                <ComboBox x:Name="CityComboBox" 
+                          Grid.Row="10" 
+                          Style="{StaticResource ComboBoxStyle}"
+                          DisplayMemberPath="CityName"
+                          SelectedValuePath="CityId"
+                          IsEnabled="False"/>
 
                 <!-- Блок для ошибок -->
                 <TextBlock x:Name="ErrorTextBlock" 

@@ -4,7 +4,17 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="Хранилище LibraryAccountingModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="Хранилище LibraryAccountingModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="AgeRatings">
+          <Key>
+            <PropertyRef Name="AgeRatingId" />
+          </Key>
+          <Property Name="AgeRatingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AgeRatingName" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="MinAge" Type="int" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="200" />
+          <Property Name="SortOrder" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="Authors">
           <Key>
             <PropertyRef Name="AuthorId" />
@@ -13,8 +23,7 @@
           <Property Name="FullName" Type="nvarchar" MaxLength="150" Nullable="false" />
           <Property Name="BirthDate" Type="date" />
           <Property Name="DeathDate" Type="date" />
-          <Property Name="Country" Type="nvarchar" MaxLength="100" />
-          <Property Name="City" Type="nvarchar" MaxLength="100" />
+          <Property Name="CityId" Type="int" />
         </EntityType>
         <EntityType Name="BookCopies">
           <Key>
@@ -40,7 +49,7 @@
           <Property Name="ISBN" Type="nvarchar" MaxLength="20" />
           <Property Name="CoverImage" Type="varbinary(max)" />
           <Property Name="Pages" Type="int" />
-          <Property Name="Language" Type="nvarchar" MaxLength="50" />
+          <Property Name="LanguageId" Type="int" />
           <Property Name="Description" Type="nvarchar(max)" />
           <Property Name="Series" Type="nvarchar" MaxLength="100" />
           <Property Name="Edition" Type="nvarchar" MaxLength="50" />
@@ -52,6 +61,22 @@
           <Property Name="AddedDate" Type="datetime" Nullable="false" />
           <Property Name="LastModified" Type="datetime" />
         </EntityType>
+        <EntityType Name="Cities">
+          <Key>
+            <PropertyRef Name="CityId" />
+          </Key>
+          <Property Name="CityId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CityName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="CountryId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Countries">
+          <Key>
+            <PropertyRef Name="CountryId" />
+          </Key>
+          <Property Name="CountryId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CountryName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Code" Type="nvarchar" MaxLength="3" />
+        </EntityType>
         <EntityType Name="Genres">
           <Key>
             <PropertyRef Name="GenreId" />
@@ -59,7 +84,15 @@
           <Property Name="GenreId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="nvarchar" MaxLength="100" Nullable="false" />
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
-          <Property Name="AgeRating" Type="nvarchar" MaxLength="20" />
+          <Property Name="AgeRatingId" Type="int" />
+        </EntityType>
+        <EntityType Name="Languages">
+          <Key>
+            <PropertyRef Name="LanguageId" />
+          </Key>
+          <Property Name="LanguageId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LanguageName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Code" Type="nvarchar" MaxLength="10" />
         </EntityType>
         <EntityType Name="Loans">
           <Key>
@@ -79,7 +112,7 @@
           </Key>
           <Property Name="PublisherId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="PublisherName" Type="nvarchar" MaxLength="200" Nullable="false" />
-          <Property Name="City" Type="nvarchar" MaxLength="100" />
+          <Property Name="CityId" Type="int" />
         </EntityType>
         <EntityType Name="ReaderCategories">
           <Key>
@@ -143,6 +176,18 @@
           <Property Name="RegistrationDate" Type="datetime" />
           <Property Name="LastLoginDate" Type="datetime" />
         </EntityType>
+        <Association Name="FK_Authors_Cities">
+          <End Role="Cities" Type="Self.Cities" Multiplicity="0..1" />
+          <End Role="Authors" Type="Self.Authors" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cities">
+              <PropertyRef Name="CityId" />
+            </Principal>
+            <Dependent Role="Authors">
+              <PropertyRef Name="CityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_BookCopies_Books">
           <End Role="Books" Type="Self.Books" Multiplicity="1" />
           <End Role="BookCopies" Type="Self.BookCopies" Multiplicity="*" />
@@ -179,6 +224,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Books_Languages">
+          <End Role="Languages" Type="Self.Languages" Multiplicity="0..1" />
+          <End Role="Books" Type="Self.Books" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Languages">
+              <PropertyRef Name="LanguageId" />
+            </Principal>
+            <Dependent Role="Books">
+              <PropertyRef Name="LanguageId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Books_Publishers">
           <End Role="Publishers" Type="Self.Publishers" Multiplicity="0..1" />
           <End Role="Books" Type="Self.Books" Multiplicity="*" />
@@ -188,6 +245,30 @@
             </Principal>
             <Dependent Role="Books">
               <PropertyRef Name="PublisherId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Cities_Countries">
+          <End Role="Countries" Type="Self.Countries" Multiplicity="1" />
+          <End Role="Cities" Type="Self.Cities" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Countries">
+              <PropertyRef Name="CountryId" />
+            </Principal>
+            <Dependent Role="Cities">
+              <PropertyRef Name="CountryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Genres_AgeRatings">
+          <End Role="AgeRatings" Type="Self.AgeRatings" Multiplicity="0..1" />
+          <End Role="Genres" Type="Self.Genres" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AgeRatings">
+              <PropertyRef Name="AgeRatingId" />
+            </Principal>
+            <Dependent Role="Genres">
+              <PropertyRef Name="AgeRatingId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -212,6 +293,18 @@
             </Principal>
             <Dependent Role="Loans">
               <PropertyRef Name="ReaderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Publishers_Cities">
+          <End Role="Cities" Type="Self.Cities" Multiplicity="0..1" />
+          <End Role="Publishers" Type="Self.Publishers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cities">
+              <PropertyRef Name="CityId" />
+            </Principal>
+            <Dependent Role="Publishers">
+              <PropertyRef Name="CityId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -240,10 +333,14 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="Хранилище LibraryAccountingModelContainer">
+          <EntitySet Name="AgeRatings" EntityType="Self.AgeRatings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Authors" EntityType="Self.Authors" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BookCopies" EntityType="Self.BookCopies" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Books" EntityType="Self.Books" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Cities" EntityType="Self.Cities" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Countries" EntityType="Self.Countries" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Genres" EntityType="Self.Genres" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Languages" EntityType="Self.Languages" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Loans" EntityType="Self.Loans" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Publishers" EntityType="Self.Publishers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ReaderCategories" EntityType="Self.ReaderCategories" Schema="dbo" store:Type="Tables" />
@@ -251,6 +348,10 @@
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Authors_Cities" Association="Self.FK_Authors_Cities">
+            <End Role="Cities" EntitySet="Cities" />
+            <End Role="Authors" EntitySet="Authors" />
+          </AssociationSet>
           <AssociationSet Name="FK_BookCopies_Books" Association="Self.FK_BookCopies_Books">
             <End Role="Books" EntitySet="Books" />
             <End Role="BookCopies" EntitySet="BookCopies" />
@@ -263,9 +364,21 @@
             <End Role="Genres" EntitySet="Genres" />
             <End Role="Books" EntitySet="Books" />
           </AssociationSet>
+          <AssociationSet Name="FK_Books_Languages" Association="Self.FK_Books_Languages">
+            <End Role="Languages" EntitySet="Languages" />
+            <End Role="Books" EntitySet="Books" />
+          </AssociationSet>
           <AssociationSet Name="FK_Books_Publishers" Association="Self.FK_Books_Publishers">
             <End Role="Publishers" EntitySet="Publishers" />
             <End Role="Books" EntitySet="Books" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Cities_Countries" Association="Self.FK_Cities_Countries">
+            <End Role="Countries" EntitySet="Countries" />
+            <End Role="Cities" EntitySet="Cities" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Genres_AgeRatings" Association="Self.FK_Genres_AgeRatings">
+            <End Role="AgeRatings" EntitySet="AgeRatings" />
+            <End Role="Genres" EntitySet="Genres" />
           </AssociationSet>
           <AssociationSet Name="FK_Loans_BookCopies" Association="Self.FK_Loans_BookCopies">
             <End Role="BookCopies" EntitySet="BookCopies" />
@@ -274,6 +387,10 @@
           <AssociationSet Name="FK_Loans_Readers" Association="Self.FK_Loans_Readers">
             <End Role="Readers" EntitySet="Readers" />
             <End Role="Loans" EntitySet="Loans" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Publishers_Cities" Association="Self.FK_Publishers_Cities">
+            <End Role="Cities" EntitySet="Cities" />
+            <End Role="Publishers" EntitySet="Publishers" />
           </AssociationSet>
           <AssociationSet Name="FK_Readers_ReaderCategories" Association="Self.FK_Readers_ReaderCategories">
             <End Role="ReaderCategories" EntitySet="ReaderCategories" />
@@ -284,10 +401,22 @@
             <End Role="Users" EntitySet="Users" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="LibraryAccountingModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="AgeRatings">
+          <Key>
+            <PropertyRef Name="AgeRatingId" />
+          </Key>
+          <Property Name="AgeRatingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AgeRatingName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MinAge" Type="Int32" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="SortOrder" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Genres" Relationship="Self.FK_Genres_AgeRatings" FromRole="AgeRatings" ToRole="Genres" />
+        </EntityType>
         <EntityType Name="Authors">
           <Key>
             <PropertyRef Name="AuthorId" />
@@ -296,8 +425,8 @@
           <Property Name="FullName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="BirthDate" Type="DateTime" Precision="0" />
           <Property Name="DeathDate" Type="DateTime" Precision="0" />
-          <Property Name="Country" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="City" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="CityId" Type="Int32" />
+          <NavigationProperty Name="Cities" Relationship="Self.FK_Authors_Cities" FromRole="Authors" ToRole="Cities" />
           <NavigationProperty Name="Books" Relationship="Self.FK_Books_Authors" FromRole="Authors" ToRole="Books" />
         </EntityType>
         <EntityType Name="BookCopies">
@@ -326,7 +455,7 @@
           <Property Name="ISBN" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="CoverImage" Type="Binary" MaxLength="Max" FixedLength="false" />
           <Property Name="Pages" Type="Int32" />
-          <Property Name="Language" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="LanguageId" Type="Int32" />
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Series" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Edition" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
@@ -340,7 +469,28 @@
           <NavigationProperty Name="Authors" Relationship="Self.FK_Books_Authors" FromRole="Books" ToRole="Authors" />
           <NavigationProperty Name="BookCopies" Relationship="Self.FK_BookCopies_Books" FromRole="Books" ToRole="BookCopies" />
           <NavigationProperty Name="Genres" Relationship="Self.FK_Books_Genres" FromRole="Books" ToRole="Genres" />
+          <NavigationProperty Name="Languages" Relationship="Self.FK_Books_Languages" FromRole="Books" ToRole="Languages" />
           <NavigationProperty Name="Publishers" Relationship="Self.FK_Books_Publishers" FromRole="Books" ToRole="Publishers" />
+        </EntityType>
+        <EntityType Name="Cities">
+          <Key>
+            <PropertyRef Name="CityId" />
+          </Key>
+          <Property Name="CityId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CityName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CountryId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Authors" Relationship="Self.FK_Authors_Cities" FromRole="Cities" ToRole="Authors" />
+          <NavigationProperty Name="Countries" Relationship="Self.FK_Cities_Countries" FromRole="Cities" ToRole="Countries" />
+          <NavigationProperty Name="Publishers" Relationship="Self.FK_Publishers_Cities" FromRole="Cities" ToRole="Publishers" />
+        </EntityType>
+        <EntityType Name="Countries">
+          <Key>
+            <PropertyRef Name="CountryId" />
+          </Key>
+          <Property Name="CountryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CountryName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Code" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Cities" Relationship="Self.FK_Cities_Countries" FromRole="Countries" ToRole="Cities" />
         </EntityType>
         <EntityType Name="Genres">
           <Key>
@@ -349,8 +499,18 @@
           <Property Name="GenreId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="AgeRating" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="AgeRatingId" Type="Int32" />
+          <NavigationProperty Name="AgeRatings" Relationship="Self.FK_Genres_AgeRatings" FromRole="Genres" ToRole="AgeRatings" />
           <NavigationProperty Name="Books" Relationship="Self.FK_Books_Genres" FromRole="Genres" ToRole="Books" />
+        </EntityType>
+        <EntityType Name="Languages">
+          <Key>
+            <PropertyRef Name="LanguageId" />
+          </Key>
+          <Property Name="LanguageId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LanguageName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Code" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Books" Relationship="Self.FK_Books_Languages" FromRole="Languages" ToRole="Books" />
         </EntityType>
         <EntityType Name="Loans">
           <Key>
@@ -372,8 +532,9 @@
           </Key>
           <Property Name="PublisherId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="PublisherName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="City" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="CityId" Type="Int32" />
           <NavigationProperty Name="Books" Relationship="Self.FK_Books_Publishers" FromRole="Publishers" ToRole="Books" />
+          <NavigationProperty Name="Cities" Relationship="Self.FK_Publishers_Cities" FromRole="Publishers" ToRole="Cities" />
         </EntityType>
         <EntityType Name="ReaderCategories">
           <Key>
@@ -442,6 +603,30 @@
           <Property Name="LastLoginDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Roles" Relationship="Self.FK_Users_Roles" FromRole="Users" ToRole="Roles" />
         </EntityType>
+        <Association Name="FK_Genres_AgeRatings">
+          <End Role="AgeRatings" Type="Self.AgeRatings" Multiplicity="0..1" />
+          <End Role="Genres" Type="Self.Genres" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AgeRatings">
+              <PropertyRef Name="AgeRatingId" />
+            </Principal>
+            <Dependent Role="Genres">
+              <PropertyRef Name="AgeRatingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Authors_Cities">
+          <End Role="Cities" Type="Self.Cities" Multiplicity="0..1" />
+          <End Role="Authors" Type="Self.Authors" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cities">
+              <PropertyRef Name="CityId" />
+            </Principal>
+            <Dependent Role="Authors">
+              <PropertyRef Name="CityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Books_Authors">
           <End Role="Authors" Type="Self.Authors" Multiplicity="1" />
           <End Role="Books" Type="Self.Books" Multiplicity="*" />
@@ -490,6 +675,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Books_Languages">
+          <End Role="Languages" Type="Self.Languages" Multiplicity="0..1" />
+          <End Role="Books" Type="Self.Books" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Languages">
+              <PropertyRef Name="LanguageId" />
+            </Principal>
+            <Dependent Role="Books">
+              <PropertyRef Name="LanguageId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Books_Publishers">
           <End Role="Publishers" Type="Self.Publishers" Multiplicity="0..1" />
           <End Role="Books" Type="Self.Books" Multiplicity="*" />
@@ -499,6 +696,30 @@
             </Principal>
             <Dependent Role="Books">
               <PropertyRef Name="PublisherId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Cities_Countries">
+          <End Role="Countries" Type="Self.Countries" Multiplicity="1" />
+          <End Role="Cities" Type="Self.Cities" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Countries">
+              <PropertyRef Name="CountryId" />
+            </Principal>
+            <Dependent Role="Cities">
+              <PropertyRef Name="CountryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Publishers_Cities">
+          <End Role="Cities" Type="Self.Cities" Multiplicity="0..1" />
+          <End Role="Publishers" Type="Self.Publishers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cities">
+              <PropertyRef Name="CityId" />
+            </Principal>
+            <Dependent Role="Publishers">
+              <PropertyRef Name="CityId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -539,10 +760,14 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="LibraryAccountingEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="AgeRatings" EntityType="Self.AgeRatings" />
           <EntitySet Name="Authors" EntityType="Self.Authors" />
           <EntitySet Name="BookCopies" EntityType="Self.BookCopies" />
           <EntitySet Name="Books" EntityType="Self.Books" />
+          <EntitySet Name="Cities" EntityType="Self.Cities" />
+          <EntitySet Name="Countries" EntityType="Self.Countries" />
           <EntitySet Name="Genres" EntityType="Self.Genres" />
+          <EntitySet Name="Languages" EntityType="Self.Languages" />
           <EntitySet Name="Loans" EntityType="Self.Loans" />
           <EntitySet Name="Publishers" EntityType="Self.Publishers" />
           <EntitySet Name="ReaderCategories" EntityType="Self.ReaderCategories" />
@@ -550,6 +775,14 @@
           <EntitySet Name="Roles" EntityType="Self.Roles" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
           <EntitySet Name="Users" EntityType="Self.Users" />
+          <AssociationSet Name="FK_Genres_AgeRatings" Association="Self.FK_Genres_AgeRatings">
+            <End Role="AgeRatings" EntitySet="AgeRatings" />
+            <End Role="Genres" EntitySet="Genres" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Authors_Cities" Association="Self.FK_Authors_Cities">
+            <End Role="Cities" EntitySet="Cities" />
+            <End Role="Authors" EntitySet="Authors" />
+          </AssociationSet>
           <AssociationSet Name="FK_Books_Authors" Association="Self.FK_Books_Authors">
             <End Role="Authors" EntitySet="Authors" />
             <End Role="Books" EntitySet="Books" />
@@ -566,9 +799,21 @@
             <End Role="Genres" EntitySet="Genres" />
             <End Role="Books" EntitySet="Books" />
           </AssociationSet>
+          <AssociationSet Name="FK_Books_Languages" Association="Self.FK_Books_Languages">
+            <End Role="Languages" EntitySet="Languages" />
+            <End Role="Books" EntitySet="Books" />
+          </AssociationSet>
           <AssociationSet Name="FK_Books_Publishers" Association="Self.FK_Books_Publishers">
             <End Role="Publishers" EntitySet="Publishers" />
             <End Role="Books" EntitySet="Books" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Cities_Countries" Association="Self.FK_Cities_Countries">
+            <End Role="Countries" EntitySet="Countries" />
+            <End Role="Cities" EntitySet="Cities" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Publishers_Cities" Association="Self.FK_Publishers_Cities">
+            <End Role="Cities" EntitySet="Cities" />
+            <End Role="Publishers" EntitySet="Publishers" />
           </AssociationSet>
           <AssociationSet Name="FK_Loans_Readers" Association="Self.FK_Loans_Readers">
             <End Role="Readers" EntitySet="Readers" />
@@ -589,6 +834,17 @@
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="Хранилище LibraryAccountingModelContainer" CdmEntityContainer="LibraryAccountingEntities">
+          <EntitySetMapping Name="AgeRatings">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.AgeRatings">
+              <MappingFragment StoreEntitySet="AgeRatings">
+                <ScalarProperty Name="AgeRatingId" ColumnName="AgeRatingId" />
+                <ScalarProperty Name="AgeRatingName" ColumnName="AgeRatingName" />
+                <ScalarProperty Name="MinAge" ColumnName="MinAge" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="SortOrder" ColumnName="SortOrder" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Authors">
             <EntityTypeMapping TypeName="LibraryAccountingModel.Authors">
               <MappingFragment StoreEntitySet="Authors">
@@ -596,8 +852,7 @@
                 <ScalarProperty Name="FullName" ColumnName="FullName" />
                 <ScalarProperty Name="BirthDate" ColumnName="BirthDate" />
                 <ScalarProperty Name="DeathDate" ColumnName="DeathDate" />
-                <ScalarProperty Name="Country" ColumnName="Country" />
-                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="CityId" ColumnName="CityId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -625,7 +880,7 @@
                 <ScalarProperty Name="ISBN" ColumnName="ISBN" />
                 <ScalarProperty Name="CoverImage" ColumnName="CoverImage" />
                 <ScalarProperty Name="Pages" ColumnName="Pages" />
-                <ScalarProperty Name="Language" ColumnName="Language" />
+                <ScalarProperty Name="LanguageId" ColumnName="LanguageId" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Series" ColumnName="Series" />
                 <ScalarProperty Name="Edition" ColumnName="Edition" />
@@ -639,13 +894,40 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Cities">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.Cities">
+              <MappingFragment StoreEntitySet="Cities">
+                <ScalarProperty Name="CityId" ColumnName="CityId" />
+                <ScalarProperty Name="CityName" ColumnName="CityName" />
+                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Countries">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.Countries">
+              <MappingFragment StoreEntitySet="Countries">
+                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
+                <ScalarProperty Name="CountryName" ColumnName="CountryName" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Genres">
             <EntityTypeMapping TypeName="LibraryAccountingModel.Genres">
               <MappingFragment StoreEntitySet="Genres">
                 <ScalarProperty Name="GenreId" ColumnName="GenreId" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="AgeRating" ColumnName="AgeRating" />
+                <ScalarProperty Name="AgeRatingId" ColumnName="AgeRatingId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Languages">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.Languages">
+              <MappingFragment StoreEntitySet="Languages">
+                <ScalarProperty Name="LanguageId" ColumnName="LanguageId" />
+                <ScalarProperty Name="LanguageName" ColumnName="LanguageName" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -667,7 +949,7 @@
               <MappingFragment StoreEntitySet="Publishers">
                 <ScalarProperty Name="PublisherId" ColumnName="PublisherId" />
                 <ScalarProperty Name="PublisherName" ColumnName="PublisherName" />
-                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="CityId" ColumnName="CityId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

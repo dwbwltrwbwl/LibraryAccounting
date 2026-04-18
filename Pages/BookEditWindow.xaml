@@ -5,15 +5,80 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Книга"
-        Height="520"
-        Width="860"
+        Height="750"
+        Width="900"
         WindowStartupLocation="CenterOwner"
         Background="#F4F1EC">
 
-    <!-- Внешний отступ -->
-    <Grid Margin="20">
+    <Window.Resources>
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2F4F4F"/>
+            <Setter Property="BorderBrush" Value="#1F3A3A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1F3A3A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-        <!-- Карточка окна -->
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2F4F4F"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="MultiLineTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource TextBoxStyle}">
+            <Setter Property="Height" Value="80"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="False"/>
+            <Setter Property="StaysOpenOnEdit" Value="True"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
         <Border Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
@@ -27,95 +92,130 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- ===== ЗАГОЛОВОК ===== -->
+                <!-- Заголовок -->
                 <TextBlock x:Name="TitleText"
                            FontSize="22"
                            FontWeight="SemiBold"
                            Foreground="#2F4F4F"
                            Margin="0,0,0,25"/>
 
-                <!-- ===== КОНТЕНТ ===== -->
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <!-- Контент -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="550">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <!-- Левая часть — форма -->
-                    <StackPanel Margin="0,0,25,0">
+                        <!-- Левая часть - форма -->
+                        <StackPanel Margin="0,0,25,0">
+                            <TextBlock Text="Название*" Style="{StaticResource LabelStyle}"/>
+                            <TextBox x:Name="TitleBox" Style="{StaticResource TextBoxStyle}" MaxLength="200"/>
 
-                        <TextBlock Text="Название"/>
-                        <TextBox x:Name="TitleBox"/>
+                            <TextBlock Text="Автор*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <ComboBox x:Name="AuthorBox" 
+                                      Style="{StaticResource ComboBoxStyle}" 
+                                      DisplayMemberPath="FullName"
+                                      KeyUp="AuthorBox_KeyUp"/>
 
-                        <TextBlock Text="Автор" Margin="0,10,0,0"/>
-                        <ComboBox x:Name="AuthorBox"/>
+                            <TextBlock Text="Жанр*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <ComboBox x:Name="GenreBox" 
+                                      Style="{StaticResource ComboBoxStyle}" 
+                                      DisplayMemberPath="Name"
+                                      KeyUp="GenreBox_KeyUp"/>
 
-                        <TextBlock Text="Жанр" Margin="0,10,0,0"/>
-                        <ComboBox x:Name="GenreBox"/>
+                            <TextBlock Text="Издательство*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <ComboBox x:Name="PublisherBox" 
+                                      Style="{StaticResource ComboBoxStyle}" 
+                                      DisplayMemberPath="PublisherName"
+                                      KeyUp="PublisherBox_KeyUp"/>
 
-                        <TextBlock Text="Издательство" Margin="0,10,0,0"/>
-                        <TextBox x:Name="PublisherBox"/>
+                            <TextBlock Text="Год издания*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="YearBox" Style="{StaticResource TextBoxStyle}" MaxLength="4" 
+                                     PreviewTextInput="YearBox_PreviewTextInput"/>
 
-                        <TextBlock Text="Год издания" Margin="0,10,0,0"/>
-                        <TextBox x:Name="YearBox"
-                                 MaxLength="4"
-                                 PreviewTextInput="YearBox_PreviewTextInput"/>
+                            <TextBlock Text="ISBN*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="IsbnBox" Style="{StaticResource TextBoxStyle}" MaxLength="20"/>
 
-                        <TextBlock Text="ISBN" Margin="0,10,0,0"/>
-                        <TextBox x:Name="IsbnBox"/>
+                            <TextBlock Text="Страниц*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="PagesBox" Style="{StaticResource TextBoxStyle}" 
+                                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
 
-                    </StackPanel>
+                            <TextBlock Text="Язык*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <ComboBox x:Name="LanguageBox" 
+                                      Style="{StaticResource ComboBoxStyle}" 
+                                      DisplayMemberPath="LanguageName" 
+                                      SelectedValuePath="LanguageId"
+                                      KeyUp="LanguageBox_KeyUp"/>
 
-                    <!-- Правая часть — обложка -->
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <TextBlock Text="Переплет*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="BindingBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>
 
-                        <Border Width="100"
-                                Height="170"
-                                Background="#FFFDF9"
-                                BorderBrush="#C8BFAF"
-                                BorderThickness="1"
-                                CornerRadius="12"
-                                Padding="6">
+                            <TextBlock Text="Формат*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="FormatBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>
 
-                            <Image x:Name="CoverImage"
-       Stretch="Uniform"
-       SnapsToDevicePixels="True"/>
+                            <TextBlock Text="Серия*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="SeriesBox" Style="{StaticResource TextBoxStyle}" MaxLength="100"/>
 
-                        </Border>
+                            <TextBlock Text="Издание*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="EditionBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>
 
-                        <Button Content="Загрузить обложку"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Margin="0,15,0,0"
-                                Click="LoadImage_Click" Width="200"/>
+                            <TextBlock Text="Тираж*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="CirculationBox" Style="{StaticResource TextBoxStyle}" 
+                                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
 
-                        <Button Content="Удалить обложку"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Background="#5F3E40"
-                                Margin="0,10,0,0"
-                                Click="RemoveImage_Click"/>
+                            <TextBlock Text="Количество экземпляров*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="QuantityBox" Style="{StaticResource TextBoxStyle}" Text="1"
+                                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
 
-                    </StackPanel>
-                </Grid>
+                            <TextBlock Text="Описание*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="DescriptionBox" Style="{StaticResource MultiLineTextBoxStyle}" 
+                                     MaxLength="4000"/>
+                        </StackPanel>
 
-                <!-- ===== КНОПКИ ===== -->
+                        <!-- Правая часть - обложка -->
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <Border Width="150" Height="220"
+                                    Background="#F4F1EC"
+                                    BorderBrush="#C8BFAF"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="6">
+                                <Image x:Name="CoverImage"
+                                       Stretch="Uniform"
+                                       SnapsToDevicePixels="True"/>
+                            </Border>
+
+                            <Button Content="Загрузить обложку"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Margin="0,15,0,0"
+                                    Click="LoadImage_Click" Width="180"/>
+
+                            <Button Content="Удалить обложку"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Background="#5F3E40"
+                                    Margin="0,10,0,0"
+                                    Click="RemoveImage_Click" Width="180"/>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+
+                <!-- Кнопки -->
                 <StackPanel Grid.Row="2"
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
                             Margin="0,25,0,0">
-
                     <Button Content="Сохранить"
                             Width="130"
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="Save_Click"/>
-
                     <Button Content="Отмена"
                             Width="110"
                             Style="{StaticResource ActionButtonStyle}"
                             Background="#6F6F6F"
                             Click="Cancel_Click"/>
                 </StackPanel>
-
             </Grid>
         </Border>
     </Grid>

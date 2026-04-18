@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Data.Entity;
 
 namespace LibraryAccounting.Pages
 {
@@ -53,9 +54,16 @@ namespace LibraryAccounting.Pages
         {
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            allGenres = AppConnect.model01.Genres.ToList();
-            allAuthors = AppConnect.model01.Authors.ToList();
-            allPublishers = AppConnect.model01.Publishers.ToList();
+            allGenres = AppConnect.model01.Genres
+                .Include(g => g.AgeRatings)
+                .ToList();
+            allAuthors = AppConnect.model01.Authors
+                .Include("Cities")
+                .Include("Cities.Countries")
+                .ToList();
+            allPublishers = AppConnect.model01.Publishers
+                .Include("Cities")  // ← Убедитесь, что эта строка есть
+                .ToList();
 
             ApplyGenreFiltersAndSort();
             ApplyAuthorFiltersAndSort();
@@ -105,8 +113,8 @@ namespace LibraryAccounting.Pages
                         : genres.OrderByDescending(g => g.Description);
                 case "AgeRating":
                     return currentGenreSortDirection == ListSortDirection.Ascending
-                        ? genres.OrderBy(g => g.AgeRating)
-                        : genres.OrderByDescending(g => g.AgeRating);
+                        ? genres.OrderBy(g => g.AgeRatings.SortOrder)  // ← изменено
+                        : genres.OrderByDescending(g => g.AgeRatings.SortOrder);
                 default:
                     return currentGenreSortDirection == ListSortDirection.Ascending
                         ? genres.OrderBy(g => g.Name)
@@ -133,7 +141,7 @@ namespace LibraryAccounting.Pages
                 if (IsGenreExists(dialog.NameValue))
                 {
                     ShowError($"Жанр «{dialog.NameValue}» уже существует");
-                    dialog = new GenreWindow(dialog.NameValue, dialog.DescriptionValue, dialog.AgeRatingValue);
+                    dialog = new GenreWindow(dialog.NameValue, dialog.DescriptionValue, dialog.SelectedAgeRatingId);
                     dialog.Owner = Window.GetWindow(this);
                     continue;
                 }
@@ -144,7 +152,7 @@ namespace LibraryAccounting.Pages
                     {
                         Name = dialog.NameValue,
                         Description = dialog.DescriptionValue,
-                        AgeRating = dialog.AgeRatingValue
+                        AgeRatingId = dialog.SelectedAgeRatingId  // ← изменено
                     });
 
                     AppConnect.model01.SaveChanges();
@@ -155,7 +163,7 @@ namespace LibraryAccounting.Pages
                 catch (Exception ex)
                 {
                     ShowError($"Ошибка при добавлении жанра: {ex.Message}");
-                    dialog = new GenreWindow(dialog.NameValue, dialog.DescriptionValue, dialog.AgeRatingValue);
+                    dialog = new GenreWindow(dialog.NameValue, dialog.DescriptionValue, dialog.SelectedAgeRatingId);
                     dialog.Owner = Window.GetWindow(this);
                     continue;
                 }
@@ -180,7 +188,7 @@ namespace LibraryAccounting.Pages
                 if (IsGenreExists(dialog.NameValue, genre.GenreId))
                 {
                     ShowError($"Жанр «{dialog.NameValue}» уже существует");
-                    dialog = new GenreWindow(dialog.NameValue, dialog.DescriptionValue, dialog.AgeRatingValue);
+                    dialog = new GenreWindow(dialog.NameValue, dialog.DescriptionValue, dialog.SelectedAgeRatingId);
                     dialog.Owner = Window.GetWindow(this);
                     continue;
                 }
@@ -189,7 +197,7 @@ namespace LibraryAccounting.Pages
                 {
                     genre.Name = dialog.NameValue;
                     genre.Description = dialog.DescriptionValue;
-                    genre.AgeRating = dialog.AgeRatingValue;
+                    genre.AgeRatingId = dialog.SelectedAgeRatingId;  // ← изменено
 
                     AppConnect.model01.SaveChanges();
                     LoadAll();
@@ -199,7 +207,7 @@ namespace LibraryAccounting.Pages
                 catch (Exception ex)
                 {
                     ShowError($"Ошибка при обновлении жанра: {ex.Message}");
-                    dialog = new GenreWindow(dialog.NameValue, dialog.DescriptionValue, dialog.AgeRatingValue);
+                    dialog = new GenreWindow(dialog.NameValue, dialog.DescriptionValue, dialog.SelectedAgeRatingId);
                     dialog.Owner = Window.GetWindow(this);
                     continue;
                 }
@@ -277,26 +285,25 @@ namespace LibraryAccounting.Pages
 
         #region Авторы
 
+        // В ApplyAuthorFiltersAndSort - обновите поиск
         private void ApplyAuthorFiltersAndSort()
         {
             if (AuthorsGrid == null) return;
 
+            // Загружаем авторов с городами и странами
             var filtered = allAuthors.AsEnumerable();
 
-            // Поиск (фильтрация)
             string searchText = AuthorSearchTextBox?.Text?.Trim().ToLower() ?? "";
             if (!string.IsNullOrEmpty(searchText))
             {
                 filtered = filtered.Where(a =>
                     a.FullName.ToLower().Contains(searchText) ||
-                    (a.Country != null && a.Country.ToLower().Contains(searchText)) ||
-                    (a.City != null && a.City.ToLower().Contains(searchText))
+                    (a.Cities != null && a.Cities.Countries != null && a.Cities.Countries.CountryName.ToLower().Contains(searchText)) ||
+                    (a.Cities != null && a.Cities.CityName.ToLower().Contains(searchText))
                 );
             }
 
-            // Сортировка
             var sorted = SortAuthors(filtered).ToList();
-
             AuthorsGrid.ItemsSource = sorted;
             AuthorsEmptyPanel.Visibility = sorted.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -323,12 +330,12 @@ namespace LibraryAccounting.Pages
                         : authors.OrderByDescending(a => a.DeathDate);
                 case "Country":
                     return currentAuthorSortDirection == ListSortDirection.Ascending
-                        ? authors.OrderBy(a => a.Country)
-                        : authors.OrderByDescending(a => a.Country);
+                        ? authors.OrderBy(a => a.Cities.Countries.CountryName)
+                        : authors.OrderByDescending(a => a.Cities.Countries.CountryName);
                 case "City":
                     return currentAuthorSortDirection == ListSortDirection.Ascending
-                        ? authors.OrderBy(a => a.City)
-                        : authors.OrderByDescending(a => a.City);
+                        ? authors.OrderBy(a => a.Cities.CityName)
+                        : authors.OrderByDescending(a => a.Cities.CityName);
                 default:
                     return currentAuthorSortDirection == ListSortDirection.Ascending
                         ? authors.OrderBy(a => a.FullName)
@@ -359,13 +366,26 @@ namespace LibraryAccounting.Pages
                 if (IsAuthorExists(dialog.FullName))
                 {
                     ShowError($"Автор «{dialog.FullName}» уже существует");
-                    dialog = new AuthorWindow();
-                    dialog.Owner = Window.GetWindow(this);
-                    dialog.NameBox.Text = dialog.FullName;
-                    dialog.BirthDatePicker.SelectedDate = dialog.BirthDate;
-                    dialog.DeathDatePicker.SelectedDate = dialog.DeathDate;
-                    dialog.CountryBox.Text = dialog.Country;
-                    dialog.CityBox.Text = dialog.City;
+                    // Создаём новое окно с теми же данными
+                    var newDialog = new AuthorWindow();
+                    newDialog.Owner = Window.GetWindow(this);
+                    newDialog.NameBox.Text = dialog.FullName;
+                    newDialog.BirthDatePicker.SelectedDate = dialog.BirthDate;
+                    newDialog.DeathDatePicker.SelectedDate = dialog.DeathDate;
+
+                    // Восстанавливаем выбранные страну и город
+                    if (dialog.SelectedCityId.HasValue)
+                    {
+                        var city = AppConnect.model01.Cities.FirstOrDefault(c => c.CityId == dialog.SelectedCityId);
+                        if (city != null)
+                        {
+                            newDialog.CountryComboBox.SelectedValue = city.CountryId;
+                            newDialog.LoadCities(city.CountryId);
+                            newDialog.CityComboBox.SelectedValue = dialog.SelectedCityId;
+                        }
+                    }
+
+                    dialog = newDialog;
                     continue;
                 }
 
@@ -376,8 +396,7 @@ namespace LibraryAccounting.Pages
                         FullName = dialog.FullName,
                         BirthDate = dialog.BirthDate,
                         DeathDate = dialog.DeathDate,
-                        Country = dialog.Country,
-                        City = dialog.City
+                        CityId = dialog.SelectedCityId
                     });
 
                     AppConnect.model01.SaveChanges();
@@ -411,13 +430,26 @@ namespace LibraryAccounting.Pages
                 if (IsAuthorExists(dialog.FullName, author.AuthorId))
                 {
                     ShowError($"Автор «{dialog.FullName}» уже существует");
-                    dialog = new AuthorWindow(author);
-                    dialog.Owner = Window.GetWindow(this);
-                    dialog.NameBox.Text = dialog.FullName;
-                    dialog.BirthDatePicker.SelectedDate = dialog.BirthDate;
-                    dialog.DeathDatePicker.SelectedDate = dialog.DeathDate;
-                    dialog.CountryBox.Text = dialog.Country;
-                    dialog.CityBox.Text = dialog.City;
+                    // Создаём новое окно с текущими данными
+                    var newDialog = new AuthorWindow(author);
+                    newDialog.Owner = Window.GetWindow(this);
+                    newDialog.NameBox.Text = dialog.FullName;
+                    newDialog.BirthDatePicker.SelectedDate = dialog.BirthDate;
+                    newDialog.DeathDatePicker.SelectedDate = dialog.DeathDate;
+
+                    // Восстанавливаем выбранные страну и город
+                    if (dialog.SelectedCityId.HasValue)
+                    {
+                        var city = AppConnect.model01.Cities.FirstOrDefault(c => c.CityId == dialog.SelectedCityId);
+                        if (city != null)
+                        {
+                            newDialog.CountryComboBox.SelectedValue = city.CountryId;
+                            newDialog.LoadCities(city.CountryId);
+                            newDialog.CityComboBox.SelectedValue = dialog.SelectedCityId;
+                        }
+                    }
+
+                    dialog = newDialog;
                     continue;
                 }
 
@@ -426,8 +458,7 @@ namespace LibraryAccounting.Pages
                     author.FullName = dialog.FullName;
                     author.BirthDate = dialog.BirthDate;
                     author.DeathDate = dialog.DeathDate;
-                    author.Country = dialog.Country;
-                    author.City = dialog.City;
+                    author.CityId = dialog.SelectedCityId;
 
                     AppConnect.model01.SaveChanges();
                     LoadAll();
@@ -524,7 +555,7 @@ namespace LibraryAccounting.Pages
             {
                 filtered = filtered.Where(p =>
                     p.PublisherName.ToLower().Contains(searchText) ||
-                    (p.City != null && p.City.ToLower().Contains(searchText))
+                    (p.Cities != null && p.Cities.CityName.ToLower().Contains(searchText))  // ← Проверьте
                 );
             }
 
@@ -548,8 +579,8 @@ namespace LibraryAccounting.Pages
                         : publishers.OrderByDescending(p => p.PublisherName);
                 case "City":
                     return currentPublisherSortDirection == ListSortDirection.Ascending
-                        ? publishers.OrderBy(p => p.City)
-                        : publishers.OrderByDescending(p => p.City);
+                        ? publishers.OrderBy(p => p.Cities.CityName)
+                        : publishers.OrderByDescending(p => p.Cities.CityName);
                 default:
                     return currentPublisherSortDirection == ListSortDirection.Ascending
                         ? publishers.OrderBy(p => p.PublisherName)
@@ -583,7 +614,11 @@ namespace LibraryAccounting.Pages
                     dialog = new PublisherWindow();
                     dialog.Owner = Window.GetWindow(this);
                     dialog.NameBox.Text = dialog.NameValue;
-                    dialog.CityBox.Text = dialog.CityValue;
+                    // Восстанавливаем выбранный город
+                    if (dialog.SelectedCityId.HasValue)
+                    {
+                        dialog.CityComboBox.SelectedValue = dialog.SelectedCityId.Value;
+                    }
                     continue;
                 }
 
@@ -592,7 +627,7 @@ namespace LibraryAccounting.Pages
                     AppConnect.model01.Publishers.Add(new Publishers
                     {
                         PublisherName = dialog.NameValue,
-                        City = dialog.CityValue
+                        CityId = dialog.SelectedCityId
                     });
 
                     AppConnect.model01.SaveChanges();
@@ -629,14 +664,18 @@ namespace LibraryAccounting.Pages
                     dialog = new PublisherWindow(publisher);
                     dialog.Owner = Window.GetWindow(this);
                     dialog.NameBox.Text = dialog.NameValue;
-                    dialog.CityBox.Text = dialog.CityValue;
+                    // Восстанавливаем выбранный город
+                    if (dialog.SelectedCityId.HasValue)
+                    {
+                        dialog.CityComboBox.SelectedValue = dialog.SelectedCityId.Value;
+                    }
                     continue;
                 }
 
                 try
                 {
                     publisher.PublisherName = dialog.NameValue;
-                    publisher.City = dialog.CityValue;
+                    publisher.CityId = dialog.SelectedCityId;
 
                     AppConnect.model01.SaveChanges();
                     LoadAll();
@@ -760,7 +799,8 @@ namespace LibraryAccounting.Pages
 
                     foreach (var genre in items)
                     {
-                        sb.AppendLine($"\"{genre.GenreId}\";\"{EscapeCsv(genre.Name)}\";\"{EscapeCsv(genre.Description)}\";\"{EscapeCsv(genre.AgeRating)}\"");
+                        string ageRatingName = genre.AgeRatings?.AgeRatingName ?? "Не указан";
+                        sb.AppendLine($"\"{genre.GenreId}\";\"{EscapeCsv(genre.Name)}\";\"{EscapeCsv(genre.Description)}\";\"{EscapeCsv(ageRatingName)}\"");
                     }
 
                     File.WriteAllText(saveDialog.FileName, sb.ToString(), Encoding.UTF8);
@@ -799,7 +839,10 @@ namespace LibraryAccounting.Pages
 
                     foreach (var author in items)
                     {
-                        sb.AppendLine($"\"{author.AuthorId}\";\"{EscapeCsv(author.FullName)}\";\"{author.BirthDate:dd.MM.yyyy}\";\"{author.DeathDate:dd.MM.yyyy}\";\"{EscapeCsv(author.Country)}\";\"{EscapeCsv(author.City)}\"");
+                        string countryName = author.Cities?.Countries?.CountryName ?? "";
+                        string cityName = author.Cities?.CityName ?? "";
+
+                        sb.AppendLine($"\"{author.AuthorId}\";\"{EscapeCsv(author.FullName)}\";\"{author.BirthDate:dd.MM.yyyy}\";\"{author.DeathDate:dd.MM.yyyy}\";\"{EscapeCsv(countryName)}\";\"{EscapeCsv(cityName)}\"");
                     }
 
                     File.WriteAllText(saveDialog.FileName, sb.ToString(), Encoding.UTF8);
@@ -838,7 +881,8 @@ namespace LibraryAccounting.Pages
 
                     foreach (var publisher in items)
                     {
-                        sb.AppendLine($"\"{publisher.PublisherId}\";\"{EscapeCsv(publisher.PublisherName)}\";\"{EscapeCsv(publisher.City)}\"");
+                        string cityName = publisher.Cities?.CityName ?? "";
+                        sb.AppendLine($"\"{publisher.PublisherId}\";\"{EscapeCsv(publisher.PublisherName)}\";\"{EscapeCsv(cityName)}\"");
                     }
 
                     File.WriteAllText(saveDialog.FileName, sb.ToString(), Encoding.UTF8);

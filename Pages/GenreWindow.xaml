@@ -116,6 +116,7 @@
         </Style>
 
         <!-- Стиль для ComboBox -->
+        <!-- Стиль для ComboBox (исправленный) -->
         <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Background" Value="#FFFDF9"/>
@@ -123,71 +124,8 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Foreground" Value="#2F4F4F"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton x:Name="ToggleButton"
-                                          Grid.ColumnSpan="2"
-                                          Background="{TemplateBinding Background}"
-                                          BorderBrush="{TemplateBinding BorderBrush}"
-                                          BorderThickness="{TemplateBinding BorderThickness}">
-                                <ToggleButton.Style>
-                                    <Style TargetType="ToggleButton">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="ToggleButton">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                                            CornerRadius="6">
-                                                        <Grid>
-                                                            <ContentPresenter HorizontalAlignment="Left"
-                                                                              VerticalAlignment="Center"
-                                                                              Margin="10,0,0,0"/>
-                                                            <Path x:Name="Arrow"
-                                                                  Fill="#2F4F4F"
-                                                                  HorizontalAlignment="Right"
-                                                                  VerticalAlignment="Center"
-                                                                  Margin="0,0,10,0"
-                                                                  Data="M 0 0 L 4 4 L 8 0 Z"/>
-                                                        </Grid>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ToggleButton.Style>
-                            </ToggleButton>
-                            <ContentPresenter x:Name="ContentPresenter"
-                                              Margin="10,0,0,0"
-                                              VerticalAlignment="Center"
-                                              IsHitTestVisible="False"/>
-                            <Popup x:Name="Popup"
-                                   Placement="Bottom"
-                                   IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   AllowsTransparency="True"
-                                   Focusable="False"
-                                   PopupAnimation="Slide">
-                                <Grid x:Name="DropDown"
-                                      SnapsToDevicePixels="True"
-                                      MinWidth="{TemplateBinding ActualWidth}"
-                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border x:Name="DropDownBorder"
-                                            Background="#FFFDF9"
-                                            BorderBrush="#C8BFAF"
-                                            BorderThickness="1"
-                                            CornerRadius="6"
-                                            Margin="0,2,0,0"/>
-                                    <ScrollViewer Margin="0,4,0,4" SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                    </ScrollViewer>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Padding" Value="8,0"/>
+            <!-- Убираем кастомный шаблон, используем стандартный -->
         </Style>
 
         <!-- Стиль для подписей -->
@@ -226,7 +164,7 @@
             </Grid.RowDefinitions>
 
             <!-- Заголовок -->
-            <TextBlock Text="Добавление / Редактирование жанра"
+            <TextBlock x:Name="TitleText" Text="Добавление / Редактирование жанра"
                        FontSize="18"
                        FontWeight="SemiBold"
                        Foreground="#2F4F4F"
@@ -251,16 +189,11 @@
             <!-- Возрастной рейтинг -->
             <TextBlock Text="Возрастной рейтинг*" Grid.Row="5" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
             <ComboBox x:Name="AgeRatingBox" 
-                      Grid.Row="6" 
-                      Style="{StaticResource ComboBoxStyle}"
-                      SelectionChanged="AgeRatingBox_SelectionChanged">
-                <ComboBoxItem Content="0+"/>
-                <ComboBoxItem Content="6+"/>
-                <ComboBoxItem Content="12+"/>
-                <ComboBoxItem Content="16+"/>
-                <ComboBoxItem Content="18+"/>
-            </ComboBox>
-
+          Grid.Row="6" 
+          Style="{StaticResource ComboBoxStyle}"
+          DisplayMemberPath="AgeRatingName"
+          SelectedValuePath="AgeRatingId"
+          SelectionChanged="AgeRatingBox_SelectionChanged"/>
             <!-- Блок ошибок -->
             <TextBlock x:Name="ErrorTextBlock" 
                        Grid.Row="7"

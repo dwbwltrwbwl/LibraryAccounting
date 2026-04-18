@@ -16,6 +16,10 @@ namespace LibraryAccounting.Pages
     {
         private ICollectionView _booksView;
         private List<BookViewModel> _books;
+        private List<string> _allGenres;
+        private List<string> _allPublishers;
+        private string _currentGenreFilter = "";
+        private string _currentPublisherFilter = "";
 
         public class BookViewModel
         {
@@ -27,10 +31,8 @@ namespace LibraryAccounting.Pages
             public int? PublishYear { get; set; }
             public string ISBN { get; set; }
             public byte[] CoverImage { get; set; }
-
-            // Новые поля
             public int? Pages { get; set; }
-            public string Language { get; set; }
+            public string LanguageName { get; set; }
             public string Description { get; set; }
             public string Series { get; set; }
             public string Edition { get; set; }
@@ -54,9 +56,6 @@ namespace LibraryAccounting.Pages
             LoadBooks();
         }
 
-        /// <summary>
-        /// Загрузка всех книг
-        /// </summary>
         private void LoadBooks()
         {
             try
@@ -64,30 +63,30 @@ namespace LibraryAccounting.Pages
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
                 var books = AppConnect.model01.Books
-    .Select(b => new BookViewModel
-    {
-        BookId = b.BookId,
-        Title = b.Title,
-        AuthorName = b.Authors != null ? b.Authors.FullName : "Не указан",
-        GenreName = b.Genres != null ? b.Genres.Name : "Не указан",
-        PublisherName = b.Publishers != null ? b.Publishers.PublisherName : "Не указано",
-        PublishYear = b.PublishYear,
-        ISBN = b.ISBN,
-        CoverImage = b.CoverImage,
-        Pages = b.Pages,
-        Language = b.Language,
-        Description = b.Description,
-        Series = b.Series,
-        Edition = b.Edition,
-        Circulation = b.Circulation,
-        Binding = b.Binding,
-        Format = b.Format,
-        Quantity = b.Quantity,
-        AvailableQuantity = b.AvailableQuantity,
-        AddedDate = b.AddedDate,
-        LastModified = b.LastModified
-    })
-    .ToList();
+                    .Select(b => new BookViewModel
+                    {
+                        BookId = b.BookId,
+                        Title = b.Title,
+                        AuthorName = b.Authors != null ? b.Authors.FullName : "Не указан",
+                        GenreName = b.Genres != null ? b.Genres.Name : "Не указан",
+                        PublisherName = b.Publishers != null ? b.Publishers.PublisherName : "Не указано",
+                        PublishYear = b.PublishYear,
+                        ISBN = b.ISBN,
+                        CoverImage = b.CoverImage,
+                        Pages = b.Pages,
+                        LanguageName = b.Languages != null ? b.Languages.LanguageName : "Не указан",
+                        Description = b.Description,
+                        Series = b.Series,
+                        Edition = b.Edition,
+                        Circulation = b.Circulation,
+                        Binding = b.Binding,
+                        Format = b.Format,
+                        Quantity = b.Quantity,
+                        AvailableQuantity = b.AvailableQuantity,
+                        AddedDate = b.AddedDate,
+                        LastModified = b.LastModified
+                    })
+                    .ToList();
 
                 _books = books;
                 _booksView = CollectionViewSource.GetDefaultView(_books);
@@ -112,33 +111,103 @@ namespace LibraryAccounting.Pages
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
                 // Жанры
-                GenreComboBox.Items.Clear();
-                GenreComboBox.Items.Add("Все жанры");
-                var genres = AppConnect.model01.Genres
+                _allGenres = AppConnect.model01.Genres
                     .Select(g => g.Name)
                     .Distinct()
                     .OrderBy(g => g)
                     .ToList();
-                foreach (var genre in genres)
-                    GenreComboBox.Items.Add(genre);
-                GenreComboBox.SelectedIndex = 0;
 
-                // Издательства (из таблицы Publishers)
-                PublisherComboBox.Items.Clear();
-                PublisherComboBox.Items.Add("Все издательства");
-                var publishers = AppConnect.model01.Publishers
+                // Издательства
+                _allPublishers = AppConnect.model01.Publishers
                     .Select(p => p.PublisherName)
                     .Distinct()
                     .OrderBy(p => p)
                     .ToList();
-                foreach (var publisher in publishers)
-                    PublisherComboBox.Items.Add(publisher);
-                PublisherComboBox.SelectedIndex = 0;
+
+                // Загружаем начальные списки
+                UpdateGenreComboBox("");
+                UpdatePublisherComboBox("");
             }
             catch (Exception ex)
             {
                 ShowError($"Ошибка загрузки фильтров: {ex.Message}");
             }
+        }
+
+        private void UpdateGenreComboBox(string filter)
+        {
+            GenreComboBox.Items.Clear();
+
+            var filteredGenres = _allGenres;
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                filteredGenres = _allGenres.Where(g => g.ToLower().Contains(filter.ToLower())).ToList();
+            }
+
+            GenreComboBox.Items.Add("Все жанры");
+            foreach (var genre in filteredGenres)
+            {
+                GenreComboBox.Items.Add(genre);
+            }
+
+            // Устанавливаем выбранный элемент
+            GenreComboBox.SelectedIndex = 0;
+
+            // Восстанавливаем введённый текст (если есть)
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                GenreComboBox.Text = filter;
+            }
+        }
+
+        private void UpdatePublisherComboBox(string filter)
+        {
+            PublisherComboBox.Items.Clear();
+
+            var filteredPublishers = _allPublishers;
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                filteredPublishers = _allPublishers.Where(p => p.ToLower().Contains(filter.ToLower())).ToList();
+            }
+
+            PublisherComboBox.Items.Add("Все издательства");
+            foreach (var publisher in filteredPublishers)
+            {
+                PublisherComboBox.Items.Add(publisher);
+            }
+
+            // Устанавливаем выбранный элемент
+            PublisherComboBox.SelectedIndex = 0;
+
+            // Восстанавливаем введённый текст (если есть)
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                PublisherComboBox.Text = filter;
+            }
+        }
+
+        private void GenreComboBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            string searchText = GenreComboBox.Text ?? "";
+            UpdateGenreComboBox(searchText);
+            GenreComboBox.IsDropDownOpen = true;
+        }
+
+        private void PublisherComboBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            string searchText = PublisherComboBox.Text ?? "";
+            UpdatePublisherComboBox(searchText);
+            PublisherComboBox.IsDropDownOpen = true;
+        }
+
+        private void GenreFilter_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            _booksView?.Refresh();
+        }
+
+        private void PublisherFilter_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            _booksView?.Refresh();
         }
 
         private bool FilterBooks(object item)
@@ -156,7 +225,8 @@ namespace LibraryAccounting.Pages
                 book.AuthorName.ToLower().Contains(search) ||
                 (book.ISBN != null && book.ISBN.ToLower().Contains(search)) ||
                 (book.Series != null && book.Series.ToLower().Contains(search)) ||
-                (book.Description != null && book.Description.ToLower().Contains(search));
+                (book.Description != null && book.Description.ToLower().Contains(search)) ||
+                (book.LanguageName != null && book.LanguageName.ToLower().Contains(search));
 
             bool matchesGenre = selectedGenre == "Все жанры" ||
                 string.IsNullOrEmpty(selectedGenre) ||
@@ -170,11 +240,6 @@ namespace LibraryAccounting.Pages
         }
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            _booksView?.Refresh();
-        }
-
-        private void Filter_Changed(object sender, SelectionChangedEventArgs e)
         {
             _booksView?.Refresh();
         }
@@ -341,12 +406,7 @@ namespace LibraryAccounting.Pages
             dialog.Owner = Window.GetWindow(this);
             dialog.ShowDialog();
         }
-        /// <summary>
-        /// Экспорт книг в CSV
-        /// </summary>
-        /// <summary>
-        /// Экспорт книг в CSV
-        /// </summary>
+
         private void ExportToCsv_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -371,13 +431,11 @@ namespace LibraryAccounting.Pages
                 {
                     var sb = new StringBuilder();
 
-                    // Заголовки
                     sb.AppendLine("\"Название\";\"Автор\";\"Жанр\";\"Издательство\";\"Год\";\"ISBN\";\"Страниц\";\"Язык\";\"Переплет\";\"Формат\";\"Серия\";\"Издание\";\"Тираж\";\"Экземпляров\";\"Доступно\";\"Дата добавления\";\"Описание\"");
 
-                    // Данные
                     foreach (var book in items)
                     {
-                        sb.AppendLine($"{EscapeCsv(book.Title)};{EscapeCsv(book.AuthorName)};{EscapeCsv(book.GenreName)};{EscapeCsv(book.PublisherName)};{book.PublishYear};{EscapeCsv(book.ISBN)};{book.Pages};{EscapeCsv(book.Language)};{EscapeCsv(book.Binding)};{EscapeCsv(book.Format)};{EscapeCsv(book.Series)};{EscapeCsv(book.Edition)};{book.Circulation};{book.Quantity};{book.AvailableQuantity};{book.AddedDate:dd.MM.yyyy};{EscapeCsv(book.Description)}");
+                        sb.AppendLine($"{EscapeCsv(book.Title)};{EscapeCsv(book.AuthorName)};{EscapeCsv(book.GenreName)};{EscapeCsv(book.PublisherName)};{book.PublishYear};{EscapeCsv(book.ISBN)};{book.Pages};{EscapeCsv(book.LanguageName)};{EscapeCsv(book.Binding)};{EscapeCsv(book.Format)};{EscapeCsv(book.Series)};{EscapeCsv(book.Edition)};{book.Circulation};{book.Quantity};{book.AvailableQuantity};{book.AddedDate:dd.MM.yyyy};{EscapeCsv(book.Description)}");
                     }
 
                     System.IO.File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
@@ -390,21 +448,31 @@ namespace LibraryAccounting.Pages
             }
         }
 
-        /// <summary>
-        /// Экранирование значений для CSV
-        /// </summary>
         private string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value))
                 return "";
 
-            // Если есть точка с запятой или кавычки, обрамляем в кавычки
             if (value.Contains(";") || value.Contains("\""))
             {
                 value = value.Replace("\"", "\"\"");
                 return $"\"{value}\"";
             }
             return value;
+        }
+
+        private void Analytics_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var analyticsWindow = new BookAnalyticsWindow();
+                analyticsWindow.Owner = Window.GetWindow(this);
+                analyticsWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка открытия аналитики: {ex.Message}");
+            }
         }
     }
 }

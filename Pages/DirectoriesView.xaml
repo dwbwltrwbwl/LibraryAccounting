@@ -191,17 +191,6 @@
                                          Height="30"
                                          TextChanged="GenreSearchTextBox_TextChanged"
                                          ToolTip="Поиск по названию и описанию жанра"/>
-
-                                <Button Content="Сбросить поиск"
-                                        Width="100"
-                                        Height="30"
-                                        Margin="10,0,0,0"
-                                        Background="#FFFDF9"
-                                        Foreground="#2F4F4F"
-                                        BorderBrush="#C8BFAF"
-                                        BorderThickness="1"
-                                        Cursor="Hand"
-                                        Click="ResetGenreSearch_Click"/>
                             </StackPanel>
                         </Border>
 
@@ -233,9 +222,9 @@
                                                         SortMemberPath="Description"/>
 
                                     <DataGridTextColumn Header="Возрастной рейтинг"
-                                                        Binding="{Binding AgeRating}"
-                                                        Width="1*"
-                                                        SortMemberPath="AgeRating"/>
+                    Binding="{Binding AgeRatings.AgeRatingName}"
+                    Width="1*"
+                    SortMemberPath="AgeRating"/>
                                 </DataGrid.Columns>
                             </DataGrid>
 
@@ -294,17 +283,6 @@
                                          Height="30"
                                          TextChanged="AuthorSearchTextBox_TextChanged"
                                          ToolTip="Поиск по ФИО, стране и городу автора"/>
-
-                                <Button Content="Сбросить поиск"
-                                        Width="100"
-                                        Height="30"
-                                        Margin="10,0,0,0"
-                                        Background="#FFFDF9"
-                                        Foreground="#2F4F4F"
-                                        BorderBrush="#C8BFAF"
-                                        BorderThickness="1"
-                                        Cursor="Hand"
-                                        Click="ResetAuthorSearch_Click"/>
                             </StackPanel>
                         </Border>
 
@@ -340,15 +318,11 @@
                                                         Width="1.2*"
                                                         SortMemberPath="DeathDate"/>
 
-                                    <DataGridTextColumn Header="Страна" 
-                                                        Binding="{Binding Country}" 
-                                                        Width="1.5*"
-                                                        SortMemberPath="Country"/>
-
+                                    <DataGridTextColumn Header="Страна" Binding="{Binding Cities.Countries.CountryName}" Width="1.5*" SortMemberPath="Country"/>
                                     <DataGridTextColumn Header="Город" 
-                                                        Binding="{Binding City}" 
-                                                        Width="1.5*"
-                                                        SortMemberPath="City"/>
+                    Binding="{Binding Cities.CityName}" 
+                    Width="2*"
+                    SortMemberPath="City"/>
                                 </DataGrid.Columns>
                             </DataGrid>
 
@@ -407,17 +381,6 @@
                                          Height="30"
                                          TextChanged="PublisherSearchTextBox_TextChanged"
                                          ToolTip="Поиск по названию и городу издательства"/>
-
-                                <Button Content="Сбросить поиск"
-                                        Width="100"
-                                        Height="30"
-                                        Margin="10,0,0,0"
-                                        Background="#FFFDF9"
-                                        Foreground="#2F4F4F"
-                                        BorderBrush="#C8BFAF"
-                                        BorderThickness="1"
-                                        Cursor="Hand"
-                                        Click="ResetPublisherSearch_Click"/>
                             </StackPanel>
                         </Border>
 
@@ -444,9 +407,9 @@
                                                         SortMemberPath="PublisherName"/>
 
                                     <DataGridTextColumn Header="Город" 
-                                                        Binding="{Binding City}" 
-                                                        Width="2*"
-                                                        SortMemberPath="City"/>
+                    Binding="{Binding Cities.CityName}" 
+                    Width="2*"
+                    SortMemberPath="City"/>
                                 </DataGrid.Columns>
                             </DataGrid>
 

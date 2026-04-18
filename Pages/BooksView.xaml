@@ -8,9 +8,34 @@
       d:DesignHeight="600"
       d:DesignWidth="1200"
       Background="#F4F1EC">
+
     <Page.Resources>
         <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
+
+        <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#5F3E40"/>
+            <Setter Property="BorderBrush" Value="#4A2F30"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4A2F30"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для ComboBox с поиском -->
+        <Style x:Key="SearchComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="#F4F1EC"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="False"/>
+            <Setter Property="StaysOpenOnEdit" Value="True"/>
+        </Style>
     </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -30,7 +55,6 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Заголовок -->
                 <StackPanel>
                     <TextBlock Text="Каталог книг"
                                FontSize="22"
@@ -43,7 +67,6 @@
                                Margin="0,4,0,0"/>
                 </StackPanel>
 
-                <!-- Кнопки -->
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
@@ -56,15 +79,17 @@
                     <Button x:Name="DeleteButton" Content="Удалить" Click="DeleteButton_Click"
                             Width="100"
                             Margin="0,0,10,0"
-                            Style="{StaticResource ActionButtonStyle}"/>
+                            Style="{StaticResource DeleteButtonStyle}"/>
+
                     <Button Content="Экспорт CSV" Click="ExportToCsv_Click"
-            Width="120"
-            Margin="0,0,0,0"
-            Style="{StaticResource ActionButtonStyle}"/>
+                            Width="120"
+                            Margin="0,0,0,0"
+                            Style="{StaticResource ActionButtonStyle}"/>
+
                     <Button Content="Аналитика" Click="Analytics_Click"
-        Width="120"
-        Margin="10,0,0,0"
-        Style="{StaticResource ActionButtonStyle}"/>
+                            Width="120"
+                            Margin="10,0,0,0"
+                            Style="{StaticResource ActionButtonStyle}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -99,17 +124,25 @@
                              BorderThickness="1"
                              TextChanged="SearchTextBox_TextChanged"/>
 
-                    <!-- Фильтр по жанру -->
+                    <!-- Фильтр по жанру (с поиском) -->
                     <ComboBox x:Name="GenreComboBox"
-                              Width="180"
-                              Margin="20,0,0,0"
-                              SelectionChanged="Filter_Changed"/>
+          Width="180"
+          Margin="20,0,0,0"
+          SelectionChanged="GenreFilter_Changed"
+          KeyUp="GenreComboBox_KeyUp"
+          IsEditable="True"
+          IsTextSearchEnabled="False"
+          StaysOpenOnEdit="True"/>
 
-                    <!-- Фильтр по издательству -->
+                    <!-- Фильтр по издательству (с поиском) -->
                     <ComboBox x:Name="PublisherComboBox"
-                              Width="180"
-                              Margin="10,0,0,0"
-                              SelectionChanged="Filter_Changed"/>
+          Width="180"
+          Margin="10,0,0,0"
+          SelectionChanged="PublisherFilter_Changed"
+          KeyUp="PublisherComboBox_KeyUp"
+          IsEditable="True"
+          IsTextSearchEnabled="False"
+          StaysOpenOnEdit="True"/>
 
                     <!-- Сортировка -->
                     <ComboBox x:Name="SortComboBox"
@@ -125,19 +158,19 @@
                 </StackPanel>
 
                 <DataGrid x:Name="BooksDataGrid"
-          Grid.Row="1"
-          RowHeight="130"
-          VerticalScrollBarVisibility="Auto"
-          HorizontalScrollBarVisibility="Auto"
-          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-          ScrollViewer.VerticalScrollBarVisibility="Auto"
-          FrozenColumnCount="2"
-          Style="{StaticResource BooksDataGridStyle}"
-          ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-          RowStyle="{StaticResource BooksDataGridRowStyle}"
-          CellStyle="{StaticResource BooksDataGridCellStyle}"
-          AutoGenerateColumns="False"
-          MouseDoubleClick="BooksDataGrid_MouseDoubleClick">
+                          Grid.Row="1"
+                          RowHeight="130"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          FrozenColumnCount="2"
+                          Style="{StaticResource BooksDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                          RowStyle="{StaticResource BooksDataGridRowStyle}"
+                          CellStyle="{StaticResource BooksDataGridCellStyle}"
+                          AutoGenerateColumns="False"
+                          MouseDoubleClick="BooksDataGrid_MouseDoubleClick">
 
                     <DataGrid.Columns>
                         <!-- Обложка -->
@@ -145,14 +178,14 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border Width="70" Height="100"
-                            CornerRadius="6"
-                            BorderBrush="#C8BFAF"
-                            BorderThickness="1"
-                            Background="#F4F1EC">
+                                            CornerRadius="6"
+                                            BorderBrush="#C8BFAF"
+                                            BorderThickness="1"
+                                            Background="#F4F1EC">
                                         <Image Source="{Binding CoverImage, Converter={StaticResource ByteArrayToImageConverter}}"
-                               Stretch="UniformToFill"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                                               Stretch="UniformToFill"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -168,7 +201,7 @@
 
                         <!-- Физические характеристики -->
                         <DataGridTextColumn Header="Страниц" Binding="{Binding Pages}" Width="80"/>
-                        <DataGridTextColumn Header="Язык" Binding="{Binding Language}" Width="100"/>
+                        <DataGridTextColumn Header="Язык" Binding="{Binding LanguageName}" Width="100"/>
                         <DataGridTextColumn Header="Переплет" Binding="{Binding Binding}" Width="100"/>
                         <DataGridTextColumn Header="Формат" Binding="{Binding Format}" Width="100"/>
 

@@ -24,9 +24,9 @@ namespace LibraryAccounting.AppData
         public string FullName { get; set; }
         public Nullable<System.DateTime> BirthDate { get; set; }
         public Nullable<System.DateTime> DeathDate { get; set; }
-        public string Country { get; set; }
-        public string City { get; set; }
+        public Nullable<int> CityId { get; set; }
     
+        public virtual Cities Cities { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Books> Books { get; set; }
     }

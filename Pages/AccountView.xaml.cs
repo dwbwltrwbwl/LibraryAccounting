@@ -1,11 +1,11 @@
 ﻿using LibraryAccounting.AppData;
 using Microsoft.Win32;
+using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System;
-using System.Linq;
 
 namespace LibraryAccounting.Pages
 {
@@ -24,25 +24,45 @@ namespace LibraryAccounting.Pages
             if (AppConnect.CurrentUser == null)
                 return;
 
-            LoginBox.Text = AppConnect.CurrentUser.Login;
+            // Личная информация
             LastNameBox.Text = AppConnect.CurrentUser.last_name;
             FirstNameBox.Text = AppConnect.CurrentUser.first_name;
             MiddleNameBox.Text = AppConnect.CurrentUser.middle_name;
+            BirthDatePicker.SelectedDate = AppConnect.CurrentUser.BirthDate;
 
-            RoleText.Text = AppConnect.CurrentUser.Roles.RoleName;
+            // Контактная информация
+            EmailBox.Text = AppConnect.CurrentUser.Email;
+            PhoneBox.Text = AppConnect.CurrentUser.Phone;
 
+            // Информация об аккаунте
+            LoginBox.Text = AppConnect.CurrentUser.Login;
+            RoleText.Text = AppConnect.CurrentUser.Roles?.RoleName ?? "Не указана";
+            ExperienceBox.Text = AppConnect.CurrentUser.ExperienceYears?.ToString() ?? "";
+
+            // Даты
+            RegistrationDateBox.Text = AppConnect.CurrentUser.RegistrationDate?.ToString("dd.MM.yyyy HH:mm") ?? "Не указана";
+            LastLoginDateBox.Text = AppConnect.CurrentUser.LastLoginDate?.ToString("dd.MM.yyyy HH:mm") ?? "Не указан";
+
+            // Статус
+            StatusText.Text = AppConnect.CurrentUser.IsBlocked == true ? "🔒 Заблокирован" : "✅ Активен";
+            if (AppConnect.CurrentUser.IsBlocked == true)
+            {
+                StatusText.Foreground = System.Windows.Media.Brushes.Red;
+            }
+            else
+            {
+                StatusText.Foreground = System.Windows.Media.Brushes.Green;
+            }
+
+            // Фото
             _photoBytes = AppConnect.CurrentUser.Photo;
             UserPhoto.Source = LoadImage(_photoBytes);
         }
 
-        /// <summary>
-        /// Загрузка изображения или заглушки
-        /// </summary>
         private BitmapImage LoadImage(byte[] bytes)
         {
             try
             {
-                // Если фото есть — загружаем
                 if (bytes != null && bytes.Length > 0)
                 {
                     BitmapImage image = new BitmapImage();
@@ -56,11 +76,7 @@ namespace LibraryAccounting.Pages
                     }
                     return image;
                 }
-
-                // 🔥 Заглушка
-                return new BitmapImage(
-                    new Uri("pack://application:,,,/Images/nofoto.png")
-                );
+                return new BitmapImage(new Uri("pack://application:,,,/Images/nofoto.png"));
             }
             catch
             {
@@ -68,9 +84,6 @@ namespace LibraryAccounting.Pages
             }
         }
 
-        /// <summary>
-        /// Загрузка нового фото
-        /// </summary>
         private void LoadPhoto_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog
@@ -89,21 +102,14 @@ namespace LibraryAccounting.Pages
 
                 AppConnect.CurrentUser.Photo = _photoBytes;
                 AppConnect.model01.SaveChanges();
+                ShowInfo("Фото успешно обновлено");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Ошибка при загрузке фото:\n" + ex.Message,
-                    "Ошибка",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error
-                );
+                ShowError($"Ошибка при загрузке фото: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Удаление фото (возврат заглушки)
-        /// </summary>
         private void RemovePhoto_Click(object sender, RoutedEventArgs e)
         {
             _photoBytes = null;
@@ -111,11 +117,75 @@ namespace LibraryAccounting.Pages
 
             AppConnect.CurrentUser.Photo = null;
             AppConnect.model01.SaveChanges();
+            ShowInfo("Фото удалено");
         }
 
-        /// <summary>
-        /// Смена пароля
-        /// </summary>
+        private void SaveProfile_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string newLogin = LoginBox.Text.Trim();
+                string lastName = LastNameBox.Text.Trim();
+                string firstName = FirstNameBox.Text.Trim();
+                string middleName = MiddleNameBox.Text.Trim();
+                string email = EmailBox.Text.Trim();
+                string phone = PhoneBox.Text.Trim();
+                int? experience = null;
+
+                if (!string.IsNullOrWhiteSpace(ExperienceBox.Text))
+                {
+                    if (int.TryParse(ExperienceBox.Text, out int exp))
+                        experience = exp;
+                }
+
+                // Валидация
+                if (string.IsNullOrWhiteSpace(newLogin))
+                {
+                    ShowError("Логин не может быть пустым");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(firstName))
+                {
+                    ShowError("Фамилия и имя обязательны");
+                    return;
+                }
+
+                // Проверка уникальности логина
+                var db = AppConnect.model01;
+                bool loginExists = db.Users.Any(u =>
+                    u.Login == newLogin &&
+                    u.UserId != AppConnect.CurrentUser.UserId);
+
+                if (loginExists)
+                {
+                    ShowError("Пользователь с таким логином уже существует");
+                    return;
+                }
+
+                // Сохраняем данные
+                AppConnect.CurrentUser.Login = newLogin;
+                AppConnect.CurrentUser.last_name = lastName;
+                AppConnect.CurrentUser.first_name = firstName;
+                AppConnect.CurrentUser.middle_name = string.IsNullOrWhiteSpace(middleName) ? null : middleName;
+                AppConnect.CurrentUser.Email = string.IsNullOrWhiteSpace(email) ? null : email;
+                AppConnect.CurrentUser.Phone = string.IsNullOrWhiteSpace(phone) ? null : phone;
+                AppConnect.CurrentUser.BirthDate = BirthDatePicker.SelectedDate;
+                AppConnect.CurrentUser.ExperienceYears = experience;
+                AppConnect.CurrentUser.Photo = _photoBytes;
+
+                db.SaveChanges();
+                ShowInfo("Данные профиля успешно обновлены");
+
+                // Обновляем отображение
+                LoadUser();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка при сохранении: {ex.Message}");
+            }
+        }
+
         private void ChangePassword_Click(object sender, RoutedEventArgs e)
         {
             var window = new ChangePasswordWindow
@@ -125,70 +195,31 @@ namespace LibraryAccounting.Pages
             window.ShowDialog();
         }
 
-        /// <summary>
-        /// Выход из аккаунта
-        /// </summary>
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
-            AppConnect.CurrentUser = null;
+            var result = MessageBox.Show("Вы уверены, что хотите выйти из аккаунта?",
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            ((MainWindow)Application.Current.MainWindow)
-                .frameMain.Navigate(new LoginView());
+            if (result == MessageBoxResult.Yes)
+            {
+                AppConnect.CurrentUser = null;
+                ((MainWindow)Application.Current.MainWindow).frameMain.Navigate(new LoginView());
+            }
         }
-        private void SaveProfile_Click(object sender, RoutedEventArgs e)
+
+        private void NumberOnly_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            string newLogin = LoginBox.Text.Trim();
-            string lastName = LastNameBox.Text.Trim();
-            string firstName = FirstNameBox.Text.Trim();
-            string middleName = MiddleNameBox.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(newLogin))
-            {
-                ShowError("Логин не может быть пустым");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(firstName))
-            {
-                ShowError("Фамилия и имя обязательны");
-                return;
-            }
-
-            var db = AppConnect.model01;
-
-            // 🔥 Проверка уникальности логина
-            bool loginExists = db.Users.Any(u =>
-                u.Login == newLogin &&
-                u.UserId != AppConnect.CurrentUser.UserId);
-
-            if (loginExists)
-            {
-                ShowError("Пользователь с таким логином уже существует");
-                return;
-            }
-
-            // ✅ Сохраняем
-            AppConnect.CurrentUser.Login = newLogin;
-            AppConnect.CurrentUser.last_name = lastName;
-            AppConnect.CurrentUser.first_name = firstName;
-            AppConnect.CurrentUser.middle_name =
-                string.IsNullOrWhiteSpace(middleName) ? null : middleName;
-
-            db.SaveChanges();
-
-            ShowInfo("Данные профиля успешно обновлены");
+            e.Handled = !char.IsDigit(e.Text, 0);
         }
+
         private void ShowError(string message)
         {
-            MessageBox.Show(message, "Ошибка",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private void ShowInfo(string message)
         {
-            MessageBox.Show(message, "Информация",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(message, "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
     }
 }
