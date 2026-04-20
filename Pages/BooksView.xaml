@@ -202,7 +202,7 @@
                         <!-- Физические характеристики -->
                         <DataGridTextColumn Header="Страниц" Binding="{Binding Pages}" Width="80"/>
                         <DataGridTextColumn Header="Язык" Binding="{Binding LanguageName}" Width="100"/>
-                        <DataGridTextColumn Header="Переплет" Binding="{Binding Binding}" Width="100"/>
+                        <DataGridTextColumn Header="Переплет" Binding="{Binding BindingName}" Width="100"/>
                         <DataGridTextColumn Header="Формат" Binding="{Binding Format}" Width="100"/>
 
                         <!-- Издание -->

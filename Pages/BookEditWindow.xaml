@@ -63,6 +63,7 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="AcceptsReturn" Value="True"/>
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
         </Style>
 
         <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
@@ -149,7 +150,11 @@
                                       KeyUp="LanguageBox_KeyUp"/>
 
                             <TextBlock Text="Переплет*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
-                            <TextBox x:Name="BindingBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>
+                            <ComboBox x:Name="BindingBox" 
+          Style="{StaticResource ComboBoxStyle}" 
+          DisplayMemberPath="BindingName"
+          SelectedValuePath="BindingId"
+          KeyUp="BindingBox_KeyUp"/>
 
                             <TextBlock Text="Формат*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="FormatBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>

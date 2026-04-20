@@ -12,28 +12,18 @@ namespace LibraryAccounting.AppData
     using System;
     using System.Collections.Generic;
     
-    public partial class BookCopies
+    public partial class Bindings
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public BookCopies()
+        public Bindings()
         {
-            this.Loans = new HashSet<Loans>();
+            this.Books = new HashSet<Books>();
         }
     
-        public int CopyId { get; set; }
-        public int BookId { get; set; }
-        public string InventoryNumber { get; set; }
-        public string Status { get; set; }
-        public string Shelf { get; set; }
-        public string Row { get; set; }
-        public System.DateTime AddedDate { get; set; }
-        public Nullable<int> LastReaderId { get; set; }
-        public Nullable<System.DateTime> LastLoanDate { get; set; }
-        public int TotalLoans { get; set; }
+        public int BindingId { get; set; }
+        public string BindingName { get; set; }
     
-        public virtual Books Books { get; set; }
-        public virtual Readers Readers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Loans> Loans { get; set; }
+        public virtual ICollection<Books> Books { get; set; }
     }
 }

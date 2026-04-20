@@ -139,6 +139,9 @@
     <Compile Include="AppData\Authors.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="AppData\Bindings.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="AppData\BookCopies.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

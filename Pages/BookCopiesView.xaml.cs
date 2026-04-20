@@ -1,48 +1,325 @@
 ﻿using LibraryAccounting.AppData;
 using LibraryAccounting.Windows;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace LibraryAccounting.Pages
 {
     public partial class BookCopiesView : Page
     {
+        private List<BookCopyViewModel> _allCopies;
+        private ICollectionView _copiesView;
+        private HashSet<int> _selectedCopyIds = new HashSet<int>();
+
+        public class BookCopyViewModel
+        {
+            public int CopyId { get; set; }
+            public string BookTitle { get; set; }
+            public string InventoryNumber { get; set; }
+            public string Location { get; set; }
+            public string Status { get; set; }
+            public DateTime AddedDate { get; set; }
+            public string LastReaderName { get; set; }
+            public DateTime? LastLoanDate { get; set; }
+            public int TotalLoans { get; set; }
+
+            public string StatusDisplay
+            {
+                get
+                {
+                    switch (Status)
+                    {
+                        case "Available": return "✅ Доступна";
+                        case "Issued": return "📤 Выдана";
+                        case "Lost": return "❌ Потеряна";
+                        case "WrittenOff": return "🗑 Списана";
+                        default: return Status;
+                    }
+                }
+            }
+        }
+
         public BookCopiesView()
         {
             InitializeComponent();
             if (AppConnect.CurrentUser != null && AppConnect.CurrentUser.RoleId == 2)
             {
                 DeleteButton.IsEnabled = false;
-                DeleteButton.Visibility = Visibility.Collapsed; // можно оставить только IsEnabled=false
+                DeleteButton.Visibility = Visibility.Collapsed;
+                MassWriteOffButton.IsEnabled = false;
+                MassWriteOffButton.Visibility = Visibility.Collapsed;
             }
             LoadCopies();
         }
 
-        /// <summary>
-        /// Загрузка экземпляров книг
-        /// </summary>
         private void LoadCopies()
         {
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
             var copies = AppConnect.model01.BookCopies
-    .Select(c => new
-    {
-        c.CopyId,
-        BookTitle = c.Books.Title,
-        c.InventoryNumber,
-        Location = "Ряд " + c.Row + ", полка " + c.Shelf,
-        c.Status
-    })
-    .ToList();
+                .Select(c => new BookCopyViewModel
+                {
+                    CopyId = c.CopyId,
+                    BookTitle = c.Books.Title,
+                    InventoryNumber = c.InventoryNumber,
+                    Location = "Ряд " + c.Row + ", полка " + c.Shelf,
+                    Status = c.Status,
+                    AddedDate = c.AddedDate,
+                    LastReaderName = c.LastReaderId != null ?
+                        c.Readers.last_name + " " + c.Readers.first_name + " " + (c.Readers.middle_name ?? "") : "",
+                    LastLoanDate = c.LastLoanDate,
+                    TotalLoans = c.TotalLoans
+                })
+                .OrderByDescending(c => c.AddedDate)
+                .ToList();
 
-            CopiesDataGrid.ItemsSource = copies;
+            _allCopies = copies;
+            _copiesView = CollectionViewSource.GetDefaultView(_allCopies);
+            _copiesView.Filter = FilterCopies;
+
+            CopiesDataGrid.ItemsSource = _copiesView;
+            ApplySorting();
+            UpdateStatistics();
+            _selectedCopyIds.Clear();
         }
 
-        /// <summary>
-        /// Добавление экземпляра (заглушка)
-        /// </summary>
+        private void UpdateStatistics()
+        {
+            if (_allCopies == null) return;
+
+            TotalCount.Text = _allCopies.Count.ToString();
+            AvailableCount.Text = _allCopies.Count(c => c.Status == "Available").ToString();
+            IssuedCount.Text = _allCopies.Count(c => c.Status == "Issued").ToString();
+            LostCount.Text = _allCopies.Count(c => c.Status == "Lost").ToString();
+            WrittenOffCount.Text = _allCopies.Count(c => c.Status == "WrittenOff").ToString();
+        }
+
+        private bool FilterCopies(object item)
+        {
+            var copy = item as BookCopyViewModel;
+            if (copy == null) return false;
+
+            string searchText = SearchTextBox?.Text?.Trim().ToLower() ?? "";
+            var selectedStatusItem = StatusFilterComboBox?.SelectedItem as ComboBoxItem;
+            string selectedStatus = selectedStatusItem?.Content?.ToString() ?? "Все статусы";
+
+            bool matchesSearch = string.IsNullOrEmpty(searchText) ||
+                copy.BookTitle.ToLower().Contains(searchText) ||
+                copy.InventoryNumber.ToLower().Contains(searchText);
+
+            bool matchesStatus = selectedStatus == "Все статусы" || copy.StatusDisplay == selectedStatus;
+
+            return matchesSearch && matchesStatus;
+        }
+
+        private void ApplySorting()
+        {
+            if (_copiesView == null) return;
+
+            _copiesView.SortDescriptions.Clear();
+
+            string sort = (SortComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            switch (sort)
+            {
+                case "По дате добавления (новые)":
+                    _copiesView.SortDescriptions.Add(
+                        new SortDescription("AddedDate", ListSortDirection.Descending));
+                    break;
+                case "По дате добавления (старые)":
+                    _copiesView.SortDescriptions.Add(
+                        new SortDescription("AddedDate", ListSortDirection.Ascending));
+                    break;
+                case "По инвентарному номеру (А-Я)":
+                    _copiesView.SortDescriptions.Add(
+                        new SortDescription("InventoryNumber", ListSortDirection.Ascending));
+                    break;
+                case "По инвентарному номеру (Я-А)":
+                    _copiesView.SortDescriptions.Add(
+                        new SortDescription("InventoryNumber", ListSortDirection.Descending));
+                    break;
+                case "По количеству выдач (убыв.)":
+                    _copiesView.SortDescriptions.Add(
+                        new SortDescription("TotalLoans", ListSortDirection.Descending));
+                    break;
+                case "По количеству выдач (возр.)":
+                    _copiesView.SortDescriptions.Add(
+                        new SortDescription("TotalLoans", ListSortDirection.Ascending));
+                    break;
+            }
+        }
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _copiesView?.Refresh();
+        }
+
+        private void StatusFilter_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            _copiesView?.Refresh();
+        }
+
+        private void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplySorting();
+        }
+
+        private void ResetFilters_Click(object sender, RoutedEventArgs e)
+        {
+            SearchTextBox.Text = "";
+            StatusFilterComboBox.SelectedIndex = 0;
+            SortComboBox.SelectedIndex = 0;
+            _copiesView?.Refresh();
+        }
+
+        #region Массовое списание
+
+        private void RowCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            if (checkBox?.Tag != null)
+            {
+                int copyId = (int)checkBox.Tag;
+                _selectedCopyIds.Add(copyId);
+            }
+        }
+
+        private void RowCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            if (checkBox?.Tag != null)
+            {
+                int copyId = (int)checkBox.Tag;
+                _selectedCopyIds.Remove(copyId);
+            }
+        }
+
+        private void SelectAllCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            if (checkBox == null) return;
+
+            foreach (var item in CopiesDataGrid.Items)
+            {
+                var copy = item as BookCopyViewModel;
+                if (copy != null && copy.Status != "WrittenOff")
+                {
+                    _selectedCopyIds.Add(copy.CopyId);
+                }
+            }
+
+            // Обновляем чекбоксы в строках
+            foreach (var item in CopiesDataGrid.Items)
+            {
+                var row = CopiesDataGrid.ItemContainerGenerator.ContainerFromItem(item) as DataGridRow;
+                if (row != null)
+                {
+                    var rowCheckBox = FindVisualChild<CheckBox>(row);
+                    if (rowCheckBox != null)
+                    {
+                        var copy = item as BookCopyViewModel;
+                        rowCheckBox.IsChecked = copy != null && copy.Status != "WrittenOff";
+                    }
+                }
+            }
+        }
+
+        private void SelectAllCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _selectedCopyIds.Clear();
+
+            foreach (var item in CopiesDataGrid.Items)
+            {
+                var row = CopiesDataGrid.ItemContainerGenerator.ContainerFromItem(item) as DataGridRow;
+                if (row != null)
+                {
+                    var rowCheckBox = FindVisualChild<CheckBox>(row);
+                    if (rowCheckBox != null)
+                    {
+                        rowCheckBox.IsChecked = false;
+                    }
+                }
+            }
+        }
+
+        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is T result) return result;
+                var descendant = FindVisualChild<T>(child);
+                if (descendant != null) return descendant;
+            }
+            return null;
+        }
+
+        private void MassWriteOff_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedCopyIds.Count == 0)
+            {
+                ShowError("Выберите хотя бы один экземпляр для списания");
+                return;
+            }
+
+            // Проверяем, можно ли списать выбранные экземпляры
+            var selectedCopies = _allCopies.Where(c => _selectedCopyIds.Contains(c.CopyId)).ToList();
+            var issuedCopies = selectedCopies.Where(c => c.Status == "Issued").ToList();
+
+            if (issuedCopies.Any())
+            {
+                var issuedList = string.Join("\n", issuedCopies.Select(c => $"{c.InventoryNumber} - {c.BookTitle}"));
+                MessageBox.Show(
+                    $"Следующие экземпляры находятся в выдаче и не могут быть списаны:\n\n{issuedList}\n\n" +
+                    "Сначала верните книги, затем повторите списание.",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Подтверждение списания
+            var dialog = new DeleteMessageDialog(
+                "Массовое списание",
+                $"Вы действительно хотите списать {_selectedCopyIds.Count} экземпляр(ов)?\n\n" +
+                "Списание нельзя будет отменить!"
+            );
+            dialog.Owner = Window.GetWindow(this);
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                var db = AppConnect.model01 ?? new LibraryAccountingEntities();
+                int writtenOffCount = 0;
+
+                foreach (int copyId in _selectedCopyIds)
+                {
+                    var copy = db.BookCopies.FirstOrDefault(c => c.CopyId == copyId);
+                    if (copy != null && copy.Status != "WrittenOff" && copy.Status != "Issued")
+                    {
+                        copy.Status = "WrittenOff";
+                        writtenOffCount++;
+                    }
+                }
+
+                db.SaveChanges();
+
+                ShowInfo($"Успешно списано {writtenOffCount} экземпляр(ов)");
+                LoadCopies();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка при массовом списании: {ex.Message}");
+            }
+        }
+
+        #endregion
+
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             var window = new BookCopyAddWindow
@@ -53,16 +330,17 @@ namespace LibraryAccounting.Pages
             if (window.ShowDialog() == true)
                 LoadCopies();
         }
+
         private void CopiesDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (CopiesDataGrid.SelectedItem == null)
                 return;
 
-            dynamic selected = CopiesDataGrid.SelectedItem;
-            int copyId = selected.CopyId;
+            var selected = CopiesDataGrid.SelectedItem as BookCopyViewModel;
+            if (selected == null) return;
 
             var copy = AppConnect.model01.BookCopies
-                .FirstOrDefault(c => c.CopyId == copyId);
+                .FirstOrDefault(c => c.CopyId == selected.CopyId);
 
             if (copy == null)
                 return;
@@ -76,9 +354,6 @@ namespace LibraryAccounting.Pages
                 LoadCopies();
         }
 
-        /// <summary>
-        /// Удаление экземпляра
-        /// </summary>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             if (CopiesDataGrid.SelectedItem == null)
@@ -87,26 +362,20 @@ namespace LibraryAccounting.Pages
                 return;
             }
 
-            dynamic selected = CopiesDataGrid.SelectedItem;
-            int copyId = selected.CopyId;
+            var selected = CopiesDataGrid.SelectedItem as BookCopyViewModel;
+            if (selected == null) return;
 
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            // 🔥 ПРОВЕРКА: используется ли экземпляр в выдачах
-            bool isUsed = AppConnect.model01.Loans
-                .Any(l => l.CopyId == copyId);
+            bool isUsed = AppConnect.model01.Loans.Any(l => l.CopyId == selected.CopyId);
 
             if (isUsed)
             {
-                ShowError(
-                    "Невозможно удалить экземпляр.\n" +
-                    "Для него существует история выдач."
-                );
+                ShowError("Невозможно удалить экземпляр.\nДля него существует история выдач.");
                 return;
             }
 
-            var copy = AppConnect.model01.BookCopies
-                .FirstOrDefault(c => c.CopyId == copyId);
+            var copy = AppConnect.model01.BookCopies.FirstOrDefault(c => c.CopyId == selected.CopyId);
 
             if (copy == null)
             {
@@ -114,7 +383,6 @@ namespace LibraryAccounting.Pages
                 return;
             }
 
-            // 🧨 подтверждение
             var dialog = new DeleteMessageDialog(
                 "Подтверждение удаления",
                 $"Удалить экземпляр с инвентарным номером {copy.InventoryNumber}?"
@@ -130,7 +398,6 @@ namespace LibraryAccounting.Pages
             LoadCopies();
             ShowInfo("Экземпляр успешно удалён");
         }
-
 
         private void ShowError(string message)
         {

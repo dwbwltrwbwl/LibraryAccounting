@@ -34,7 +34,7 @@ namespace LibraryAccounting.AppData
         public string Series { get; set; }
         public string Edition { get; set; }
         public Nullable<int> Circulation { get; set; }
-        public string Binding { get; set; }
+        public Nullable<int> BindingId { get; set; }
         public string Format { get; set; }
         public int Quantity { get; set; }
         public int AvailableQuantity { get; set; }
@@ -42,6 +42,7 @@ namespace LibraryAccounting.AppData
         public Nullable<System.DateTime> LastModified { get; set; }
     
         public virtual Authors Authors { get; set; }
+        public virtual Bindings Bindings { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BookCopies> BookCopies { get; set; }
         public virtual Genres Genres { get; set; }

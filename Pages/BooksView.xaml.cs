@@ -37,7 +37,7 @@ namespace LibraryAccounting.Pages
             public string Series { get; set; }
             public string Edition { get; set; }
             public int? Circulation { get; set; }
-            public string Binding { get; set; }
+            public string BindingName { get; set; }
             public string Format { get; set; }
             public int Quantity { get; set; }
             public int AvailableQuantity { get; set; }
@@ -63,30 +63,30 @@ namespace LibraryAccounting.Pages
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
                 var books = AppConnect.model01.Books
-                    .Select(b => new BookViewModel
-                    {
-                        BookId = b.BookId,
-                        Title = b.Title,
-                        AuthorName = b.Authors != null ? b.Authors.FullName : "Не указан",
-                        GenreName = b.Genres != null ? b.Genres.Name : "Не указан",
-                        PublisherName = b.Publishers != null ? b.Publishers.PublisherName : "Не указано",
-                        PublishYear = b.PublishYear,
-                        ISBN = b.ISBN,
-                        CoverImage = b.CoverImage,
-                        Pages = b.Pages,
-                        LanguageName = b.Languages != null ? b.Languages.LanguageName : "Не указан",
-                        Description = b.Description,
-                        Series = b.Series,
-                        Edition = b.Edition,
-                        Circulation = b.Circulation,
-                        Binding = b.Binding,
-                        Format = b.Format,
-                        Quantity = b.Quantity,
-                        AvailableQuantity = b.AvailableQuantity,
-                        AddedDate = b.AddedDate,
-                        LastModified = b.LastModified
-                    })
-                    .ToList();
+    .Select(b => new BookViewModel
+    {
+        BookId = b.BookId,
+        Title = b.Title,
+        AuthorName = b.Authors != null ? b.Authors.FullName : "Не указан",
+        GenreName = b.Genres != null ? b.Genres.Name : "Не указан",
+        PublisherName = b.Publishers != null ? b.Publishers.PublisherName : "Не указано",
+        PublishYear = b.PublishYear,
+        ISBN = b.ISBN,
+        CoverImage = b.CoverImage,
+        Pages = b.Pages,
+        LanguageName = b.Languages != null ? b.Languages.LanguageName : "Не указан",
+        Description = b.Description,
+        Series = b.Series,
+        Edition = b.Edition,
+        Circulation = b.Circulation,
+        BindingName = b.Bindings != null ? b.Bindings.BindingName : "Не указан",  // ← ИЗМЕНИТЬ
+        Format = b.Format,
+        Quantity = b.Quantity,
+        AvailableQuantity = b.AvailableQuantity,
+        AddedDate = b.AddedDate,
+        LastModified = b.LastModified
+    })
+    .ToList();
 
                 _books = books;
                 _booksView = CollectionViewSource.GetDefaultView(_books);
@@ -221,12 +221,13 @@ namespace LibraryAccounting.Pages
             string selectedPublisher = PublisherComboBox.SelectedItem?.ToString();
 
             bool matchesSearch = string.IsNullOrEmpty(search) ||
-                book.Title.ToLower().Contains(search) ||
-                book.AuthorName.ToLower().Contains(search) ||
-                (book.ISBN != null && book.ISBN.ToLower().Contains(search)) ||
-                (book.Series != null && book.Series.ToLower().Contains(search)) ||
-                (book.Description != null && book.Description.ToLower().Contains(search)) ||
-                (book.LanguageName != null && book.LanguageName.ToLower().Contains(search));
+    book.Title.ToLower().Contains(search) ||
+    book.AuthorName.ToLower().Contains(search) ||
+    (book.ISBN != null && book.ISBN.ToLower().Contains(search)) ||
+    (book.Series != null && book.Series.ToLower().Contains(search)) ||
+    (book.Description != null && book.Description.ToLower().Contains(search)) ||
+    (book.LanguageName != null && book.LanguageName.ToLower().Contains(search)) ||
+    (book.BindingName != null && book.BindingName.ToLower().Contains(search));  // ← ДОБАВИТЬ
 
             bool matchesGenre = selectedGenre == "Все жанры" ||
                 string.IsNullOrEmpty(selectedGenre) ||
@@ -435,7 +436,7 @@ namespace LibraryAccounting.Pages
 
                     foreach (var book in items)
                     {
-                        sb.AppendLine($"{EscapeCsv(book.Title)};{EscapeCsv(book.AuthorName)};{EscapeCsv(book.GenreName)};{EscapeCsv(book.PublisherName)};{book.PublishYear};{EscapeCsv(book.ISBN)};{book.Pages};{EscapeCsv(book.LanguageName)};{EscapeCsv(book.Binding)};{EscapeCsv(book.Format)};{EscapeCsv(book.Series)};{EscapeCsv(book.Edition)};{book.Circulation};{book.Quantity};{book.AvailableQuantity};{book.AddedDate:dd.MM.yyyy};{EscapeCsv(book.Description)}");
+                        sb.AppendLine($"{EscapeCsv(book.Title)};{EscapeCsv(book.AuthorName)};{EscapeCsv(book.GenreName)};{EscapeCsv(book.PublisherName)};{book.PublishYear};{EscapeCsv(book.ISBN)};{book.Pages};{EscapeCsv(book.LanguageName)};{EscapeCsv(book.BindingName)};{EscapeCsv(book.Format)};{EscapeCsv(book.Series)};{EscapeCsv(book.Edition)};{book.Circulation};{book.Quantity};{book.AvailableQuantity};{book.AddedDate:dd.MM.yyyy};{EscapeCsv(book.Description)}");
                     }
 
                     System.IO.File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);

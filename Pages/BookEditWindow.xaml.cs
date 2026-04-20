@@ -53,6 +53,7 @@ namespace LibraryAccounting.Pages
                 LoadGenres();
                 LoadPublishers();
                 LoadLanguages();
+                LoadBindings();  // ← ДОБАВИТЬ
             }
             catch (Exception ex)
             {
@@ -60,7 +61,24 @@ namespace LibraryAccounting.Pages
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
+        private void LoadBindings(string filter = null)
+        {
+            var query = AppConnect.model01.Bindings.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                query = query.Where(b => b.BindingName.ToLower().Contains(filter.ToLower()));
+            }
+            BindingBox.ItemsSource = query.OrderBy(b => b.BindingName).ToList();
+            BindingBox.DisplayMemberPath = "BindingName";
+            BindingBox.SelectedValuePath = "BindingId";
+        }
+        private void BindingBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            string searchText = BindingBox.Text?.Trim() ?? "";
+            LoadBindings(searchText);
+            if (BindingBox.ItemsSource != null && ((System.Collections.IList)BindingBox.ItemsSource).Count > 0)
+                BindingBox.IsDropDownOpen = true;
+        }
         #region Загрузка данных с фильтрацией
 
         private void LoadAuthors(string filter = null)
@@ -158,7 +176,6 @@ namespace LibraryAccounting.Pages
             SeriesBox.Text = _book.Series ?? "";
             EditionBox.Text = _book.Edition ?? "";
             CirculationBox.Text = _book.Circulation?.ToString() ?? "";
-            BindingBox.Text = _book.Binding ?? "";
             FormatBox.Text = _book.Format ?? "";
             QuantityBox.Text = _book.Quantity.ToString();
 
@@ -173,7 +190,13 @@ namespace LibraryAccounting.Pages
                 var selectedPublisher = AppConnect.model01.Publishers.FirstOrDefault(p => p.PublisherId == _book.PublisherId);
                 if (selectedPublisher != null) PublisherBox.SelectedItem = selectedPublisher;
             }
-
+            if (_book.BindingId.HasValue)
+            {
+                var selectedBinding = AppConnect.model01.Bindings
+                    .FirstOrDefault(b => b.BindingId == _book.BindingId);
+                if (selectedBinding != null)
+                    BindingBox.SelectedItem = selectedBinding;
+            }
             if (_book.LanguageId.HasValue)
             {
                 var selectedLanguage = AppConnect.model01.Languages.FirstOrDefault(l => l.LanguageId == _book.LanguageId);
@@ -568,7 +591,16 @@ namespace LibraryAccounting.Pages
                     : (int?)null;
 
                 // Переплет
-                _book.Binding = string.IsNullOrWhiteSpace(BindingBox.Text) ? null : BindingBox.Text.Trim();
+                if (BindingBox.SelectedItem != null)
+                {
+                    var selectedBinding = (Bindings)BindingBox.SelectedItem;
+                    _book.BindingId = selectedBinding.BindingId;
+                    _book.Bindings = selectedBinding;
+                }
+                else
+                {
+                    _book.BindingId = null;
+                }
 
                 // Формат
                 _book.Format = string.IsNullOrWhiteSpace(FormatBox.Text) ? null : FormatBox.Text.Trim();
@@ -662,7 +694,7 @@ namespace LibraryAccounting.Pages
             SeriesBox.Text = "";
             EditionBox.Text = "";
             CirculationBox.Text = "";
-            BindingBox.Text = "";
+            BindingBox.SelectedIndex = -1;
             FormatBox.Text = "";
             QuantityBox.Text = "1";
 

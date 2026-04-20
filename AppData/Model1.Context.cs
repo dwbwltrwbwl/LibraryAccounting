@@ -27,6 +27,7 @@ namespace LibraryAccounting.AppData
     
         public virtual DbSet<AgeRatings> AgeRatings { get; set; }
         public virtual DbSet<Authors> Authors { get; set; }
+        public virtual DbSet<Bindings> Bindings { get; set; }
         public virtual DbSet<BookCopies> BookCopies { get; set; }
         public virtual DbSet<Books> Books { get; set; }
         public virtual DbSet<Cities> Cities { get; set; }

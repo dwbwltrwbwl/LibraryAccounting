@@ -5,11 +5,43 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       mc:Ignorable="d"
       d:DesignHeight="600"
-      d:DesignWidth="1000"
+      d:DesignWidth="1200"
       Background="#F4F1EC">
+
+    <Page.Resources>
+        <Style x:Key="FilterComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Background" Value="#F4F1EC"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+        <Style x:Key="BooksDataGridStyle" TargetType="DataGrid">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#D4CFC8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="RowBackground" Value="#FFFDF9"/>
+            <Setter Property="AlternatingRowBackground" Value="#F9F8F6"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#E8E4DD"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E8E4DD"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+        </Style>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -54,48 +86,243 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="DeleteButton_Click"/>
+
+                    <Button x:Name="MassWriteOffButton" 
+                            Content="Массовое списание"
+                            Width="140"
+                            Margin="10,0,0,0"
+                            Background="#5F3E40"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="MassWriteOff_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Таблица -->
+        <!-- Статистика по статусам -->
         <Border Grid.Row="1"
                 Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
                 CornerRadius="8"
-                Padding="15">
+                Padding="15"
+                Margin="0,0,0,20">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="#2F4F4F" CornerRadius="8" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="📚 Всего" Foreground="White" FontSize="12" TextAlignment="Center"/>
+                        <TextBlock x:Name="TotalCount" Text="0" Foreground="White" FontSize="22" FontWeight="Bold" TextAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Background="#4CAF50" CornerRadius="8" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="✅ Доступна" Foreground="White" FontSize="12" TextAlignment="Center"/>
+                        <TextBlock x:Name="AvailableCount" Text="0" Foreground="White" FontSize="22" FontWeight="Bold" TextAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Background="#FF9800" CornerRadius="8" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="📤 Выдана" Foreground="White" FontSize="12" TextAlignment="Center"/>
+                        <TextBlock x:Name="IssuedCount" Text="0" Foreground="White" FontSize="22" FontWeight="Bold" TextAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="3" Background="#F44336" CornerRadius="8" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="❌ Потеряна" Foreground="White" FontSize="12" TextAlignment="Center"/>
+                        <TextBlock x:Name="LostCount" Text="0" Foreground="White" FontSize="22" FontWeight="Bold" TextAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4" Background="#9E9E9E" CornerRadius="8" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="🗑 Списана" Foreground="White" FontSize="12" TextAlignment="Center"/>
+                        <TextBlock x:Name="WrittenOffCount" Text="0" Foreground="White" FontSize="22" FontWeight="Bold" TextAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Панель фильтрации и поиска -->
+        <Border Grid.Row="2"
+                Background="#FFFDF9"
+                BorderBrush="#C8BFAF"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="15"
+                Margin="0,0,20,20">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <WrapPanel>
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10,5" Margin="0,0,15,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔍 Поиск:" VerticalAlignment="Center" 
+                                       Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <TextBox x:Name="SearchTextBox" 
+                                     Width="200" 
+                                     Height="30"
+                                     TextChanged="SearchTextBox_TextChanged"
+                                     ToolTip="Поиск по книге или инвентарному номеру"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10,5" Margin="0,0,15,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📌 Статус:" VerticalAlignment="Center" 
+                                       Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="StatusFilterComboBox" 
+                                      Width="140" 
+                                      Height="30"
+                                      SelectionChanged="StatusFilter_Changed">
+                                <ComboBoxItem Content="Все статусы" IsSelected="True"/>
+                                <ComboBoxItem Content="✅ Доступна"/>
+                                <ComboBoxItem Content="📤 Выдана"/>
+                                <ComboBoxItem Content="❌ Потеряна"/>
+                                <ComboBoxItem Content="🗑 Списана"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#F4F1EC" CornerRadius="6" Padding="10,5">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊 Сортировка:" VerticalAlignment="Center" 
+                                       Foreground="#2F4F4F" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="SortComboBox" 
+                                      Width="180" 
+                                      Height="30"
+                                      SelectionChanged="SortComboBox_SelectionChanged">
+                                <ComboBoxItem Content="По дате добавления (новые)" IsSelected="True"/>
+                                <ComboBoxItem Content="По дате добавления (старые)"/>
+                                <ComboBoxItem Content="По инвентарному номеру (А-Я)"/>
+                                <ComboBoxItem Content="По инвентарному номеру (Я-А)"/>
+                                <ComboBoxItem Content="По количеству выдач (убыв.)"/>
+                                <ComboBoxItem Content="По количеству выдач (возр.)"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </Grid>
+        </Border>
+
+        <!-- Таблица -->
+        <Border Grid.Row="3"
+        Background="#FFFDF9"
+        BorderBrush="#C8BFAF"
+        BorderThickness="1"
+        CornerRadius="8"
+        Padding="15"
+        Margin="0,0,0,0">
 
             <DataGrid x:Name="CopiesDataGrid"
-                      IsReadOnly="True"
-                      MouseDoubleClick="CopiesDataGrid_MouseDoubleClick"
-                      Style="{StaticResource BooksDataGridStyle}"
-                      ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-                      RowStyle="{StaticResource BooksDataGridRowStyle}"
-                      CellStyle="{StaticResource BooksDataGridCellStyle}"
-                      AutoGenerateColumns="False">
+              MouseDoubleClick="CopiesDataGrid_MouseDoubleClick"
+              Style="{StaticResource BooksDataGridStyle}"
+              ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+              RowStyle="{StaticResource BooksDataGridRowStyle}"
+              CellStyle="{StaticResource BooksDataGridCellStyle}"
+              AutoGenerateColumns="False"
+              SelectionMode="Extended"
+              SelectionUnit="FullRow"
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Auto"
+              CanUserResizeColumns="True"
+              CanUserReorderColumns="True"
+              MaxHeight="500">
 
                 <DataGrid.Columns>
+                    <!-- Чекбокс для выбора -->
+                    <DataGridTemplateColumn Header="Выбрать" Width="60">
+                        <DataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <CheckBox x:Name="SelectAllCheckBox" 
+                                  Content="Все" 
+                                  Checked="SelectAllCheckBox_Checked"
+                                  Unchecked="SelectAllCheckBox_Unchecked"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.HeaderTemplate>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox x:Name="RowCheckBox" 
+                                  Tag="{Binding CopyId}"
+                                  Checked="RowCheckBox_Checked"
+                                  Unchecked="RowCheckBox_Unchecked"
+                                  VerticalAlignment="Center"
+                                  HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
                     <DataGridTextColumn Header="Книга"
-                                        Binding="{Binding BookTitle}"
-                                        Width="2*"/>
+                                Binding="{Binding BookTitle}"
+                                Width="200"/>
 
                     <DataGridTextColumn Header="Инвентарный №"
-                                        Binding="{Binding InventoryNumber}"
-                                        Width="1.5*"/>
+                                Binding="{Binding InventoryNumber}"
+                                Width="120"/>
 
                     <DataGridTextColumn Header="Местоположение"
-                                        Binding="{Binding Location}"
-                                        Width="1.5*"/>
+                                Binding="{Binding Location}"
+                                Width="150"/>
 
-                    <DataGridTextColumn Header="Статус"
-                                        Binding="{Binding Status}"
-                                        Width="1*"/>
+                    <DataGridTextColumn Header="Статус" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="Black"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Status}" Value="Available">
+                                        <Setter Property="Foreground" Value="Green"/>
+                                        <Setter Property="Text" Value="✅ Доступна"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="Issued">
+                                        <Setter Property="Foreground" Value="Orange"/>
+                                        <Setter Property="Text" Value="📤 Выдана"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="Lost">
+                                        <Setter Property="Foreground" Value="Red"/>
+                                        <Setter Property="Text" Value="❌ Потеряна"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="WrittenOff">
+                                        <Setter Property="Foreground" Value="Gray"/>
+                                        <Setter Property="Text" Value="🗑 Списана"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Дата добавления"
+                                Binding="{Binding AddedDate, StringFormat=dd.MM.yyyy}"
+                                Width="100"/>
+
+                    <DataGridTextColumn Header="Последний читатель"
+                                Binding="{Binding LastReaderName}"
+                                Width="150"/>
+
+                    <DataGridTextColumn Header="Последняя выдача"
+                                Binding="{Binding LastLoanDate, StringFormat=dd.MM.yyyy}"
+                                Width="100"/>
+
+                    <DataGridTextColumn Header="Всего выдач"
+                                Binding="{Binding TotalLoans}"
+                                Width="80"/>
 
                 </DataGrid.Columns>
             </DataGrid>
-
         </Border>
     </Grid>
 </Page>

@@ -25,6 +25,13 @@
           <Property Name="DeathDate" Type="date" />
           <Property Name="CityId" Type="int" />
         </EntityType>
+        <EntityType Name="Bindings">
+          <Key>
+            <PropertyRef Name="BindingId" />
+          </Key>
+          <Property Name="BindingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="BindingName" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
         <EntityType Name="BookCopies">
           <Key>
             <PropertyRef Name="CopyId" />
@@ -35,6 +42,10 @@
           <Property Name="Status" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="Shelf" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="Row" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="AddedDate" Type="datetime" Nullable="false" />
+          <Property Name="LastReaderId" Type="int" />
+          <Property Name="LastLoanDate" Type="date" />
+          <Property Name="TotalLoans" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Books">
           <Key>
@@ -54,7 +65,7 @@
           <Property Name="Series" Type="nvarchar" MaxLength="100" />
           <Property Name="Edition" Type="nvarchar" MaxLength="50" />
           <Property Name="Circulation" Type="int" />
-          <Property Name="Binding" Type="nvarchar" MaxLength="50" />
+          <Property Name="BindingId" Type="int" />
           <Property Name="Format" Type="nvarchar" MaxLength="50" />
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="AvailableQuantity" Type="int" Nullable="false" />
@@ -200,6 +211,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_BookCopies_Readers">
+          <End Role="Readers" Type="Self.Readers" Multiplicity="0..1" />
+          <End Role="BookCopies" Type="Self.BookCopies" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Readers">
+              <PropertyRef Name="ReaderId" />
+            </Principal>
+            <Dependent Role="BookCopies">
+              <PropertyRef Name="LastReaderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Books_Authors">
           <End Role="Authors" Type="Self.Authors" Multiplicity="1" />
           <End Role="Books" Type="Self.Books" Multiplicity="*" />
@@ -209,6 +232,18 @@
             </Principal>
             <Dependent Role="Books">
               <PropertyRef Name="AuthorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Books_Bindings">
+          <End Role="Bindings" Type="Self.Bindings" Multiplicity="0..1" />
+          <End Role="Books" Type="Self.Books" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Bindings">
+              <PropertyRef Name="BindingId" />
+            </Principal>
+            <Dependent Role="Books">
+              <PropertyRef Name="BindingId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -335,6 +370,7 @@
         <EntityContainer Name="Хранилище LibraryAccountingModelContainer">
           <EntitySet Name="AgeRatings" EntityType="Self.AgeRatings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Authors" EntityType="Self.Authors" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Bindings" EntityType="Self.Bindings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BookCopies" EntityType="Self.BookCopies" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Books" EntityType="Self.Books" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cities" EntityType="Self.Cities" Schema="dbo" store:Type="Tables" />
@@ -356,8 +392,16 @@
             <End Role="Books" EntitySet="Books" />
             <End Role="BookCopies" EntitySet="BookCopies" />
           </AssociationSet>
+          <AssociationSet Name="FK_BookCopies_Readers" Association="Self.FK_BookCopies_Readers">
+            <End Role="Readers" EntitySet="Readers" />
+            <End Role="BookCopies" EntitySet="BookCopies" />
+          </AssociationSet>
           <AssociationSet Name="FK_Books_Authors" Association="Self.FK_Books_Authors">
             <End Role="Authors" EntitySet="Authors" />
+            <End Role="Books" EntitySet="Books" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Books_Bindings" Association="Self.FK_Books_Bindings">
+            <End Role="Bindings" EntitySet="Bindings" />
             <End Role="Books" EntitySet="Books" />
           </AssociationSet>
           <AssociationSet Name="FK_Books_Genres" Association="Self.FK_Books_Genres">
@@ -429,6 +473,14 @@
           <NavigationProperty Name="Cities" Relationship="Self.FK_Authors_Cities" FromRole="Authors" ToRole="Cities" />
           <NavigationProperty Name="Books" Relationship="Self.FK_Books_Authors" FromRole="Authors" ToRole="Books" />
         </EntityType>
+        <EntityType Name="Bindings">
+          <Key>
+            <PropertyRef Name="BindingId" />
+          </Key>
+          <Property Name="BindingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BindingName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Books" Relationship="Self.FK_Books_Bindings" FromRole="Bindings" ToRole="Books" />
+        </EntityType>
         <EntityType Name="BookCopies">
           <Key>
             <PropertyRef Name="CopyId" />
@@ -439,7 +491,12 @@
           <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Shelf" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Row" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AddedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="LastReaderId" Type="Int32" />
+          <Property Name="LastLoanDate" Type="DateTime" Precision="0" />
+          <Property Name="TotalLoans" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Books" Relationship="Self.FK_BookCopies_Books" FromRole="BookCopies" ToRole="Books" />
+          <NavigationProperty Name="Readers" Relationship="Self.FK_BookCopies_Readers" FromRole="BookCopies" ToRole="Readers" />
           <NavigationProperty Name="Loans" Relationship="Self.FK_Loans_BookCopies" FromRole="BookCopies" ToRole="Loans" />
         </EntityType>
         <EntityType Name="Books">
@@ -460,13 +517,14 @@
           <Property Name="Series" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Edition" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Circulation" Type="Int32" />
-          <Property Name="Binding" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="BindingId" Type="Int32" />
           <Property Name="Format" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Quantity" Type="Int32" Nullable="false" />
           <Property Name="AvailableQuantity" Type="Int32" Nullable="false" />
           <Property Name="AddedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="LastModified" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Authors" Relationship="Self.FK_Books_Authors" FromRole="Books" ToRole="Authors" />
+          <NavigationProperty Name="Bindings" Relationship="Self.FK_Books_Bindings" FromRole="Books" ToRole="Bindings" />
           <NavigationProperty Name="BookCopies" Relationship="Self.FK_BookCopies_Books" FromRole="Books" ToRole="BookCopies" />
           <NavigationProperty Name="Genres" Relationship="Self.FK_Books_Genres" FromRole="Books" ToRole="Genres" />
           <NavigationProperty Name="Languages" Relationship="Self.FK_Books_Languages" FromRole="Books" ToRole="Languages" />
@@ -560,6 +618,7 @@
           <Property Name="BirthDate" Type="DateTime" Precision="0" />
           <Property Name="CategoryId" Type="Int32" />
           <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="BookCopies" Relationship="Self.FK_BookCopies_Readers" FromRole="Readers" ToRole="BookCopies" />
           <NavigationProperty Name="Loans" Relationship="Self.FK_Loans_Readers" FromRole="Readers" ToRole="Loans" />
           <NavigationProperty Name="ReaderCategories" Relationship="Self.FK_Readers_ReaderCategories" FromRole="Readers" ToRole="ReaderCategories" />
         </EntityType>
@@ -639,6 +698,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Books_Bindings">
+          <End Role="Bindings" Type="Self.Bindings" Multiplicity="0..1" />
+          <End Role="Books" Type="Self.Books" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Bindings">
+              <PropertyRef Name="BindingId" />
+            </Principal>
+            <Dependent Role="Books">
+              <PropertyRef Name="BindingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_BookCopies_Books">
           <End Role="Books" Type="Self.Books" Multiplicity="1" />
           <End Role="BookCopies" Type="Self.BookCopies" Multiplicity="*" />
@@ -648,6 +719,18 @@
             </Principal>
             <Dependent Role="BookCopies">
               <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookCopies_Readers">
+          <End Role="Readers" Type="Self.Readers" Multiplicity="0..1" />
+          <End Role="BookCopies" Type="Self.BookCopies" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Readers">
+              <PropertyRef Name="ReaderId" />
+            </Principal>
+            <Dependent Role="BookCopies">
+              <PropertyRef Name="LastReaderId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -762,6 +845,7 @@
         <EntityContainer Name="LibraryAccountingEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="AgeRatings" EntityType="Self.AgeRatings" />
           <EntitySet Name="Authors" EntityType="Self.Authors" />
+          <EntitySet Name="Bindings" EntityType="Self.Bindings" />
           <EntitySet Name="BookCopies" EntityType="Self.BookCopies" />
           <EntitySet Name="Books" EntityType="Self.Books" />
           <EntitySet Name="Cities" EntityType="Self.Cities" />
@@ -787,8 +871,16 @@
             <End Role="Authors" EntitySet="Authors" />
             <End Role="Books" EntitySet="Books" />
           </AssociationSet>
+          <AssociationSet Name="FK_Books_Bindings" Association="Self.FK_Books_Bindings">
+            <End Role="Bindings" EntitySet="Bindings" />
+            <End Role="Books" EntitySet="Books" />
+          </AssociationSet>
           <AssociationSet Name="FK_BookCopies_Books" Association="Self.FK_BookCopies_Books">
             <End Role="Books" EntitySet="Books" />
+            <End Role="BookCopies" EntitySet="BookCopies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookCopies_Readers" Association="Self.FK_BookCopies_Readers">
+            <End Role="Readers" EntitySet="Readers" />
             <End Role="BookCopies" EntitySet="BookCopies" />
           </AssociationSet>
           <AssociationSet Name="FK_Loans_BookCopies" Association="Self.FK_Loans_BookCopies">
@@ -856,6 +948,14 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Bindings">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.Bindings">
+              <MappingFragment StoreEntitySet="Bindings">
+                <ScalarProperty Name="BindingId" ColumnName="BindingId" />
+                <ScalarProperty Name="BindingName" ColumnName="BindingName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="BookCopies">
             <EntityTypeMapping TypeName="LibraryAccountingModel.BookCopies">
               <MappingFragment StoreEntitySet="BookCopies">
@@ -865,6 +965,10 @@
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="Shelf" ColumnName="Shelf" />
                 <ScalarProperty Name="Row" ColumnName="Row" />
+                <ScalarProperty Name="AddedDate" ColumnName="AddedDate" />
+                <ScalarProperty Name="LastReaderId" ColumnName="LastReaderId" />
+                <ScalarProperty Name="LastLoanDate" ColumnName="LastLoanDate" />
+                <ScalarProperty Name="TotalLoans" ColumnName="TotalLoans" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -885,7 +989,7 @@
                 <ScalarProperty Name="Series" ColumnName="Series" />
                 <ScalarProperty Name="Edition" ColumnName="Edition" />
                 <ScalarProperty Name="Circulation" ColumnName="Circulation" />
-                <ScalarProperty Name="Binding" ColumnName="Binding" />
+                <ScalarProperty Name="BindingId" ColumnName="BindingId" />
                 <ScalarProperty Name="Format" ColumnName="Format" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
                 <ScalarProperty Name="AvailableQuantity" ColumnName="AvailableQuantity" />

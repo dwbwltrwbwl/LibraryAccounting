@@ -119,24 +119,27 @@ namespace LibraryAccounting.Pages
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
                 DateTime today = DateTime.Now.Date;
 
-                var report = AppConnect.model01.Loans
+                // Сначала получаем данные, потом вычисляем просрочку в памяти
+                var loans = AppConnect.model01.Loans
                     .Where(l => l.ReturnDate == null && l.DueDate < today)
                     .Select(l => new
                     {
-                        Читатель = l.Readers.last_name + " " + l.Readers.first_name + " " + (l.Readers.middle_name ?? ""),
-                        Книга = l.BookCopies.Books.Title,
-                        Инвентарный_номер = l.BookCopies.InventoryNumber,
-                        Просрочка_дней = (today - l.DueDate).Days,
-                        Срок_возврата = l.DueDate
+                        l.LoanId,
+                        Reader = l.Readers.last_name + " " + l.Readers.first_name + " " + (l.Readers.middle_name ?? ""),
+                        Book = l.BookCopies.Books.Title,
+                        InventoryNumber = l.BookCopies.InventoryNumber,
+                        DueDate = l.DueDate
                     })
-                    .ToList()
+                    .ToList();
+
+                var report = loans
                     .Select(l => new
                     {
-                        l.Читатель,
-                        l.Книга,
-                        l.Инвентарный_номер,
-                        l.Просрочка_дней,
-                        Срок_возврата = l.Срок_возврата.ToString("dd.MM.yyyy")
+                        l.Reader,
+                        l.Book,
+                        l.InventoryNumber,
+                        Просрочка_дней = (today - l.DueDate).Days,
+                        Срок_возврата = l.DueDate.ToString("dd.MM.yyyy")
                     })
                     .OrderByDescending(x => x.Просрочка_дней)
                     .ToList();

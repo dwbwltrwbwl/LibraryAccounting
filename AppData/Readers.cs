@@ -17,6 +17,7 @@ namespace LibraryAccounting.AppData
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Readers()
         {
+            this.BookCopies = new HashSet<BookCopies>();
             this.Loans = new HashSet<Loans>();
         }
     
@@ -32,6 +33,8 @@ namespace LibraryAccounting.AppData
         public Nullable<int> CategoryId { get; set; }
         public string Status { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BookCopies> BookCopies { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Loans> Loans { get; set; }
         public virtual ReaderCategories ReaderCategories { get; set; }

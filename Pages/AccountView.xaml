@@ -126,13 +126,22 @@
                                        Margin="0,0,0,15"/>
 
                             <TextBlock Text="Фамилия" Style="{StaticResource LabelStyle}"/>
-                            <TextBox x:Name="LastNameBox" Style="{StaticResource TextBoxStyle}"/>
+                            <TextBox x:Name="LastNameBox" 
+                                     Style="{StaticResource TextBoxStyle}" 
+                                     MaxLength="50"
+                                     PreviewTextInput="NameOnly_PreviewTextInput"/>
 
                             <TextBlock Text="Имя" Style="{StaticResource LabelStyle}"/>
-                            <TextBox x:Name="FirstNameBox" Style="{StaticResource TextBoxStyle}"/>
+                            <TextBox x:Name="FirstNameBox" 
+                                     Style="{StaticResource TextBoxStyle}" 
+                                     MaxLength="50"
+                                     PreviewTextInput="NameOnly_PreviewTextInput"/>
 
                             <TextBlock Text="Отчество" Style="{StaticResource LabelStyle}"/>
-                            <TextBox x:Name="MiddleNameBox" Style="{StaticResource TextBoxStyle}"/>
+                            <TextBox x:Name="MiddleNameBox" 
+                                     Style="{StaticResource TextBoxStyle}" 
+                                     MaxLength="50"
+                                     PreviewTextInput="NameOnly_PreviewTextInput"/>
 
                             <TextBlock Text="Дата рождения" Style="{StaticResource LabelStyle}"/>
                             <DatePicker x:Name="BirthDatePicker" 
@@ -150,10 +159,16 @@
                                        Margin="0,15,0,15"/>
 
                             <TextBlock Text="Email" Style="{StaticResource LabelStyle}"/>
-                            <TextBox x:Name="EmailBox" Style="{StaticResource TextBoxStyle}"/>
+                            <TextBox x:Name="EmailBox" 
+                                     Style="{StaticResource TextBoxStyle}" 
+                                     MaxLength="100"/>
 
                             <TextBlock Text="Телефон" Style="{StaticResource LabelStyle}"/>
-                            <TextBox x:Name="PhoneBox" Style="{StaticResource TextBoxStyle}"/>
+                            <TextBox x:Name="PhoneBox" 
+         Style="{StaticResource TextBoxStyle}" 
+         MaxLength="20"
+         PreviewTextInput="PhoneOnly_PreviewTextInput"
+         TextChanged="PhoneBox_TextChanged"/>
 
                             <!-- Информация об аккаунте -->
                             <TextBlock Text="Информация об аккаунте" 
@@ -163,7 +178,9 @@
                                        Margin="0,15,0,15"/>
 
                             <TextBlock Text="Логин" Style="{StaticResource LabelStyle}"/>
-                            <TextBox x:Name="LoginBox" Style="{StaticResource TextBoxStyle}"/>
+                            <TextBox x:Name="LoginBox" 
+                                     Style="{StaticResource TextBoxStyle}" 
+                                     MaxLength="50"/>
 
                             <TextBlock Text="Роль" Style="{StaticResource LabelStyle}"/>
                             <TextBlock x:Name="RoleText" Style="{StaticResource ValueStyle}"/>
@@ -171,7 +188,8 @@
                             <TextBlock Text="Стаж работы (лет)" Style="{StaticResource LabelStyle}"/>
                             <TextBox x:Name="ExperienceBox" 
                                      Style="{StaticResource TextBoxStyle}"
-                                     PreviewTextInput="NumberOnly_PreviewTextInput"/>
+                                     PreviewTextInput="NumberOnly_PreviewTextInput" 
+                                     MaxLength="10"/>
 
                             <TextBlock Text="Дата регистрации" Style="{StaticResource LabelStyle}"/>
                             <TextBox x:Name="RegistrationDateBox" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
