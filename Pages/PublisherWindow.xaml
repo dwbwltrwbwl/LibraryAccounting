@@ -10,7 +10,6 @@
         Background="#F4F1EC">
 
     <Window.Resources>
-        <!-- Стиль для кнопок -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="16,0"/>
