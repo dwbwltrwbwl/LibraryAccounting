@@ -29,6 +29,8 @@ namespace LibraryAccounting.AppData
         public string Phone { get; set; }
         public Nullable<System.DateTime> RegistrationDate { get; set; }
         public Nullable<System.DateTime> LastLoginDate { get; set; }
+        public bool IsApproved { get; set; }
+        public Nullable<System.DateTime> RegistrationRequestDate { get; set; }
     
         public virtual Roles Roles { get; set; }
     }

@@ -1,6 +1,7 @@
 ﻿using LibraryAccounting.AppData;
 using LibraryAccounting.Services;
 using LibraryAccounting.Windows;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -128,6 +129,22 @@ namespace LibraryAccounting.Pages
                 dialog.ShowDialog();
                 return;
             }
+
+            // ✅ НОВАЯ ПРОВЕРКА: одобрен ли пользователь
+            if (!user.IsApproved)
+            {
+                var dialog = new MessageDialog(
+                    "Доступ запрещён",
+                    "Ваша учетная запись ещё не одобрена администратором.\nПожалуйста, ожидайте подтверждения."
+                );
+                dialog.Owner = Window.GetWindow(this);
+                dialog.ShowDialog();
+                return;
+            }
+
+            // Обновляем дату последнего входа
+            user.LastLoginDate = DateTime.Now;
+            AppConnect.model01.SaveChanges();
 
             // Успешный вход
             string roleName = user.Roles.RoleName;

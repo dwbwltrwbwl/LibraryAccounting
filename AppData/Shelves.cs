@@ -12,30 +12,25 @@ namespace LibraryAccounting.AppData
     using System;
     using System.Collections.Generic;
     
-    public partial class BookCopies
+    public partial class Shelves
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public BookCopies()
+        public Shelves()
         {
-            this.Loans = new HashSet<Loans>();
+            this.BookCopies = new HashSet<BookCopies>();
+            this.Rows = new HashSet<Rows>();
         }
     
-        public int CopyId { get; set; }
-        public int BookId { get; set; }
-        public string InventoryNumber { get; set; }
-        public string Status { get; set; }
-        public System.DateTime AddedDate { get; set; }
-        public Nullable<int> LastReaderId { get; set; }
-        public Nullable<System.DateTime> LastLoanDate { get; set; }
-        public int TotalLoans { get; set; }
-        public Nullable<int> ShelfId { get; set; }
-        public Nullable<int> RowId { get; set; }
+        public int ShelfId { get; set; }
+        public string ShelfCode { get; set; }
+        public string ShelfName { get; set; }
+        public string Zone { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsActive { get; set; }
     
-        public virtual Books Books { get; set; }
-        public virtual Readers Readers { get; set; }
-        public virtual Rows Rows { get; set; }
-        public virtual Shelves Shelves { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Loans> Loans { get; set; }
+        public virtual ICollection<BookCopies> BookCopies { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Rows> Rows { get; set; }
     }
 }

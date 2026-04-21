@@ -7,6 +7,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.IO;
+using System.Text;
+using System.Data.Entity;
 
 namespace LibraryAccounting.Pages
 {
@@ -27,6 +30,8 @@ namespace LibraryAccounting.Pages
             public string LastReaderName { get; set; }
             public DateTime? LastLoanDate { get; set; }
             public int TotalLoans { get; set; }
+            public string ShelfCode { get; set; }
+            public int RowNumber { get; set; }
 
             public string StatusDisplay
             {
@@ -59,33 +64,60 @@ namespace LibraryAccounting.Pages
 
         private void LoadCopies()
         {
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+            try
+            {
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            var copies = AppConnect.model01.BookCopies
-                .Select(c => new BookCopyViewModel
+                // Сначала получаем данные без форматирования
+                var copiesRaw = AppConnect.model01.BookCopies
+                    .Include(c => c.Books)
+                    .Include(c => c.Shelves)
+                    .Include(c => c.Rows)
+                    .Include(c => c.Readers)
+                    .Select(c => new
+                    {
+                        c.CopyId,
+                        BookTitle = c.Books.Title,
+                        c.InventoryNumber,
+                        c.Status,
+                        c.AddedDate,
+                        LastReaderName = c.LastReaderId != null ? c.Readers.last_name + " " + c.Readers.first_name + " " + (c.Readers.middle_name ?? "") : "",
+                        c.LastLoanDate,
+                        c.TotalLoans,
+                        ShelfCode = c.Shelves != null ? c.Shelves.ShelfCode : "",
+                        RowNumber = c.Rows != null ? c.Rows.RowNumber : 0
+                    })
+                    .ToList();
+
+                // Форматируем местоположение после получения данных
+                var copies = copiesRaw.Select(c => new BookCopyViewModel
                 {
                     CopyId = c.CopyId,
-                    BookTitle = c.Books.Title,
+                    BookTitle = c.BookTitle,
                     InventoryNumber = c.InventoryNumber,
-                    Location = "Ряд " + c.Row + ", полка " + c.Shelf,
+                    Location = string.IsNullOrEmpty(c.ShelfCode) ? "Не указано" : $"Стеллаж {c.ShelfCode}, ряд {c.RowNumber}",
                     Status = c.Status,
                     AddedDate = c.AddedDate,
-                    LastReaderName = c.LastReaderId != null ?
-                        c.Readers.last_name + " " + c.Readers.first_name + " " + (c.Readers.middle_name ?? "") : "",
+                    LastReaderName = c.LastReaderName,
                     LastLoanDate = c.LastLoanDate,
                     TotalLoans = c.TotalLoans
                 })
                 .OrderByDescending(c => c.AddedDate)
                 .ToList();
 
-            _allCopies = copies;
-            _copiesView = CollectionViewSource.GetDefaultView(_allCopies);
-            _copiesView.Filter = FilterCopies;
+                _allCopies = copies;
+                _copiesView = CollectionViewSource.GetDefaultView(_allCopies);
+                _copiesView.Filter = FilterCopies;
 
-            CopiesDataGrid.ItemsSource = _copiesView;
-            ApplySorting();
-            UpdateStatistics();
-            _selectedCopyIds.Clear();
+                CopiesDataGrid.ItemsSource = _copiesView;
+                ApplySorting();
+                UpdateStatistics();
+                _selectedCopyIds.Clear();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка загрузки данных: {ex.Message}");
+            }
         }
 
         private void UpdateStatistics()
@@ -110,7 +142,8 @@ namespace LibraryAccounting.Pages
 
             bool matchesSearch = string.IsNullOrEmpty(searchText) ||
                 copy.BookTitle.ToLower().Contains(searchText) ||
-                copy.InventoryNumber.ToLower().Contains(searchText);
+                copy.InventoryNumber.ToLower().Contains(searchText) ||
+                copy.ShelfCode.ToLower().Contains(searchText);
 
             bool matchesStatus = selectedStatus == "Все статусы" || copy.StatusDisplay == selectedStatus;
 
@@ -397,6 +430,77 @@ namespace LibraryAccounting.Pages
 
             LoadCopies();
             ShowInfo("Экземпляр успешно удалён");
+        }
+
+        private void ExportToCsv_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var items = _copiesView?.Cast<BookCopyViewModel>().ToList();
+
+                if (items == null || items.Count == 0)
+                {
+                    items = _allCopies;
+                }
+
+                if (items == null || items.Count == 0)
+                {
+                    ShowError("Нет данных для экспорта");
+                    return;
+                }
+
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "CSV файлы (*.csv)|*.csv",
+                    FileName = $"Экземпляры_книг_{DateTime.Now:yyyy-MM-dd_HHmmss}",
+                    DefaultExt = "csv",
+                    Title = "Сохранить CSV файл"
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    var sb = new StringBuilder();
+
+                    sb.AppendLine("\"Книга\";\"Инвентарный №\";\"Местоположение\";\"Статус\";\"Дата добавления\";\"Последний читатель\";\"Последняя выдача\";\"Всего выдач\"");
+
+                    foreach (var copy in items)
+                    {
+                        string statusText = "";
+                        switch (copy.Status)
+                        {
+                            case "Available": statusText = "Доступна"; break;
+                            case "Issued": statusText = "Выдана"; break;
+                            case "Lost": statusText = "Потеряна"; break;
+                            case "WrittenOff": statusText = "Списана"; break;
+                            default: statusText = copy.Status; break;
+                        }
+
+                        string lastLoanDate = copy.LastLoanDate?.ToString("dd.MM.yyyy") ?? "";
+
+                        sb.AppendLine($"{EscapeCsv(copy.BookTitle)};{EscapeCsv(copy.InventoryNumber)};{EscapeCsv(copy.Location)};{statusText};{copy.AddedDate:dd.MM.yyyy};{EscapeCsv(copy.LastReaderName)};{lastLoanDate};{copy.TotalLoans}");
+                    }
+
+                    File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
+                    ShowInfo($"Экспорт выполнен успешно!\nФайл сохранен: {dialog.FileName}\nЭкспортировано записей: {items.Count}");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка при экспорте: {ex.Message}");
+            }
+        }
+
+        private string EscapeCsv(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return "";
+
+            if (value.Contains(";") || value.Contains("\""))
+            {
+                value = value.Replace("\"", "\"\"");
+                return $"\"{value}\"";
+            }
+            return value;
         }
 
         private void ShowError(string message)

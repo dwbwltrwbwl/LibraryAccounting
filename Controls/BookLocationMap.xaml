@@ -39,6 +39,12 @@
             <Setter Property="Margin" Value="5,0,10,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <!-- Стиль для подсвеченной полки -->
+        <Style x:Key="HighlightedShelfStyle" TargetType="Border" BasedOn="{StaticResource ShelfStyle}">
+            <Setter Property="Background" Value="#FFEB96"/>
+            <Setter Property="BorderBrush" Value="#FFC107"/>
+            <Setter Property="BorderThickness" Value="3"/>
+        </Style>
     </UserControl.Resources>
 
     <Border Background="#FFFDF9" BorderBrush="#C8BFAF" BorderThickness="1" CornerRadius="8" Padding="15">

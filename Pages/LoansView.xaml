@@ -29,6 +29,19 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Стиль для ComboBox с поиском -->
+        <Style x:Key="SearchComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="False"/>
+            <Setter Property="StaysOpenOnEdit" Value="True"/>
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -84,12 +97,13 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="ExtendButton_Click"/>
+
                     <Button Content="🗺️ Карта книг"
-        Width="120"
-        Height="30"
-        Margin="10,0,0,0"
-        Style="{StaticResource ActionButtonStyle}"
-        Click="ShowMap_Click"/>
+                            Width="120"
+                            Height="30"
+                            Margin="10,0,0,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="ShowMap_Click"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -120,23 +134,16 @@
                     <ComboBox x:Name="ReaderFilterComboBox" 
                               Width="250" 
                               Height="30"
+                              Style="{StaticResource SearchComboBoxStyle}"
                               DisplayMemberPath="FullName"
                               SelectedValuePath="ReaderId"
                               SelectionChanged="ReaderFilter_SelectionChanged"
-                              Background="#FFFDF9"
-                              BorderBrush="#C8BFAF"
-                              BorderThickness="1"/>
+                              KeyUp="ReaderFilterComboBox_KeyUp"/>
 
-                    <Button Content="Сбросить фильтр"
-                            Width="100"
-                            Height="30"
-                            Margin="10,0,0,0"
-                            Click="ResetFilter_Click"/>
                     <TextBlock x:Name="RecordsCount" 
-           Grid.Column="1"
-           VerticalAlignment="Center"
-           Foreground="#6F6F6F"
-           Margin="15,0,0,0"/>
+                               VerticalAlignment="Center"
+                               Foreground="#6F6F6F"
+                               Margin="15,0,0,0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal">

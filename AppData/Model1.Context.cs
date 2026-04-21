@@ -39,6 +39,8 @@ namespace LibraryAccounting.AppData
         public virtual DbSet<ReaderCategories> ReaderCategories { get; set; }
         public virtual DbSet<Readers> Readers { get; set; }
         public virtual DbSet<Roles> Roles { get; set; }
+        public virtual DbSet<Rows> Rows { get; set; }
+        public virtual DbSet<Shelves> Shelves { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<Users> Users { get; set; }
     }

@@ -86,7 +86,11 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="DeleteButton_Click"/>
-
+                    <Button Content="Экспорт CSV"
+        Width="100"
+        Margin="10,0,0,0"
+        Style="{StaticResource ActionButtonStyle}"
+        Click="ExportToCsv_Click"/>
                     <Button x:Name="MassWriteOffButton" 
                             Content="Массовое списание"
                             Width="140"

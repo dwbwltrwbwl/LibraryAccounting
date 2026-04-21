@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Экземпляр книги"
-        Height="600"
+        Height="650"
         Width="500"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -67,6 +67,12 @@
             <Setter Property="Foreground" Value="#2F4F4F"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
         </Style>
+
+        <Style x:Key="InfoTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#2F4F4F"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
     </Window.Resources>
 
     <Border Padding="20"
@@ -100,21 +106,30 @@
                          PreviewTextInput="InventoryBox_PreviewTextInput"
                          Margin="0,0,0,15"/>
 
+                <!-- СТЕЛЛАЖ -->
+                <TextBlock Text="Стеллаж*" Style="{StaticResource LabelStyle}"/>
+                <ComboBox x:Name="ShelfBox"
+                          Style="{StaticResource ComboBoxStyle}"
+                          IsEditable="True"
+                          KeyUp="ShelfBox_KeyUp"
+                          SelectionChanged="ShelfBox_SelectionChanged"
+                          Margin="0,0,0,15"/>
+
                 <!-- РЯД -->
                 <TextBlock Text="Ряд*" Style="{StaticResource LabelStyle}"/>
                 <ComboBox x:Name="RowBox"
-          Style="{StaticResource ComboBoxStyle}"
-          IsEditable="True"
-          KeyUp="RowBox_KeyUp"
-          Margin="0,0,0,15"/>
+                          Style="{StaticResource ComboBoxStyle}"
+                          IsEditable="True"
+                          KeyUp="RowBox_KeyUp"
+                          SelectionChanged="RowBox_SelectionChanged"
+                          IsEnabled="False"
+                          Margin="0,0,0,15"/>
 
-                <!-- ПОЛКА -->
-                <TextBlock Text="Полка*" Style="{StaticResource LabelStyle}"/>
-                <ComboBox x:Name="ShelfBox"
-          Style="{StaticResource ComboBoxStyle}"
-          IsEditable="True"
-          KeyUp="ShelfBox_KeyUp"
-          Margin="0,0,0,15"/>
+                <!-- ИНФОРМАЦИЯ О ЗАПОЛНЕННОСТИ ПОЛКИ -->
+                <TextBlock x:Name="ShelfInfoText" 
+                           Style="{StaticResource InfoTextStyle}"
+                           Visibility="Collapsed"
+                           TextWrapping="Wrap"/>
 
                 <!-- ДАТА ДОБАВЛЕНИЯ (только для просмотра при редактировании) -->
                 <TextBlock x:Name="AddedDateLabel" 

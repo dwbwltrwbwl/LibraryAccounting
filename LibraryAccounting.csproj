@@ -190,6 +190,12 @@
     <Compile Include="AppData\Roles.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="AppData\Rows.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AppData\Shelves.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="AppData\sysdiagrams.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -272,6 +278,9 @@
     </Compile>
     <Compile Include="Pages\ReportsView.xaml.cs">
       <DependentUpon>ReportsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\UserApprovalView.xaml.cs">
+      <DependentUpon>UserApprovalView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\UsersView.xaml.cs">
       <DependentUpon>UsersView.xaml</DependentUpon>
@@ -401,6 +410,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\ReportsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\UserApprovalView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

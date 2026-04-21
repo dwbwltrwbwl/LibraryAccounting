@@ -13,9 +13,6 @@ namespace LibraryAccounting.Windows
     {
         private BookCopies _copy;
         private bool _isEdit;
-        private List<Books> _allBooks;
-        private List<string> _allRows;
-        private List<string> _allShelves;
 
         // ➕ ДОБАВЛЕНИЕ
         public BookCopyAddWindow()
@@ -37,7 +34,6 @@ namespace LibraryAccounting.Windows
             TotalLoansBox.Visibility = Visibility.Collapsed;
 
             LoadBooks();
-            LoadRows();
             LoadShelves();
             SetInventoryMask();
         }
@@ -63,7 +59,6 @@ namespace LibraryAccounting.Windows
             TotalLoansBox.Visibility = Visibility.Visible;
 
             LoadBooks();
-            LoadRows();
             LoadShelves();
             FillData();
             SetInventoryMask();
@@ -79,64 +74,100 @@ namespace LibraryAccounting.Windows
                 query = query.Where(b => b.Title.ToLower().Contains(filter.ToLower()));
             }
 
-            _allBooks = query.OrderBy(b => b.Title).ToList();
-            BookBox.ItemsSource = _allBooks;
+            BookBox.ItemsSource = query.OrderBy(b => b.Title).ToList();
             BookBox.DisplayMemberPath = "Title";
             BookBox.SelectedValuePath = "BookId";
-        }
-
-        private void LoadRows(string filter = null)
-        {
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            IQueryable<string> query = AppConnect.model01.BookCopies
-                .Select(c => c.Row)
-                .Where(r => !string.IsNullOrEmpty(r))
-                .Distinct()
-                .OrderBy(r => r);
-
-            if (!string.IsNullOrWhiteSpace(filter))
-            {
-                query = query.Where(r => r.ToLower().Contains(filter.ToLower()));
-            }
-
-            _allRows = query.ToList();
-            RowBox.ItemsSource = _allRows;
-
-            // Добавляем возможность ввода нового ряда
-            if (!_allRows.Contains(RowBox.Text) && !string.IsNullOrWhiteSpace(RowBox.Text))
-            {
-                var newList = _allRows.ToList();
-                newList.Insert(0, RowBox.Text);
-                RowBox.ItemsSource = newList;
-            }
         }
 
         private void LoadShelves(string filter = null)
         {
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            IQueryable<string> query = AppConnect.model01.BookCopies
-                .Select(c => c.Shelf)
-                .Where(s => !string.IsNullOrEmpty(s) && s != "1")  // ← добавляем s != "1"
-                .Distinct()
-                .OrderBy(s => s);
+            // Сначала получаем данные без форматирования
+            var shelvesRaw = AppConnect.model01.Shelves
+                .OrderBy(s => s.SortOrder)
+                .Select(s => new
+                {
+                    s.ShelfId,
+                    s.ShelfCode,
+                    s.ShelfName,
+                    s.Zone,
+                    s.SortOrder
+                })
+                .ToList();
+
+            // Форматируем Display после получения данных
+            var shelves = shelvesRaw.Select(s => new
+            {
+                s.ShelfId,
+                Display = $"{s.ShelfCode} - {s.ShelfName}",
+                s.ShelfCode,
+                s.ShelfName,
+                s.Zone,
+                s.SortOrder
+            }).ToList();
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
-                query = query.Where(s => s.ToLower().Contains(filter.ToLower()));
+                var filteredList = shelves
+                    .Where(s => s.Display.ToLower().Contains(filter.ToLower()))
+                    .ToList();
+                ShelfBox.ItemsSource = filteredList;
             }
-
-            _allShelves = query.ToList();
-            ShelfBox.ItemsSource = _allShelves;
-
-            // Добавляем возможность ввода новой полки
-            if (!_allShelves.Contains(ShelfBox.Text) && !string.IsNullOrWhiteSpace(ShelfBox.Text))
+            else
             {
-                var newList = _allShelves.ToList();
-                newList.Insert(0, ShelfBox.Text);
-                ShelfBox.ItemsSource = newList;
+                ShelfBox.ItemsSource = shelves;
             }
+
+            ShelfBox.DisplayMemberPath = "Display";
+            ShelfBox.SelectedValuePath = "ShelfId";
+        }
+
+        private void LoadRows(int? shelfId, string filter = null)
+        {
+            if (!shelfId.HasValue)
+            {
+                RowBox.ItemsSource = null;
+                RowBox.IsEnabled = false;
+                ShelfInfoText.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            // Получаем данные о рядах с количеством книг
+            var rowsRaw = AppConnect.model01.Rows
+                .Where(r => r.ShelfId == shelfId.Value)
+                .Select(r => new
+                {
+                    r.RowId,
+                    r.RowNumber,
+                    r.Capacity,
+                    BooksCount = AppConnect.model01.BookCopies.Count(c => c.ShelfId == shelfId.Value && c.RowId == r.RowId)
+                })
+                .ToList();
+
+            var rows = rowsRaw.Select(r => new
+            {
+                r.RowId,
+                Display = $"Ряд {r.RowNumber} (книг: {r.BooksCount}/{r.Capacity})",
+                r.RowNumber,
+                IsFull = r.BooksCount >= r.Capacity
+            }).ToList();
+
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                var filteredList = rows
+                    .Where(r => r.Display.ToLower().Contains(filter.ToLower()))
+                    .ToList();
+                RowBox.ItemsSource = filteredList;
+            }
+            else
+            {
+                RowBox.ItemsSource = rows;
+            }
+
+            RowBox.DisplayMemberPath = "Display";
+            RowBox.SelectedValuePath = "RowId";
+            RowBox.IsEnabled = true;
         }
 
         private void BookBox_KeyUp(object sender, KeyEventArgs e)
@@ -147,20 +178,56 @@ namespace LibraryAccounting.Windows
                 BookBox.IsDropDownOpen = true;
         }
 
-        private void RowBox_KeyUp(object sender, KeyEventArgs e)
-        {
-            string searchText = RowBox.Text?.Trim() ?? "";
-            LoadRows(searchText);
-            if (RowBox.ItemsSource != null && ((System.Collections.IList)RowBox.ItemsSource).Count > 0)
-                RowBox.IsDropDownOpen = true;
-        }
-
         private void ShelfBox_KeyUp(object sender, KeyEventArgs e)
         {
             string searchText = ShelfBox.Text?.Trim() ?? "";
             LoadShelves(searchText);
             if (ShelfBox.ItemsSource != null && ((System.Collections.IList)ShelfBox.ItemsSource).Count > 0)
                 ShelfBox.IsDropDownOpen = true;
+        }
+
+        private void ShelfBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ShelfBox.SelectedItem != null)
+            {
+                dynamic selected = ShelfBox.SelectedItem;
+                int shelfId = selected.ShelfId;
+                LoadRows(shelfId);
+                ShelfInfoText.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                LoadRows(null);
+                ShelfInfoText.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void RowBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (RowBox.SelectedItem != null && ShelfBox.SelectedItem != null)
+            {
+                dynamic selectedShelf = ShelfBox.SelectedItem;
+                dynamic selectedRow = RowBox.SelectedItem;
+                int shelfId = selectedShelf.ShelfId;
+                int rowId = selectedRow.RowId;
+
+                ShowShelfInfo(shelfId, rowId);
+            }
+            else
+            {
+                ShelfInfoText.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void RowBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (ShelfBox.SelectedItem == null) return;
+
+            dynamic selectedShelf = ShelfBox.SelectedItem;
+            int shelfId = selectedShelf.ShelfId;
+
+            string searchText = RowBox.Text?.Trim() ?? "";
+            LoadRows(shelfId, searchText);
+            if (RowBox.ItemsSource != null && ((System.Collections.IList)RowBox.ItemsSource).Count > 0)
+                RowBox.IsDropDownOpen = true;
         }
 
         private void SetInventoryMask()
@@ -228,8 +295,6 @@ namespace LibraryAccounting.Windows
         private void FillData()
         {
             InventoryBox.Text = _copy.InventoryNumber;
-            RowBox.Text = _copy.Row;
-            ShelfBox.Text = _copy.Shelf;
 
             // Дата добавления
             AddedDateBox.Text = _copy.AddedDate.ToString("dd.MM.yyyy HH:mm");
@@ -274,12 +339,112 @@ namespace LibraryAccounting.Windows
                     break;
             }
 
+            // Выбор книги
             BookBox.SelectedItem = AppConnect.model01.Books
                 .FirstOrDefault(b => b.BookId == _copy.BookId);
-
             BookBox.IsEnabled = false;
-        }
 
+            // Выбор стеллажа и ряда
+            if (_copy.ShelfId.HasValue)
+            {
+                var shelf = AppConnect.model01.Shelves.FirstOrDefault(s => s.ShelfId == _copy.ShelfId);
+                if (shelf != null)
+                {
+                    // Находим и выбираем нужный стеллаж в списке
+                    var shelvesList = ShelfBox.ItemsSource as System.Collections.IEnumerable;
+                    if (shelvesList != null)
+                    {
+                        foreach (var item in shelvesList)
+                        {
+                            var shelfItem = item.GetType().GetProperty("ShelfId")?.GetValue(item);
+                            if (shelfItem != null && (int)shelfItem == _copy.ShelfId.Value)
+                            {
+                                ShelfBox.SelectedItem = item;
+                                break;
+                            }
+                        }
+                    }
+                    LoadRows(_copy.ShelfId);
+
+                    if (_copy.RowId.HasValue)
+                    {
+                        RowBox.SelectedValue = _copy.RowId;
+                    }
+                }
+            }
+        }
+        private bool CheckShelfCapacity(int shelfId, int rowId, int? excludeCopyId = null)
+        {
+            try
+            {
+                // Получаем информацию о полке
+                var row = AppConnect.model01.Rows.FirstOrDefault(r => r.RowId == rowId);
+                if (row == null || row.Capacity == null) return true;
+
+                // Считаем количество книг на этой полке (исключая текущую при редактировании)
+                int booksCount = AppConnect.model01.BookCopies
+                    .Count(c => c.ShelfId == shelfId && c.RowId == rowId &&
+                           (!excludeCopyId.HasValue || c.CopyId != excludeCopyId.Value));
+
+                // Проверяем, не превышен ли лимит
+                if (booksCount >= row.Capacity)
+                {
+                    MessageBox.Show($"На данной полке уже максимальное количество книг ({row.Capacity} шт.).\n" +
+                        "Выберите другое место для размещения экземпляра.",
+                        "Превышение вместимости", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+
+                // Показываем информацию о заполненности полки
+                int freeSpace = row.Capacity - booksCount;
+                if (freeSpace <= 10)
+                {
+                    MessageBox.Show($"Внимание: на выбранной полке осталось только {freeSpace} свободных мест из {row.Capacity}.",
+                        "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка проверки вместимости: {ex.Message}");
+                return true;
+            }
+        }
+        private void ShowShelfInfo(int shelfId, int rowId)
+        {
+            try
+            {
+                var row = AppConnect.model01.Rows.FirstOrDefault(r => r.RowId == rowId);
+                if (row == null) return;
+
+                int booksCount = AppConnect.model01.BookCopies
+                    .Count(c => c.ShelfId == shelfId && c.RowId == rowId);
+
+                int freeSpace = row.Capacity - booksCount;
+
+                // Можно показать в ToolTip или отдельной метке
+                ShelfInfoText.Text = $"📊 Заполненность: {booksCount}/{row.Capacity} книг (свободно: {freeSpace})";
+                ShelfInfoText.Visibility = Visibility.Visible;
+
+                if (freeSpace <= 5)
+                {
+                    ShelfInfoText.Foreground = System.Windows.Media.Brushes.Red;
+                }
+                else if (freeSpace <= 10)
+                {
+                    ShelfInfoText.Foreground = System.Windows.Media.Brushes.Orange;
+                }
+                else
+                {
+                    ShelfInfoText.Foreground = System.Windows.Media.Brushes.Green;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка получения информации о полке: {ex.Message}");
+            }
+        }
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             // Валидация
@@ -300,21 +465,19 @@ namespace LibraryAccounting.Windows
                 return;
             }
 
-            string row = RowBox.Text.Trim();
-            if (string.IsNullOrWhiteSpace(row))
+            if (ShelfBox.SelectedItem == null)
             {
-                MessageBox.Show("Введите номер ряда", "Ошибка",
+                MessageBox.Show("Выберите стеллаж", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
-                RowBox.Focus();
+                ShelfBox.Focus();
                 return;
             }
 
-            string shelf = ShelfBox.Text.Trim();
-            if (string.IsNullOrWhiteSpace(shelf))
+            if (RowBox.SelectedItem == null)
             {
-                MessageBox.Show("Введите номер полки", "Ошибка",
+                MessageBox.Show("Выберите ряд", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
-                ShelfBox.Focus();
+                RowBox.Focus();
                 return;
             }
 
@@ -340,6 +503,19 @@ namespace LibraryAccounting.Windows
                 return;
             }
 
+            // Получаем выбранные значения
+            var book = (Books)BookBox.SelectedItem;
+            dynamic selectedShelf = ShelfBox.SelectedItem;
+            dynamic selectedRow = RowBox.SelectedItem;
+            int shelfId = selectedShelf.ShelfId;
+            int rowId = selectedRow.RowId;
+
+            // Проверка вместимости полки
+            if (!CheckShelfCapacity(shelfId, rowId, _isEdit ? _copy.CopyId : (int?)null))
+            {
+                return;
+            }
+
             try
             {
                 if (!_isEdit)
@@ -350,12 +526,10 @@ namespace LibraryAccounting.Windows
                     _copy.TotalLoans = 0;
                 }
 
-                var book = (Books)BookBox.SelectedItem;
-
                 _copy.BookId = book.BookId;
                 _copy.InventoryNumber = inventory;
-                _copy.Row = row;
-                _copy.Shelf = shelf;
+                _copy.ShelfId = shelfId;
+                _copy.RowId = rowId;
 
                 // Установка статуса
                 if (_isEdit)

@@ -40,12 +40,12 @@
           <Property Name="BookId" Type="int" Nullable="false" />
           <Property Name="InventoryNumber" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Status" Type="nvarchar" MaxLength="20" Nullable="false" />
-          <Property Name="Shelf" Type="nvarchar" MaxLength="20" Nullable="false" />
-          <Property Name="Row" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="AddedDate" Type="datetime" Nullable="false" />
           <Property Name="LastReaderId" Type="int" />
           <Property Name="LastLoanDate" Type="date" />
           <Property Name="TotalLoans" Type="int" Nullable="false" />
+          <Property Name="ShelfId" Type="int" />
+          <Property Name="RowId" Type="int" />
         </EntityType>
         <EntityType Name="Books">
           <Key>
@@ -157,6 +157,28 @@
           <Property Name="RoleName" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Description" Type="nvarchar" MaxLength="200" />
         </EntityType>
+        <EntityType Name="Rows">
+          <Key>
+            <PropertyRef Name="RowId" />
+          </Key>
+          <Property Name="RowId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RowNumber" Type="int" Nullable="false" />
+          <Property Name="ShelfId" Type="int" Nullable="false" />
+          <Property Name="SortOrder" Type="int" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+          <Property Name="Capacity" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Shelves">
+          <Key>
+            <PropertyRef Name="ShelfId" />
+          </Key>
+          <Property Name="ShelfId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ShelfCode" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="ShelfName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Zone" Type="nvarchar" MaxLength="50" />
+          <Property Name="SortOrder" Type="int" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
             <PropertyRef Name="diagram_id" />
@@ -186,6 +208,8 @@
           <Property Name="Phone" Type="nvarchar" MaxLength="20" />
           <Property Name="RegistrationDate" Type="datetime" />
           <Property Name="LastLoginDate" Type="datetime" />
+          <Property Name="IsApproved" Type="bit" Nullable="false" />
+          <Property Name="RegistrationRequestDate" Type="datetime" />
         </EntityType>
         <Association Name="FK_Authors_Cities">
           <End Role="Cities" Type="Self.Cities" Multiplicity="0..1" />
@@ -220,6 +244,30 @@
             </Principal>
             <Dependent Role="BookCopies">
               <PropertyRef Name="LastReaderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookCopies_Rows">
+          <End Role="Rows" Type="Self.Rows" Multiplicity="0..1" />
+          <End Role="BookCopies" Type="Self.BookCopies" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rows">
+              <PropertyRef Name="RowId" />
+            </Principal>
+            <Dependent Role="BookCopies">
+              <PropertyRef Name="RowId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookCopies_Shelves">
+          <End Role="Shelves" Type="Self.Shelves" Multiplicity="0..1" />
+          <End Role="BookCopies" Type="Self.BookCopies" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Shelves">
+              <PropertyRef Name="ShelfId" />
+            </Principal>
+            <Dependent Role="BookCopies">
+              <PropertyRef Name="ShelfId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -355,6 +403,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Rows_Shelves">
+          <End Role="Shelves" Type="Self.Shelves" Multiplicity="1" />
+          <End Role="Rows" Type="Self.Rows" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Shelves">
+              <PropertyRef Name="ShelfId" />
+            </Principal>
+            <Dependent Role="Rows">
+              <PropertyRef Name="ShelfId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Users_Roles">
           <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
           <End Role="Users" Type="Self.Users" Multiplicity="*" />
@@ -382,6 +442,8 @@
           <EntitySet Name="ReaderCategories" EntityType="Self.ReaderCategories" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Readers" EntityType="Self.Readers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Rows" EntityType="Self.Rows" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Shelves" EntityType="Self.Shelves" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_Authors_Cities" Association="Self.FK_Authors_Cities">
@@ -394,6 +456,14 @@
           </AssociationSet>
           <AssociationSet Name="FK_BookCopies_Readers" Association="Self.FK_BookCopies_Readers">
             <End Role="Readers" EntitySet="Readers" />
+            <End Role="BookCopies" EntitySet="BookCopies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookCopies_Rows" Association="Self.FK_BookCopies_Rows">
+            <End Role="Rows" EntitySet="Rows" />
+            <End Role="BookCopies" EntitySet="BookCopies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookCopies_Shelves" Association="Self.FK_BookCopies_Shelves">
+            <End Role="Shelves" EntitySet="Shelves" />
             <End Role="BookCopies" EntitySet="BookCopies" />
           </AssociationSet>
           <AssociationSet Name="FK_Books_Authors" Association="Self.FK_Books_Authors">
@@ -439,6 +509,10 @@
           <AssociationSet Name="FK_Readers_ReaderCategories" Association="Self.FK_Readers_ReaderCategories">
             <End Role="ReaderCategories" EntitySet="ReaderCategories" />
             <End Role="Readers" EntitySet="Readers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Rows_Shelves" Association="Self.FK_Rows_Shelves">
+            <End Role="Shelves" EntitySet="Shelves" />
+            <End Role="Rows" EntitySet="Rows" />
           </AssociationSet>
           <AssociationSet Name="FK_Users_Roles" Association="Self.FK_Users_Roles">
             <End Role="Roles" EntitySet="Roles" />
@@ -489,14 +563,16 @@
           <Property Name="BookId" Type="Int32" Nullable="false" />
           <Property Name="InventoryNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Shelf" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Row" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="AddedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="LastReaderId" Type="Int32" />
           <Property Name="LastLoanDate" Type="DateTime" Precision="0" />
           <Property Name="TotalLoans" Type="Int32" Nullable="false" />
+          <Property Name="ShelfId" Type="Int32" />
+          <Property Name="RowId" Type="Int32" />
           <NavigationProperty Name="Books" Relationship="Self.FK_BookCopies_Books" FromRole="BookCopies" ToRole="Books" />
           <NavigationProperty Name="Readers" Relationship="Self.FK_BookCopies_Readers" FromRole="BookCopies" ToRole="Readers" />
+          <NavigationProperty Name="Rows" Relationship="Self.FK_BookCopies_Rows" FromRole="BookCopies" ToRole="Rows" />
+          <NavigationProperty Name="Shelves" Relationship="Self.FK_BookCopies_Shelves" FromRole="BookCopies" ToRole="Shelves" />
           <NavigationProperty Name="Loans" Relationship="Self.FK_Loans_BookCopies" FromRole="BookCopies" ToRole="Loans" />
         </EntityType>
         <EntityType Name="Books">
@@ -631,6 +707,32 @@
           <Property Name="Description" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Users" Relationship="Self.FK_Users_Roles" FromRole="Roles" ToRole="Users" />
         </EntityType>
+        <EntityType Name="Rows">
+          <Key>
+            <PropertyRef Name="RowId" />
+          </Key>
+          <Property Name="RowId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RowNumber" Type="Int32" Nullable="false" />
+          <Property Name="ShelfId" Type="Int32" Nullable="false" />
+          <Property Name="SortOrder" Type="Int32" Nullable="false" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <Property Name="Capacity" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="BookCopies" Relationship="Self.FK_BookCopies_Rows" FromRole="Rows" ToRole="BookCopies" />
+          <NavigationProperty Name="Shelves" Relationship="Self.FK_Rows_Shelves" FromRole="Rows" ToRole="Shelves" />
+        </EntityType>
+        <EntityType Name="Shelves">
+          <Key>
+            <PropertyRef Name="ShelfId" />
+          </Key>
+          <Property Name="ShelfId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ShelfCode" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ShelfName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Zone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SortOrder" Type="Int32" Nullable="false" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="BookCopies" Relationship="Self.FK_BookCopies_Shelves" FromRole="Shelves" ToRole="BookCopies" />
+          <NavigationProperty Name="Rows" Relationship="Self.FK_Rows_Shelves" FromRole="Shelves" ToRole="Rows" />
+        </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
             <PropertyRef Name="diagram_id" />
@@ -660,6 +762,8 @@
           <Property Name="Phone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="RegistrationDate" Type="DateTime" Precision="3" />
           <Property Name="LastLoginDate" Type="DateTime" Precision="3" />
+          <Property Name="IsApproved" Type="Boolean" Nullable="false" />
+          <Property Name="RegistrationRequestDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Roles" Relationship="Self.FK_Users_Roles" FromRole="Users" ToRole="Roles" />
         </EntityType>
         <Association Name="FK_Genres_AgeRatings">
@@ -731,6 +835,30 @@
             </Principal>
             <Dependent Role="BookCopies">
               <PropertyRef Name="LastReaderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookCopies_Rows">
+          <End Role="Rows" Type="Self.Rows" Multiplicity="0..1" />
+          <End Role="BookCopies" Type="Self.BookCopies" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rows">
+              <PropertyRef Name="RowId" />
+            </Principal>
+            <Dependent Role="BookCopies">
+              <PropertyRef Name="RowId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookCopies_Shelves">
+          <End Role="Shelves" Type="Self.Shelves" Multiplicity="0..1" />
+          <End Role="BookCopies" Type="Self.BookCopies" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Shelves">
+              <PropertyRef Name="ShelfId" />
+            </Principal>
+            <Dependent Role="BookCopies">
+              <PropertyRef Name="ShelfId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -842,6 +970,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Rows_Shelves">
+          <End Role="Shelves" Type="Self.Shelves" Multiplicity="1" />
+          <End Role="Rows" Type="Self.Rows" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Shelves">
+              <PropertyRef Name="ShelfId" />
+            </Principal>
+            <Dependent Role="Rows">
+              <PropertyRef Name="ShelfId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="LibraryAccountingEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="AgeRatings" EntityType="Self.AgeRatings" />
           <EntitySet Name="Authors" EntityType="Self.Authors" />
@@ -857,6 +997,8 @@
           <EntitySet Name="ReaderCategories" EntityType="Self.ReaderCategories" />
           <EntitySet Name="Readers" EntityType="Self.Readers" />
           <EntitySet Name="Roles" EntityType="Self.Roles" />
+          <EntitySet Name="Rows" EntityType="Self.Rows" />
+          <EntitySet Name="Shelves" EntityType="Self.Shelves" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
           <EntitySet Name="Users" EntityType="Self.Users" />
           <AssociationSet Name="FK_Genres_AgeRatings" Association="Self.FK_Genres_AgeRatings">
@@ -881,6 +1023,14 @@
           </AssociationSet>
           <AssociationSet Name="FK_BookCopies_Readers" Association="Self.FK_BookCopies_Readers">
             <End Role="Readers" EntitySet="Readers" />
+            <End Role="BookCopies" EntitySet="BookCopies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookCopies_Rows" Association="Self.FK_BookCopies_Rows">
+            <End Role="Rows" EntitySet="Rows" />
+            <End Role="BookCopies" EntitySet="BookCopies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookCopies_Shelves" Association="Self.FK_BookCopies_Shelves">
+            <End Role="Shelves" EntitySet="Shelves" />
             <End Role="BookCopies" EntitySet="BookCopies" />
           </AssociationSet>
           <AssociationSet Name="FK_Loans_BookCopies" Association="Self.FK_Loans_BookCopies">
@@ -918,6 +1068,10 @@
           <AssociationSet Name="FK_Users_Roles" Association="Self.FK_Users_Roles">
             <End Role="Roles" EntitySet="Roles" />
             <End Role="Users" EntitySet="Users" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Rows_Shelves" Association="Self.FK_Rows_Shelves">
+            <End Role="Shelves" EntitySet="Shelves" />
+            <End Role="Rows" EntitySet="Rows" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
@@ -963,12 +1117,12 @@
                 <ScalarProperty Name="BookId" ColumnName="BookId" />
                 <ScalarProperty Name="InventoryNumber" ColumnName="InventoryNumber" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="Shelf" ColumnName="Shelf" />
-                <ScalarProperty Name="Row" ColumnName="Row" />
                 <ScalarProperty Name="AddedDate" ColumnName="AddedDate" />
                 <ScalarProperty Name="LastReaderId" ColumnName="LastReaderId" />
                 <ScalarProperty Name="LastLoanDate" ColumnName="LastLoanDate" />
                 <ScalarProperty Name="TotalLoans" ColumnName="TotalLoans" />
+                <ScalarProperty Name="ShelfId" ColumnName="ShelfId" />
+                <ScalarProperty Name="RowId" ColumnName="RowId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1092,6 +1246,30 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Rows">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.Rows">
+              <MappingFragment StoreEntitySet="Rows">
+                <ScalarProperty Name="RowId" ColumnName="RowId" />
+                <ScalarProperty Name="RowNumber" ColumnName="RowNumber" />
+                <ScalarProperty Name="ShelfId" ColumnName="ShelfId" />
+                <ScalarProperty Name="SortOrder" ColumnName="SortOrder" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Capacity" ColumnName="Capacity" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Shelves">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.Shelves">
+              <MappingFragment StoreEntitySet="Shelves">
+                <ScalarProperty Name="ShelfId" ColumnName="ShelfId" />
+                <ScalarProperty Name="ShelfCode" ColumnName="ShelfCode" />
+                <ScalarProperty Name="ShelfName" ColumnName="ShelfName" />
+                <ScalarProperty Name="Zone" ColumnName="Zone" />
+                <ScalarProperty Name="SortOrder" ColumnName="SortOrder" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="sysdiagrams">
             <EntityTypeMapping TypeName="LibraryAccountingModel.sysdiagrams">
               <MappingFragment StoreEntitySet="sysdiagrams">
@@ -1121,6 +1299,8 @@
                 <ScalarProperty Name="Phone" ColumnName="Phone" />
                 <ScalarProperty Name="RegistrationDate" ColumnName="RegistrationDate" />
                 <ScalarProperty Name="LastLoginDate" ColumnName="LastLoginDate" />
+                <ScalarProperty Name="IsApproved" ColumnName="IsApproved" />
+                <ScalarProperty Name="RegistrationRequestDate" ColumnName="RegistrationRequestDate" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

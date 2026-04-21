@@ -20,6 +20,8 @@ namespace LibraryAccounting.Pages
         private List<string> _allPublishers;
         private string _currentGenreFilter = "";
         private string _currentPublisherFilter = "";
+        private string _genreSearchText = "";
+        private string _publisherSearchText = "";
 
         public class BookViewModel
         {
@@ -150,13 +152,16 @@ namespace LibraryAccounting.Pages
                 GenreComboBox.Items.Add(genre);
             }
 
-            // Устанавливаем выбранный элемент
-            GenreComboBox.SelectedIndex = 0;
+            // Восстанавливаем текст из сохранённого значения
+            GenreComboBox.Text = _genreSearchText;
 
-            // Восстанавливаем введённый текст (если есть)
-            if (!string.IsNullOrWhiteSpace(filter))
+            if (string.IsNullOrWhiteSpace(filter))
             {
-                GenreComboBox.Text = filter;
+                GenreComboBox.SelectedIndex = 0;
+            }
+            else
+            {
+                GenreComboBox.SelectedIndex = -1;
             }
         }
 
@@ -176,27 +181,60 @@ namespace LibraryAccounting.Pages
                 PublisherComboBox.Items.Add(publisher);
             }
 
-            // Устанавливаем выбранный элемент
-            PublisherComboBox.SelectedIndex = 0;
+            // Восстанавливаем текст из сохранённого значения
+            PublisherComboBox.Text = _publisherSearchText;
 
-            // Восстанавливаем введённый текст (если есть)
-            if (!string.IsNullOrWhiteSpace(filter))
+            if (string.IsNullOrWhiteSpace(filter))
             {
-                PublisherComboBox.Text = filter;
+                PublisherComboBox.SelectedIndex = 0;
             }
+            else
+            {
+                PublisherComboBox.SelectedIndex = -1;
+            }
+        }
+
+        // Добавьте этот вспомогательный метод в класс BooksView
+        private TextBox GetComboBoxTextBox(ComboBox comboBox)
+        {
+            if (comboBox.Template.FindName("PART_EditableTextBox", comboBox) is TextBox textBox)
+                return textBox;
+            return null;
         }
 
         private void GenreComboBox_KeyUp(object sender, KeyEventArgs e)
         {
-            string searchText = GenreComboBox.Text ?? "";
-            UpdateGenreComboBox(searchText);
+            var textBox = GetComboBoxTextBox(GenreComboBox);
+            if (textBox == null) return;
+
+            // Сохраняем позицию курсора
+            int cursorPosition = textBox.SelectionStart;
+            string oldText = GenreComboBox.Text;
+
+            _genreSearchText = GenreComboBox.Text ?? "";
+            UpdateGenreComboBox(_genreSearchText);
+
+            // Восстанавливаем текст и позицию курсора
+            GenreComboBox.Text = oldText;
+            textBox.SelectionStart = cursorPosition;
             GenreComboBox.IsDropDownOpen = true;
         }
 
         private void PublisherComboBox_KeyUp(object sender, KeyEventArgs e)
         {
-            string searchText = PublisherComboBox.Text ?? "";
-            UpdatePublisherComboBox(searchText);
+            var textBox = GetComboBoxTextBox(PublisherComboBox);
+            if (textBox == null) return;
+
+            // Сохраняем позицию курсора
+            int cursorPosition = textBox.SelectionStart;
+            string oldText = PublisherComboBox.Text;
+
+            _publisherSearchText = PublisherComboBox.Text ?? "";
+            UpdatePublisherComboBox(_publisherSearchText);
+
+            // Восстанавливаем текст и позицию курсора
+            PublisherComboBox.Text = oldText;
+            textBox.SelectionStart = cursorPosition;
             PublisherComboBox.IsDropDownOpen = true;
         }
 

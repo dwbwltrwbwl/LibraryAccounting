@@ -580,6 +580,8 @@ namespace LibraryAccounting.Pages
                     PasswordHash = hashedPassword,
                     RoleId = 2, // Librarian
                     IsBlocked = false,
+                    IsApproved = false,              // ✅ ДОБАВИТЬ - ждёт одобрения
+                    RegistrationRequestDate = DateTime.Now,  // ✅ ДОБАВИТЬ - дата заявки
                     Photo = uploadedPhotoBytes,
                     Email = string.IsNullOrEmpty(email) ? null : email,
                     Phone = string.IsNullOrEmpty(phone) ? null : phone,
@@ -594,7 +596,7 @@ namespace LibraryAccounting.Pages
 
                 var successDialog = new MessageDialog(
                     "Регистрация",
-                    "Пользователь успешно зарегистрирован!"
+                    "Заявка на регистрацию отправлена!\nПосле одобрения администратором вы сможете войти в систему."
                 );
                 successDialog.Owner = Window.GetWindow(this);
                 successDialog.ShowDialog();

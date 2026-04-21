@@ -2,17 +2,38 @@
 using LibraryAccounting.Windows;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
+using System.Windows.Input;
 
 namespace LibraryAccounting.Pages
 {
     public partial class LoansView : Page
     {
-        private List<dynamic> allLoans;
+        private List<LoanViewModel> allLoans;
+        private List<ReaderViewModel> _allReaders;
+        private string _readerSearchText = "";
+
+        public class LoanViewModel
+        {
+            public int LoanId { get; set; }
+            public string Reader { get; set; }
+            public int ReaderId { get; set; }
+            public string Book { get; set; }
+            public string InventoryNumber { get; set; }
+            public DateTime LoanDate { get; set; }
+            public DateTime DueDate { get; set; }
+            public DateTime? ReturnDate { get; set; }
+            public int? ExtendCount { get; set; }
+            public bool IsOverdue => ReturnDate == null && DueDate < DateTime.Now;
+        }
+
+        public class ReaderViewModel
+        {
+            public int ReaderId { get; set; }
+            public string FullName { get; set; }
+        }
 
         public LoansView()
         {
@@ -26,56 +47,100 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void LoadLoans()
         {
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+            try
+            {
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            var loans = AppConnect.model01.Loans
-                .Select(l => new
-                {
-                    l.LoanId,
-                    Reader = l.Readers.last_name + " " + l.Readers.first_name + " " + (l.Readers.middle_name ?? ""),
-                    ReaderId = l.ReaderId,
-                    Book = l.BookCopies.Books.Title,
-                    l.BookCopies.InventoryNumber,
-                    l.LoanDate,
-                    l.DueDate,
-                    l.ReturnDate,
-                    l.ExtendCount
-                })
-                .OrderByDescending(l => l.LoanDate)
-                .ToList();
+                var loans = AppConnect.model01.Loans
+                    .Select(l => new LoanViewModel
+                    {
+                        LoanId = l.LoanId,
+                        Reader = l.Readers.last_name + " " + l.Readers.first_name + " " + (l.Readers.middle_name ?? ""),
+                        ReaderId = l.ReaderId,
+                        Book = l.BookCopies.Books.Title,
+                        InventoryNumber = l.BookCopies.InventoryNumber,
+                        LoanDate = l.LoanDate,
+                        DueDate = l.DueDate,
+                        ReturnDate = l.ReturnDate,
+                        ExtendCount = l.ExtendCount
+                    })
+                    .OrderByDescending(l => l.LoanDate)
+                    .ToList();
 
-            allLoans = loans.Cast<dynamic>().ToList();
-            ApplyFilter();
+                allLoans = loans;
+                ApplyFilter();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка загрузки данных: {ex.Message}");
+            }
         }
 
         /// <summary>
         /// Загрузка читателей для фильтра
         /// </summary>
-        private void LoadReadersForFilter()
+        private void LoadReadersForFilter(string filter = "")
         {
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            var readers = AppConnect.model01.Readers
-                .Select(r => new
-                {
-                    r.ReaderId,
-                    FullName = r.last_name + " " + r.first_name + " " + (r.middle_name ?? "")
-                })
-                .OrderBy(r => r.FullName)
-                .ToList();
-
-            // Добавляем пункт "Все читатели"
-            var readersList = new List<dynamic>();
-            readersList.Add(new { ReaderId = 0, FullName = "-- Все читатели --" });
-            foreach (var reader in readers)
+            try
             {
-                readersList.Add(reader);
-            }
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            ReaderFilterComboBox.ItemsSource = readersList;
-            ReaderFilterComboBox.SelectedValuePath = "ReaderId";
-            ReaderFilterComboBox.DisplayMemberPath = "FullName";
-            ReaderFilterComboBox.SelectedValue = 0;
+                var query = AppConnect.model01.Readers
+                    .Select(r => new ReaderViewModel
+                    {
+                        ReaderId = r.ReaderId,
+                        FullName = (r.last_name + " " + r.first_name + " " + (r.middle_name ?? "")).Trim()
+                    })
+                    .OrderBy(r => r.FullName)
+                    .ToList();
+
+                // Применяем фильтр поиска
+                var filteredReaders = query.AsEnumerable();
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    filteredReaders = query.Where(r =>
+                        r.FullName.ToLower().Contains(filter.ToLower()));
+                }
+
+                // Добавляем пункт "Все читатели"
+                var readersList = new List<ReaderViewModel>();
+                readersList.Add(new ReaderViewModel { ReaderId = 0, FullName = "-- Все читатели --" });
+                readersList.AddRange(filteredReaders);
+
+                _allReaders = readersList;
+                ReaderFilterComboBox.ItemsSource = _allReaders;
+                ReaderFilterComboBox.SelectedValuePath = "ReaderId";
+                ReaderFilterComboBox.DisplayMemberPath = "FullName";
+
+                // Сохраняем введенный текст
+                if (!string.IsNullOrWhiteSpace(_readerSearchText))
+                {
+                    ReaderFilterComboBox.Text = _readerSearchText;
+                }
+
+                // Если фильтр пустой, выбираем "Все читатели"
+                if (string.IsNullOrWhiteSpace(filter) && ReaderFilterComboBox.SelectedValue == null)
+                {
+                    ReaderFilterComboBox.SelectedValue = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки читателей: {ex.Message}");
+            }
+        }
+
+        private void ReaderFilterComboBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            _readerSearchText = ReaderFilterComboBox.Text ?? "";
+            LoadReadersForFilter(_readerSearchText);
+            ReaderFilterComboBox.IsDropDownOpen = true;
+
+            // Сбрасываем выбранное значение при ручном вводе
+            if (ReaderFilterComboBox.SelectedValue != null && (int)ReaderFilterComboBox.SelectedValue != 0)
+            {
+                ReaderFilterComboBox.SelectedValue = null;
+            }
         }
 
         /// <summary>
@@ -88,7 +153,12 @@ namespace LibraryAccounting.Pages
             var filtered = allLoans.AsEnumerable();
 
             // Фильтр по читателю
-            int selectedReaderId = (int)(ReaderFilterComboBox?.SelectedValue ?? 0);
+            int selectedReaderId = 0;
+            if (ReaderFilterComboBox.SelectedValue != null)
+            {
+                int.TryParse(ReaderFilterComboBox.SelectedValue.ToString(), out selectedReaderId);
+            }
+
             if (selectedReaderId != 0)
             {
                 filtered = filtered.Where(l => l.ReaderId == selectedReaderId);
@@ -100,22 +170,39 @@ namespace LibraryAccounting.Pages
                 filtered = filtered.Where(l => l.ReturnDate == null);
             }
 
-            LoansDataGrid.ItemsSource = filtered.ToList();
+            var resultList = filtered.ToList();
+            LoansDataGrid.ItemsSource = resultList;
 
             // Обновляем счетчик
-            int totalCount = filtered.Count();
-            int activeCount = filtered.Count(l => l.ReturnDate == null);
+            int totalCount = resultList.Count;
+            int activeCount = resultList.Count(l => l.ReturnDate == null);
+            int overdueCount = resultList.Count(l => l.IsOverdue);
             int returnedCount = totalCount - activeCount;
 
             if (selectedReaderId != 0)
             {
                 var reader = allLoans.FirstOrDefault(l => l.ReaderId == selectedReaderId);
                 string readerName = reader != null ? reader.Reader : "читателя";
-                RecordsCount.Text = $"Всего: {totalCount} (активных: {activeCount}, возвращено: {returnedCount})";
+
+                if (ShowOnlyActiveCheckBox?.IsChecked == true)
+                {
+                    RecordsCount.Text = $"{readerName}: активных {activeCount} (просрочено {overdueCount})";
+                }
+                else
+                {
+                    RecordsCount.Text = $"{readerName}: всего {totalCount} (активных {activeCount}, возвращено {returnedCount}, просрочено {overdueCount})";
+                }
             }
             else
             {
-                RecordsCount.Text = $"Всего записей: {totalCount} (активных: {activeCount}, возвращено: {returnedCount})";
+                if (ShowOnlyActiveCheckBox?.IsChecked == true)
+                {
+                    RecordsCount.Text = $"Всего активных выдач: {activeCount} (просрочено {overdueCount})";
+                }
+                else
+                {
+                    RecordsCount.Text = $"Всего записей: {totalCount} (активных {activeCount}, возвращено {returnedCount}, просрочено {overdueCount})";
+                }
             }
         }
 
@@ -124,16 +211,14 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void ReaderFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ApplyFilter();
-        }
-
-        /// <summary>
-        /// Сброс фильтра
-        /// </summary>
-        private void ResetFilter_Click(object sender, RoutedEventArgs e)
-        {
-            ReaderFilterComboBox.SelectedValue = 0;
-            ShowOnlyActiveCheckBox.IsChecked = false;
+            // Сбрасываем поисковый текст при выборе из списка
+            if (ReaderFilterComboBox.SelectedItem is ReaderViewModel selectedReader)
+            {
+                if (selectedReader.ReaderId != 0)
+                {
+                    _readerSearchText = "";
+                }
+            }
             ApplyFilter();
         }
 
@@ -152,16 +237,15 @@ namespace LibraryAccounting.Pages
         {
             if (LoansDataGrid.SelectedItem == null)
             {
-                // Если ничего не выбрано, показываем диалог выбора читателя
                 ShowReaderSelectionDialog();
                 return;
             }
 
-            dynamic selected = LoansDataGrid.SelectedItem;
-            int readerId = selected.ReaderId;
-            string readerName = selected.Reader;
-
-            ShowReaderHistoryDialog(readerId, readerName);
+            var selected = LoansDataGrid.SelectedItem as LoanViewModel;
+            if (selected != null)
+            {
+                ShowReaderHistoryDialog(selected.ReaderId, selected.Reader);
+            }
         }
 
         /// <summary>
@@ -169,24 +253,31 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void ShowReaderSelectionDialog()
         {
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            var readers = AppConnect.model01.Readers
-                .Select(r => new
-                {
-                    r.ReaderId,
-                    FullName = r.last_name + " " + r.first_name + " " + (r.middle_name ?? "")
-                })
-                .OrderBy(r => r.FullName)
-                .ToList();
-
-            var dialog = new ReaderSelectionDialog(readers);
-            dialog.Owner = Window.GetWindow(this);
-
-            if (dialog.ShowDialog() == true && dialog.SelectedReaderId > 0)
+            try
             {
-                string readerName = readers.First(r => r.ReaderId == dialog.SelectedReaderId).FullName;
-                ShowReaderHistoryDialog(dialog.SelectedReaderId, readerName);
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+                var readers = AppConnect.model01.Readers
+                    .Select(r => new ReaderViewModel
+                    {
+                        ReaderId = r.ReaderId,
+                        FullName = (r.last_name + " " + r.first_name + " " + (r.middle_name ?? "")).Trim()
+                    })
+                    .OrderBy(r => r.FullName)
+                    .ToList();
+
+                var dialog = new ReaderSelectionDialog(readers.Cast<dynamic>().ToList());
+                dialog.Owner = Window.GetWindow(this);
+
+                if (dialog.ShowDialog() == true && dialog.SelectedReaderId > 0)
+                {
+                    string readerName = readers.First(r => r.ReaderId == dialog.SelectedReaderId).FullName;
+                    ShowReaderHistoryDialog(dialog.SelectedReaderId, readerName);
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка: {ex.Message}");
             }
         }
 
@@ -195,27 +286,34 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void ShowReaderHistoryDialog(int readerId, string readerName)
         {
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+            try
+            {
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            var loans = AppConnect.model01.Loans
-                .Where(l => l.ReaderId == readerId)
-                .Select(l => new
-                {
-                    l.LoanId,
-                    Книга = l.BookCopies.Books.Title,
-                    Инвентарный_номер = l.BookCopies.InventoryNumber,
-                    Дата_выдачи = l.LoanDate,
-                    Срок_возврата = l.DueDate,
-                    Дата_возврата = l.ReturnDate,
-                    Статус = l.ReturnDate == null ? (l.DueDate < DateTime.Now ? "Просрочена" : "На руках") : "Возвращена",
-                    Продлений = l.ExtendCount ?? 0
-                })
-                .OrderByDescending(l => l.Дата_выдачи)
-                .ToList();
+                var loans = AppConnect.model01.Loans
+                    .Where(l => l.ReaderId == readerId)
+                    .Select(l => new
+                    {
+                        l.LoanId,
+                        Книга = l.BookCopies.Books.Title,
+                        Инвентарный_номер = l.BookCopies.InventoryNumber,
+                        Дата_выдачи = l.LoanDate,
+                        Срок_возврата = l.DueDate,
+                        Дата_возврата = l.ReturnDate,
+                        Статус = l.ReturnDate == null ? (l.DueDate < DateTime.Now ? "Просрочена" : "На руках") : "Возвращена",
+                        Продлений = l.ExtendCount ?? 0
+                    })
+                    .OrderByDescending(l => l.Дата_выдачи)
+                    .ToList();
 
-            var historyDialog = new LoanHistoryDialog(readerName, loans);
-            historyDialog.Owner = Window.GetWindow(this);
-            historyDialog.ShowDialog();
+                var historyDialog = new LoanHistoryDialog(readerName, loans.Cast<dynamic>().ToList());
+                historyDialog.Owner = Window.GetWindow(this);
+                historyDialog.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка загрузки истории: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -223,34 +321,41 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void IssueButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new IssueLoanWindow();
-            dialog.Owner = Window.GetWindow(this);
-
-            if (dialog.ShowDialog() != true)
-                return;
-
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            var loan = new Loans
+            try
             {
-                ReaderId = dialog.SelectedReaderId,
-                CopyId = dialog.SelectedCopyId,
-                LoanDate = DateTime.Now,
-                DueDate = DateTime.Now.AddDays(dialog.Days),
-                ExtendCount = 0
-            };
+                var dialog = new IssueLoanWindow();
+                dialog.Owner = Window.GetWindow(this);
 
-            var copy = AppConnect.model01.BookCopies
-                .FirstOrDefault(c => c.CopyId == dialog.SelectedCopyId);
+                if (dialog.ShowDialog() != true)
+                    return;
 
-            if (copy != null)
-                copy.Status = "Issued";
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            AppConnect.model01.Loans.Add(loan);
-            AppConnect.model01.SaveChanges();
+                var loan = new Loans
+                {
+                    ReaderId = dialog.SelectedReaderId,
+                    CopyId = dialog.SelectedCopyId,
+                    LoanDate = DateTime.Now,
+                    DueDate = DateTime.Now.AddDays(dialog.Days),
+                    ExtendCount = 0
+                };
 
-            LoadLoans();
-            ShowInfo("Книга успешно выдана");
+                var copy = AppConnect.model01.BookCopies
+                    .FirstOrDefault(c => c.CopyId == dialog.SelectedCopyId);
+
+                if (copy != null)
+                    copy.Status = "Issued";
+
+                AppConnect.model01.Loans.Add(loan);
+                AppConnect.model01.SaveChanges();
+
+                LoadLoans();
+                ShowInfo("Книга успешно выдана");
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка выдачи: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -264,32 +369,49 @@ namespace LibraryAccounting.Pages
                 return;
             }
 
-            dynamic selected = LoansDataGrid.SelectedItem;
-            int loanId = selected.LoanId;
-
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            var loan = AppConnect.model01.Loans
-                .FirstOrDefault(l => l.LoanId == loanId);
-
-            if (loan != null && loan.ReturnDate == null)
+            var selected = LoansDataGrid.SelectedItem as LoanViewModel;
+            if (selected == null)
             {
-                loan.ReturnDate = DateTime.Now;
-
-                var copy = AppConnect.model01.BookCopies
-                    .FirstOrDefault(c => c.CopyId == loan.CopyId);
-
-                if (copy != null)
-                    copy.Status = "Available";
-
-                AppConnect.model01.SaveChanges();
-
-                LoadLoans();
-                ShowInfo("Книга успешно возвращена");
+                ShowError("Ошибка выбора записи");
+                return;
             }
-            else
+
+            if (selected.ReturnDate != null)
             {
                 ShowError("Книга уже возвращена");
+                return;
+            }
+
+            try
+            {
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+                var loan = AppConnect.model01.Loans
+                    .FirstOrDefault(l => l.LoanId == selected.LoanId);
+
+                if (loan != null && loan.ReturnDate == null)
+                {
+                    loan.ReturnDate = DateTime.Now;
+
+                    var copy = AppConnect.model01.BookCopies
+                        .FirstOrDefault(c => c.CopyId == loan.CopyId);
+
+                    if (copy != null)
+                        copy.Status = "Available";
+
+                    AppConnect.model01.SaveChanges();
+
+                    LoadLoans();
+                    ShowInfo("Книга успешно возвращена");
+                }
+                else
+                {
+                    ShowError("Книга уже возвращена");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка возврата: {ex.Message}");
             }
         }
 
@@ -304,48 +426,59 @@ namespace LibraryAccounting.Pages
                 return;
             }
 
-            dynamic selected = LoansDataGrid.SelectedItem;
-            int loanId = selected.LoanId;
-
-            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-            var loan = AppConnect.model01.Loans
-                .FirstOrDefault(l => l.LoanId == loanId);
-
-            if (loan == null)
+            var selected = LoansDataGrid.SelectedItem as LoanViewModel;
+            if (selected == null)
             {
-                ShowError("Запись не найдена");
+                ShowError("Ошибка выбора записи");
                 return;
             }
 
-            if (loan.ReturnDate != null)
+            if (selected.ReturnDate != null)
             {
                 ShowError("Нельзя продлить — книга уже возвращена");
                 return;
             }
 
-            if (loan.DueDate < DateTime.Now)
+            if (selected.IsOverdue)
             {
                 ShowError("Нельзя продлить просроченную книгу");
                 return;
             }
 
-            int currentExtendCount = loan.ExtendCount ?? 0;
-            if (currentExtendCount >= 2)
+            try
             {
-                ShowError("Достигнут лимит продлений (максимум 2)");
-                return;
+                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+                var loan = AppConnect.model01.Loans
+                    .FirstOrDefault(l => l.LoanId == selected.LoanId);
+
+                if (loan == null)
+                {
+                    ShowError("Запись не найдена");
+                    return;
+                }
+
+                int currentExtendCount = loan.ExtendCount ?? 0;
+                if (currentExtendCount >= 2)
+                {
+                    ShowError("Достигнут лимит продлений (максимум 2)");
+                    return;
+                }
+
+                loan.ExtendCount = currentExtendCount + 1;
+                loan.DueDate = loan.DueDate.AddDays(7);
+
+                AppConnect.model01.SaveChanges();
+
+                LoadLoans();
+
+                int remainingExtends = 2 - (loan.ExtendCount ?? 0);
+                ShowInfo($"Срок продлен на 7 дней. Осталось продлений: {remainingExtends}");
             }
-
-            loan.ExtendCount = currentExtendCount + 1;
-            loan.DueDate = loan.DueDate.AddDays(7);
-
-            AppConnect.model01.SaveChanges();
-
-            LoadLoans();
-
-            int remainingExtends = 2 - (loan.ExtendCount ?? 0);
-            ShowInfo($"Срок продлен на 7 дней. Осталось продлений: {remainingExtends}");
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка продления: {ex.Message}");
+            }
         }
 
         private void ShowError(string message)
@@ -361,11 +494,19 @@ namespace LibraryAccounting.Pages
             dialog.Owner = Window.GetWindow(this);
             dialog.ShowDialog();
         }
+
         private void ShowMap_Click(object sender, RoutedEventArgs e)
         {
-            var mapWindow = new BookMapWindow();
-            mapWindow.Owner = Window.GetWindow(this);
-            mapWindow.ShowDialog();
+            try
+            {
+                var mapWindow = new BookMapWindow();
+                mapWindow.Owner = Window.GetWindow(this);
+                mapWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка открытия карты: {ex.Message}");
+            }
         }
     }
 }

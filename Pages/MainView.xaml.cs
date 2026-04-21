@@ -11,6 +11,7 @@ namespace LibraryAccounting.Pages
         {
             InitializeComponent();
             ConfigureByRole();
+            CheckAdminAccess();
             SetActiveButton(null);
             MainContentFrame.Navigate(new MainDashboardView());
         }
@@ -22,14 +23,29 @@ namespace LibraryAccounting.Pages
         {
             if (AppConnect.IsLibrarian)
             {
-                UsersButton.Visibility = Visibility.Collapsed; // ❌ скрыто
-                ReportsButton.Visibility = Visibility.Visible; // ✅ доступно
+                UsersButton.Visibility = Visibility.Collapsed; // скрыто
+                ReportsButton.Visibility = Visibility.Visible; // доступно
             }
 
             if (AppConnect.IsAdmin)
             {
-                UsersButton.Visibility = Visibility.Visible; // ✅
+                UsersButton.Visibility = Visibility.Visible;
                 ReportsButton.Visibility = Visibility.Visible;
+            }
+        }
+
+        /// <summary>
+        /// Проверка доступа администратора для кнопки заявок
+        /// </summary>
+        private void CheckAdminAccess()
+        {
+            if (AppConnect.CurrentUser != null && AppConnect.CurrentUser.RoleId == 1) // Admin
+            {
+                UserApprovalButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                UserApprovalButton.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -39,6 +55,40 @@ namespace LibraryAccounting.Pages
         private Frame GetMainFrame()
         {
             return ((MainWindow)Application.Current.MainWindow).frameMain;
+        }
+
+        private void SetActiveButton(Button activeButton)
+        {
+            Button[] menuButtons =
+            {
+                BooksButton,
+                CopiesButton,
+                ReadersButton,
+                LoansButton,
+                ReportsButton,
+                DirectoriesButton,
+                UsersButton,
+                AccountButton,
+                UserApprovalButton
+            };
+
+            // Сброс всех вкладок
+            foreach (var btn in menuButtons)
+                if (btn != null)
+                    btn.Style = (Style)FindResource("MenuButtonStyle");
+
+            // Активная вкладка
+            if (activeButton != null)
+                activeButton.Style = (Style)FindResource("MenuButtonActiveStyle");
+
+            // Главная — ВСЕГДА выделена
+            HomeButton.Style = (Style)FindResource("MenuButtonHomeStyle");
+        }
+
+        private void HomeButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveButton(null);
+            MainContentFrame.Navigate(new MainDashboardView());
         }
 
         private void BooksButton_Click(object sender, RoutedEventArgs e)
@@ -71,12 +121,6 @@ namespace LibraryAccounting.Pages
             MainContentFrame.Navigate(new ReportsView());
         }
 
-        private void LogoutButton_Click(object sender, RoutedEventArgs e)
-        {
-            AppConnect.CurrentUser = null;
-            GetMainFrame().Navigate(new LoginView());
-        }
-
         private void DirectoriesButton_Click(object sender, RoutedEventArgs e)
         {
             SetActiveButton(DirectoriesButton);
@@ -88,36 +132,11 @@ namespace LibraryAccounting.Pages
             SetActiveButton(UsersButton);
             MainContentFrame.Navigate(new UsersView());
         }
-        private void SetActiveButton(Button activeButton)
+
+        private void UserApprovalButton_Click(object sender, RoutedEventArgs e)
         {
-            Button[] menuButtons =
-            {
-        BooksButton,
-        CopiesButton,
-        ReadersButton,
-        LoansButton,
-        ReportsButton,
-        DirectoriesButton,
-        UsersButton,
-        AccountButton
-    };
-
-            // Сброс всех вкладок
-            foreach (var btn in menuButtons)
-                btn.Style = (Style)FindResource("MenuButtonStyle");
-
-            // Активная вкладка
-            if (activeButton != null)
-                activeButton.Style = (Style)FindResource("MenuButtonActiveStyle");
-
-            // 🔥 Главная — ВСЕГДА выделена
-            HomeButton.Style = (Style)FindResource("MenuButtonHomeStyle");
-        }
-
-        private void HomeButton_Click(object sender, RoutedEventArgs e)
-        {
-            SetActiveButton(null);
-            MainContentFrame.Navigate(new MainDashboardView());
+            SetActiveButton(UserApprovalButton);
+            MainContentFrame.Navigate(new UserApprovalView());
         }
 
         private void AccountButton_Click(object sender, RoutedEventArgs e)
@@ -126,5 +145,10 @@ namespace LibraryAccounting.Pages
             MainContentFrame.Navigate(new AccountView());
         }
 
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            AppConnect.CurrentUser = null;
+            GetMainFrame().Navigate(new LoginView());
+        }
     }
 }
