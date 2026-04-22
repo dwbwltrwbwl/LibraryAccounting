@@ -213,6 +213,13 @@ namespace LibraryAccounting.Pages
 
         private void ReadersDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            // Проверка прав доступа: менеджер (RoleId == 2) не может редактировать
+            if (AppConnect.CurrentUser != null && AppConnect.CurrentUser.RoleId == 2)
+            {
+                ShowError("У вас нет прав на редактирование читателей");
+                return;
+            }
+
             if (ReadersDataGrid.SelectedItem == null)
                 return;
 

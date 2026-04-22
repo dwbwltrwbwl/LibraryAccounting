@@ -13,6 +13,7 @@ namespace LibraryAccounting.Windows
     {
         private BookCopies _copy;
         private bool _isEdit;
+        private List<Books> _allBooks;
 
         // ➕ ДОБАВЛЕНИЕ
         public BookCopyAddWindow()
@@ -74,7 +75,8 @@ namespace LibraryAccounting.Windows
                 query = query.Where(b => b.Title.ToLower().Contains(filter.ToLower()));
             }
 
-            BookBox.ItemsSource = query.OrderBy(b => b.Title).ToList();
+            _allBooks = query.OrderBy(b => b.Title).ToList();
+            BookBox.ItemsSource = _allBooks;
             BookBox.DisplayMemberPath = "Title";
             BookBox.SelectedValuePath = "BookId";
         }
@@ -83,7 +85,6 @@ namespace LibraryAccounting.Windows
         {
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-            // Сначала получаем данные без форматирования
             var shelvesRaw = AppConnect.model01.Shelves
                 .OrderBy(s => s.SortOrder)
                 .Select(s => new
@@ -96,7 +97,6 @@ namespace LibraryAccounting.Windows
                 })
                 .ToList();
 
-            // Форматируем Display после получения данных
             var shelves = shelvesRaw.Select(s => new
             {
                 s.ShelfId,
@@ -133,7 +133,6 @@ namespace LibraryAccounting.Windows
                 return;
             }
 
-            // Получаем данные о рядах с количеством книг
             var rowsRaw = AppConnect.model01.Rows
                 .Where(r => r.ShelfId == shelfId.Value)
                 .Select(r => new
@@ -174,16 +173,14 @@ namespace LibraryAccounting.Windows
         {
             string searchText = BookBox.Text?.Trim() ?? "";
             LoadBooks(searchText);
-            if (BookBox.ItemsSource != null && ((System.Collections.IList)BookBox.ItemsSource).Count > 0)
-                BookBox.IsDropDownOpen = true;
+            BookBox.IsDropDownOpen = true;
         }
 
         private void ShelfBox_KeyUp(object sender, KeyEventArgs e)
         {
             string searchText = ShelfBox.Text?.Trim() ?? "";
             LoadShelves(searchText);
-            if (ShelfBox.ItemsSource != null && ((System.Collections.IList)ShelfBox.ItemsSource).Count > 0)
-                ShelfBox.IsDropDownOpen = true;
+            ShelfBox.IsDropDownOpen = true;
         }
 
         private void ShelfBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -201,6 +198,7 @@ namespace LibraryAccounting.Windows
                 ShelfInfoText.Visibility = Visibility.Collapsed;
             }
         }
+
         private void RowBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (RowBox.SelectedItem != null && ShelfBox.SelectedItem != null)
@@ -217,6 +215,7 @@ namespace LibraryAccounting.Windows
                 ShelfInfoText.Visibility = Visibility.Collapsed;
             }
         }
+
         private void RowBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (ShelfBox.SelectedItem == null) return;
@@ -350,7 +349,6 @@ namespace LibraryAccounting.Windows
                 var shelf = AppConnect.model01.Shelves.FirstOrDefault(s => s.ShelfId == _copy.ShelfId);
                 if (shelf != null)
                 {
-                    // Находим и выбираем нужный стеллаж в списке
                     var shelvesList = ShelfBox.ItemsSource as System.Collections.IEnumerable;
                     if (shelvesList != null)
                     {
@@ -373,20 +371,18 @@ namespace LibraryAccounting.Windows
                 }
             }
         }
+
         private bool CheckShelfCapacity(int shelfId, int rowId, int? excludeCopyId = null)
         {
             try
             {
-                // Получаем информацию о полке
                 var row = AppConnect.model01.Rows.FirstOrDefault(r => r.RowId == rowId);
-                if (row == null || row.Capacity == null) return true;
+                if (row == null) return true;
 
-                // Считаем количество книг на этой полке (исключая текущую при редактировании)
                 int booksCount = AppConnect.model01.BookCopies
                     .Count(c => c.ShelfId == shelfId && c.RowId == rowId &&
                            (!excludeCopyId.HasValue || c.CopyId != excludeCopyId.Value));
 
-                // Проверяем, не превышен ли лимит
                 if (booksCount >= row.Capacity)
                 {
                     MessageBox.Show($"На данной полке уже максимальное количество книг ({row.Capacity} шт.).\n" +
@@ -395,7 +391,6 @@ namespace LibraryAccounting.Windows
                     return false;
                 }
 
-                // Показываем информацию о заполненности полки
                 int freeSpace = row.Capacity - booksCount;
                 if (freeSpace <= 10)
                 {
@@ -411,6 +406,7 @@ namespace LibraryAccounting.Windows
                 return true;
             }
         }
+
         private void ShowShelfInfo(int shelfId, int rowId)
         {
             try
@@ -423,7 +419,6 @@ namespace LibraryAccounting.Windows
 
                 int freeSpace = row.Capacity - booksCount;
 
-                // Можно показать в ToolTip или отдельной метке
                 ShelfInfoText.Text = $"📊 Заполненность: {booksCount}/{row.Capacity} книг (свободно: {freeSpace})";
                 ShelfInfoText.Visibility = Visibility.Visible;
 
@@ -445,6 +440,7 @@ namespace LibraryAccounting.Windows
                 System.Diagnostics.Debug.WriteLine($"Ошибка получения информации о полке: {ex.Message}");
             }
         }
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             // Валидация
@@ -536,7 +532,6 @@ namespace LibraryAccounting.Windows
                 {
                     string selectedStatus = (StatusBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
-                    // Проверка при смене статуса на "Выдана"
                     if (selectedStatus == "Выдана")
                     {
                         bool hasLoan = AppConnect.model01.Loans.Any(l => l.CopyId == _copy.CopyId && l.ReturnDate == null);

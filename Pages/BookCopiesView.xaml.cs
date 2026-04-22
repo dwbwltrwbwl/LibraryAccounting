@@ -68,7 +68,6 @@ namespace LibraryAccounting.Pages
             {
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-                // Сначала получаем данные без форматирования
                 var copiesRaw = AppConnect.model01.BookCopies
                     .Include(c => c.Books)
                     .Include(c => c.Shelves)
@@ -81,7 +80,8 @@ namespace LibraryAccounting.Pages
                         c.InventoryNumber,
                         c.Status,
                         c.AddedDate,
-                        LastReaderName = c.LastReaderId != null ? c.Readers.last_name + " " + c.Readers.first_name + " " + (c.Readers.middle_name ?? "") : "",
+                        LastReaderName = c.LastReaderId != null ?
+                            c.Readers.last_name + " " + c.Readers.first_name + " " + (c.Readers.middle_name ?? "") : "",
                         c.LastLoanDate,
                         c.TotalLoans,
                         ShelfCode = c.Shelves != null ? c.Shelves.ShelfCode : "",
@@ -89,7 +89,6 @@ namespace LibraryAccounting.Pages
                     })
                     .ToList();
 
-                // Форматируем местоположение после получения данных
                 var copies = copiesRaw.Select(c => new BookCopyViewModel
                 {
                     CopyId = c.CopyId,
@@ -98,7 +97,7 @@ namespace LibraryAccounting.Pages
                     Location = string.IsNullOrEmpty(c.ShelfCode) ? "Не указано" : $"Стеллаж {c.ShelfCode}, ряд {c.RowNumber}",
                     Status = c.Status,
                     AddedDate = c.AddedDate,
-                    LastReaderName = c.LastReaderName,
+                    LastReaderName = string.IsNullOrEmpty(c.LastReaderName) ? "—" : c.LastReaderName,
                     LastLoanDate = c.LastLoanDate,
                     TotalLoans = c.TotalLoans
                 })

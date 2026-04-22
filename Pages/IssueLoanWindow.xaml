@@ -109,6 +109,19 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Стиль для ComboBox с поиском -->
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="False"/>
+            <Setter Property="StaysOpenOnEdit" Value="True"/>
+        </Style>
+
         <!-- Стиль для подписей -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
@@ -127,12 +140,23 @@
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <!-- Заголовок -->
                 <RowDefinition Height="Auto"/>
+                <!-- Читатель Label -->
                 <RowDefinition Height="Auto"/>
+                <!-- Читатель ComboBox -->
                 <RowDefinition Height="Auto"/>
+                <!-- Книга Label -->
                 <RowDefinition Height="Auto"/>
+                <!-- Книга ComboBox -->
                 <RowDefinition Height="Auto"/>
+                <!-- Срок Label -->
+                <RowDefinition Height="Auto"/>
+                <!-- Срок TextBox -->
                 <RowDefinition Height="*"/>
+                <!-- Пустое пространство -->
+                <RowDefinition Height="Auto"/>
+                <!-- Кнопки -->
             </Grid.RowDefinitions>
 
             <!-- Заголовок -->
@@ -146,42 +170,41 @@
             <TextBlock Text="Читатель*" Grid.Row="1" Style="{StaticResource LabelStyle}"/>
             <ComboBox x:Name="ReaderComboBox" 
                       Grid.Row="2" 
-                      Height="35"
+                      Style="{StaticResource ComboBoxStyle}"
                       DisplayMemberPath="FullName"
                       SelectedValuePath="ReaderId"
-                      Background="#FFFDF9"
-                      BorderBrush="#C8BFAF"
-                      BorderThickness="1"
-                      FontSize="13"/>
+                      KeyUp="ReaderComboBox_KeyUp"
+                      Margin="0,0,0,15"/>
 
             <!-- Книга -->
-            <TextBlock Text="Книга*" Grid.Row="3" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
+            <TextBlock Text="Книга*" Grid.Row="3" Style="{StaticResource LabelStyle}"/>
             <ComboBox x:Name="BookComboBox" 
                       Grid.Row="4" 
-                      Height="35"
+                      Style="{StaticResource ComboBoxStyle}"
                       DisplayMemberPath="Display"
                       SelectedValuePath="CopyId"
-                      Background="#FFFDF9"
-                      BorderBrush="#C8BFAF"
-                      BorderThickness="1"
-                      FontSize="13"/>
+                      KeyUp="BookComboBox_KeyUp"
+                      Margin="0,0,0,15"/>
 
             <!-- Срок -->
-            <TextBlock Text="Срок (дней)*" Grid.Row="5" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
+            <TextBlock Text="Срок (дней)*" Grid.Row="5" Style="{StaticResource LabelStyle}"/>
             <TextBox x:Name="DaysTextBox" 
                      Grid.Row="6" 
                      Style="{StaticResource TextFieldStyle}"
-                     Text="14"/>
+                     Text="14"
+                     Margin="0,0,0,15"/>
+
+            <!-- Пустое пространство (раздвигает кнопки вниз) -->
+            <Grid Grid.Row="7" Height="20"/>
 
             <!-- Кнопки -->
-            <StackPanel Grid.Row="7"
+            <StackPanel Grid.Row="8"
                         Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        Margin="0,20,0,0">
+                        HorizontalAlignment="Right">
                 <Button Content="Отмена" 
                         Width="100"
                         Style="{StaticResource CancelButtonStyle}"
-                        Click="Cancel_Click"/>
+                        Click="Cancel_Click" Margin="15 0"/>
                 <Button Content="Выдать" 
                         Width="100"
                         Style="{StaticResource ActionButtonStyle}"

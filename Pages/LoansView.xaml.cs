@@ -321,41 +321,41 @@ namespace LibraryAccounting.Pages
         /// </summary>
         private void IssueButton_Click(object sender, RoutedEventArgs e)
         {
-            try
+            var dialog = new IssueLoanWindow();
+            dialog.Owner = Window.GetWindow(this);
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+            var loan = new Loans
             {
-                var dialog = new IssueLoanWindow();
-                dialog.Owner = Window.GetWindow(this);
+                ReaderId = dialog.SelectedReaderId,
+                CopyId = dialog.SelectedCopyId,
+                LoanDate = DateTime.Now,
+                DueDate = DateTime.Now.AddDays(dialog.Days),
+                ExtendCount = 0
+            };
 
-                if (dialog.ShowDialog() != true)
-                    return;
+            var copy = AppConnect.model01.BookCopies
+                .FirstOrDefault(c => c.CopyId == dialog.SelectedCopyId);
 
-                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-                var loan = new Loans
-                {
-                    ReaderId = dialog.SelectedReaderId,
-                    CopyId = dialog.SelectedCopyId,
-                    LoanDate = DateTime.Now,
-                    DueDate = DateTime.Now.AddDays(dialog.Days),
-                    ExtendCount = 0
-                };
-
-                var copy = AppConnect.model01.BookCopies
-                    .FirstOrDefault(c => c.CopyId == dialog.SelectedCopyId);
-
-                if (copy != null)
-                    copy.Status = "Issued";
-
-                AppConnect.model01.Loans.Add(loan);
-                AppConnect.model01.SaveChanges();
-
-                LoadLoans();
-                ShowInfo("Книга успешно выдана");
-            }
-            catch (Exception ex)
+            if (copy != null)
             {
-                ShowError($"Ошибка выдачи: {ex.Message}");
+                copy.Status = "Issued";
+
+                // ✅ ДОБАВИТЬ: Обновляем информацию об экземпляре
+                copy.LastReaderId = dialog.SelectedReaderId;
+                copy.LastLoanDate = DateTime.Now;
+                copy.TotalLoans = copy.TotalLoans + 1;
             }
+
+            AppConnect.model01.Loans.Add(loan);
+            AppConnect.model01.SaveChanges();
+
+            LoadLoans();
+            ShowInfo("Книга успешно выдана");
         }
 
         /// <summary>
@@ -369,49 +369,35 @@ namespace LibraryAccounting.Pages
                 return;
             }
 
-            var selected = LoansDataGrid.SelectedItem as LoanViewModel;
-            if (selected == null)
-            {
-                ShowError("Ошибка выбора записи");
-                return;
-            }
+            dynamic selected = LoansDataGrid.SelectedItem;
+            int loanId = selected.LoanId;
 
-            if (selected.ReturnDate != null)
+            AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+            var loan = AppConnect.model01.Loans
+                .FirstOrDefault(l => l.LoanId == loanId);
+
+            if (loan != null && loan.ReturnDate == null)
+            {
+                loan.ReturnDate = DateTime.Now;
+
+                var copy = AppConnect.model01.BookCopies
+                    .FirstOrDefault(c => c.CopyId == loan.CopyId);
+
+                if (copy != null)
+                {
+                    copy.Status = "Available";
+                    // LastReaderId и LastLoanDate не обнуляем, оставляем историю
+                }
+
+                AppConnect.model01.SaveChanges();
+
+                LoadLoans();
+                ShowInfo("Книга успешно возвращена");
+            }
+            else
             {
                 ShowError("Книга уже возвращена");
-                return;
-            }
-
-            try
-            {
-                AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
-
-                var loan = AppConnect.model01.Loans
-                    .FirstOrDefault(l => l.LoanId == selected.LoanId);
-
-                if (loan != null && loan.ReturnDate == null)
-                {
-                    loan.ReturnDate = DateTime.Now;
-
-                    var copy = AppConnect.model01.BookCopies
-                        .FirstOrDefault(c => c.CopyId == loan.CopyId);
-
-                    if (copy != null)
-                        copy.Status = "Available";
-
-                    AppConnect.model01.SaveChanges();
-
-                    LoadLoans();
-                    ShowInfo("Книга успешно возвращена");
-                }
-                else
-                {
-                    ShowError("Книга уже возвращена");
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowError($"Ошибка возврата: {ex.Message}");
             }
         }
 
