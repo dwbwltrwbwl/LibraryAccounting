@@ -9,16 +9,11 @@ using System.Windows.Media;
 
 namespace LibraryAccounting.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для ChangePasswordWindow.xaml
-    /// </summary>
     public partial class ChangePasswordWindow : Window
     {
-        private bool isOldPasswordVisible = false;
         private bool isNewPasswordVisible = false;
         private bool isConfirmPasswordVisible = false;
 
-        private TextBox tempOldPasswordBox = null;
         private TextBox tempNewPasswordBox = null;
         private TextBox tempConfirmPasswordBox = null;
 
@@ -28,59 +23,6 @@ namespace LibraryAccounting.Pages
         public ChangePasswordWindow()
         {
             InitializeComponent();
-        }
-
-        /// <summary>
-        /// Показать/скрыть текущий пароль
-        /// </summary>
-        private void ToggleOldPassword_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button == null) return;
-
-            var border = OldPasswordBox.Parent as Grid;
-            if (border == null) return;
-
-            int index = border.Children.IndexOf(OldPasswordBox);
-
-            if (!isOldPasswordVisible)
-            {
-                string currentPassword = OldPasswordBox.Password;
-
-                tempOldPasswordBox = new TextBox
-                {
-                    Text = currentPassword,
-                    Height = 36,
-                    Background = Brushes.Transparent,
-                    BorderThickness = new Thickness(0),
-                    Padding = new Thickness(10),
-                    FontSize = 14,
-                    FontFamily = OldPasswordBox.FontFamily,
-                    MaxLength = 50
-                };
-
-                border.Children.Remove(OldPasswordBox);
-                border.Children.Insert(index, tempOldPasswordBox);
-
-                button.Content = "🙈";
-                isOldPasswordVisible = true;
-            }
-            else
-            {
-                string password = tempOldPasswordBox?.Text ?? "";
-
-                if (tempOldPasswordBox != null)
-                {
-                    border.Children.Remove(tempOldPasswordBox);
-                    tempOldPasswordBox = null;
-                }
-
-                border.Children.Insert(index, OldPasswordBox);
-                OldPasswordBox.Password = password;
-
-                button.Content = "👁️";
-                isOldPasswordVisible = false;
-            }
         }
 
         /// <summary>
@@ -245,7 +187,7 @@ namespace LibraryAccounting.Pages
             if (Regex.IsMatch(newPassword, @"[a-zа-я]")) strength++;
             if (Regex.IsMatch(newPassword, @"[A-ZА-Я]")) strength++;
             if (Regex.IsMatch(newPassword, @"[0-9]")) strength++;
-            if (Regex.IsMatch(newPassword, @"[!@#$%^&*(),.?\"":{}|<>]")) strength++;
+            if (Regex.IsMatch(newPassword, @"[!@#$%^&*(),.?""{}|<>]")) strength++;
 
             if (strength <= 2)
             {
@@ -304,14 +246,12 @@ namespace LibraryAccounting.Pages
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            string oldPassword = GetPassword(OldPasswordBox, isOldPasswordVisible, tempOldPasswordBox);
             string newPassword = GetPassword(NewPasswordBox, isNewPasswordVisible, tempNewPasswordBox);
             string confirmPassword = GetPassword(ConfirmPasswordBox, isConfirmPasswordVisible, tempConfirmPasswordBox);
 
-            if (string.IsNullOrWhiteSpace(oldPassword) ||
-                string.IsNullOrWhiteSpace(newPassword))
+            if (string.IsNullOrWhiteSpace(newPassword))
             {
-                MessageBox.Show("Заполните все поля", "Ошибка",
+                MessageBox.Show("Введите новый пароль", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -338,18 +278,10 @@ namespace LibraryAccounting.Pages
                 return;
             }
 
-            // Проверка старого пароля с использованием хэширования
-            if (!PasswordHasher.Verify(oldPassword, user.PasswordHash))
-            {
-                MessageBox.Show("Неверный текущий пароль", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             // Проверка сложности пароля
             if (!isNewPasswordValid)
             {
-                MessageBox.Show("Пароль слишком слабый. Используйте минимум 6 символов, буквы разного регистра и цифры",
+                MessageBox.Show("Пароль слишком слабый. Используйте минимум 6 символов, буквы разного регистра, цифры и спецсимволы",
                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }

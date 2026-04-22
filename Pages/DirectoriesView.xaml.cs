@@ -401,7 +401,6 @@ namespace LibraryAccounting.Pages
 
                     AppConnect.model01.SaveChanges();
                     LoadAll();
-                    ShowInfo($"Автор «{dialog.FullName}» успешно добавлен");
                     return;
                 }
                 catch (Exception ex)
@@ -462,7 +461,6 @@ namespace LibraryAccounting.Pages
 
                     AppConnect.model01.SaveChanges();
                     LoadAll();
-                    ShowInfo($"Автор «{dialog.FullName}» успешно обновлен");
                     return;
                 }
                 catch (Exception ex)
@@ -632,7 +630,6 @@ namespace LibraryAccounting.Pages
 
                     AppConnect.model01.SaveChanges();
                     LoadAll();
-                    ShowInfo($"Издательство «{dialog.NameValue}» успешно добавлено");
                     return;
                 }
                 catch (Exception ex)
@@ -679,7 +676,6 @@ namespace LibraryAccounting.Pages
 
                     AppConnect.model01.SaveChanges();
                     LoadAll();
-                    ShowInfo($"Издательство «{dialog.NameValue}» успешно обновлено");
                     return;
                 }
                 catch (Exception ex)

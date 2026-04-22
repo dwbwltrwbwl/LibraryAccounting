@@ -142,7 +142,7 @@ namespace LibraryAccounting.Pages
             bool matchesSearch = string.IsNullOrEmpty(searchText) ||
                 copy.BookTitle.ToLower().Contains(searchText) ||
                 copy.InventoryNumber.ToLower().Contains(searchText) ||
-                copy.ShelfCode.ToLower().Contains(searchText);
+                copy.Location.ToLower().Contains(searchText); // Изменено: ShelfCode -> Location
 
             bool matchesStatus = selectedStatus == "Все статусы" || copy.StatusDisplay == selectedStatus;
 
@@ -188,12 +188,26 @@ namespace LibraryAccounting.Pages
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            _copiesView?.Refresh();
+            try
+            {
+                _copiesView?.Refresh();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при фильтрации: {ex.Message}");
+            }
         }
 
         private void StatusFilter_Changed(object sender, SelectionChangedEventArgs e)
         {
-            _copiesView?.Refresh();
+            try
+            {
+                _copiesView?.Refresh();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при фильтрации: {ex.Message}");
+            }
         }
 
         private void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

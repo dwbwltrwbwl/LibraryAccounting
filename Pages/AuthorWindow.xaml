@@ -10,6 +10,7 @@
         Background="#F4F1EC">
 
     <Window.Resources>
+        <!-- Стили остаются без изменений -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="16,0"/>
@@ -108,7 +109,6 @@
             <Setter Property="Foreground" Value="#2F4F4F"/>
         </Style>
 
-        <!-- Стиль для DatePicker -->
         <Style x:Key="DatePickerStyle" TargetType="DatePicker">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Background" Value="#FFFDF9"/>
@@ -186,6 +186,8 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -202,7 +204,7 @@
                 <TextBox x:Name="NameBox" 
                          Grid.Row="2" 
                          Style="{StaticResource TextFieldStyle}"
-                         MaxLength="200"
+                         MaxLength="150"
                          TextChanged="NameBox_TextChanged"/>
 
                 <!-- Дата рождения -->
@@ -234,7 +236,8 @@
                         </Style>
                     </DatePicker.Resources>
                 </DatePicker>
-                <!-- Страна (выпадающий список с поиском) -->
+
+                <!-- Страна -->
                 <TextBlock Text="Страна" Grid.Row="7" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
                 <ComboBox x:Name="CountryComboBox" 
           Grid.Row="8" 
@@ -246,9 +249,11 @@
           TextSearch.TextPath="CountryName"
           StaysOpenOnEdit="True"
           SelectionChanged="CountryComboBox_SelectionChanged"
-          KeyUp="CountryComboBox_KeyUp"/>
+          KeyUp="CountryComboBox_KeyUp"
+          LostFocus="CountryComboBox_LostFocus"/>
+                <!-- ДОБАВЛЯЕМ ЭТУ СТРОКУ -->
 
-                <!-- Город (выпадающий список, зависит от страны) -->
+                <!-- Город -->
                 <TextBlock Text="Город" Grid.Row="9" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
                 <ComboBox x:Name="CityComboBox" 
                           Grid.Row="10" 
@@ -261,13 +266,14 @@
                 <TextBlock x:Name="ErrorTextBlock" 
                            Grid.Row="11"
                            Style="{StaticResource ErrorTextStyle}"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed"
+                           Margin="0,15,0,10"/>
 
                 <!-- Кнопки -->
                 <StackPanel Grid.Row="12"
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
-                            Margin="0,20,0,0">
+                            Margin="0,10,0,0">
                     <Button Content="Сохранить" 
                             Width="120"
                             Style="{StaticResource ActionButtonStyle}"

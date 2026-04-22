@@ -53,7 +53,7 @@ namespace LibraryAccounting.Pages
                 LoadGenres();
                 LoadPublishers();
                 LoadLanguages();
-                LoadBindings();  // ← ДОБАВИТЬ
+                LoadBindings();
             }
             catch (Exception ex)
             {
@@ -61,6 +61,7 @@ namespace LibraryAccounting.Pages
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private void LoadBindings(string filter = null)
         {
             var query = AppConnect.model01.Bindings.AsQueryable();
@@ -72,6 +73,7 @@ namespace LibraryAccounting.Pages
             BindingBox.DisplayMemberPath = "BindingName";
             BindingBox.SelectedValuePath = "BindingId";
         }
+
         private void BindingBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             string searchText = BindingBox.Text?.Trim() ?? "";
@@ -79,6 +81,7 @@ namespace LibraryAccounting.Pages
             if (BindingBox.ItemsSource != null && ((System.Collections.IList)BindingBox.ItemsSource).Count > 0)
                 BindingBox.IsDropDownOpen = true;
         }
+
         #region Загрузка данных с фильтрацией
 
         private void LoadAuthors(string filter = null)
@@ -177,7 +180,6 @@ namespace LibraryAccounting.Pages
             EditionBox.Text = _book.Edition ?? "";
             CirculationBox.Text = _book.Circulation?.ToString() ?? "";
             FormatBox.Text = _book.Format ?? "";
-            QuantityBox.Text = _book.Quantity.ToString();
 
             var selectedAuthor = AppConnect.model01.Authors.FirstOrDefault(a => a.AuthorId == _book.AuthorId);
             if (selectedAuthor != null) AuthorBox.SelectedItem = selectedAuthor;
@@ -190,6 +192,7 @@ namespace LibraryAccounting.Pages
                 var selectedPublisher = AppConnect.model01.Publishers.FirstOrDefault(p => p.PublisherId == _book.PublisherId);
                 if (selectedPublisher != null) PublisherBox.SelectedItem = selectedPublisher;
             }
+
             if (_book.BindingId.HasValue)
             {
                 var selectedBinding = AppConnect.model01.Bindings
@@ -197,6 +200,7 @@ namespace LibraryAccounting.Pages
                 if (selectedBinding != null)
                     BindingBox.SelectedItem = selectedBinding;
             }
+
             if (_book.LanguageId.HasValue)
             {
                 var selectedLanguage = AppConnect.model01.Languages.FirstOrDefault(l => l.LanguageId == _book.LanguageId);
@@ -257,12 +261,6 @@ namespace LibraryAccounting.Pages
                 return null;
             }
         }
-
-        #region Валидация
-
-        #region Валидация
-
-        #region Валидация
 
         #region Валидация
 
@@ -365,24 +363,9 @@ namespace LibraryAccounting.Pages
             }
 
             // 9. Переплет
-            string binding = BindingBox.Text.Trim();
-            if (string.IsNullOrWhiteSpace(binding))
+            if (BindingBox.SelectedItem == null)
             {
-                MessageBox.Show("Введите тип переплета", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                BindingBox.Focus();
-                return false;
-            }
-            if (binding.Length > 50)
-            {
-                MessageBox.Show($"Переплет не может превышать 50 символов (сейчас {binding.Length})", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                BindingBox.Focus();
-                return false;
-            }
-            if (!Regex.IsMatch(binding, @"^[a-zA-Zа-яА-Я\s\-]+$"))
-            {
-                MessageBox.Show("Переплет может содержать только буквы", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Выберите тип переплета", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 BindingBox.Focus();
                 return false;
             }
@@ -458,16 +441,7 @@ namespace LibraryAccounting.Pages
                 return false;
             }
 
-            // 14. Количество экземпляров
-            if (!int.TryParse(QuantityBox.Text, out int quantity) || quantity <= 0)
-            {
-                MessageBox.Show("Введите корректное количество экземпляров (больше 0)", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                QuantityBox.Focus();
-                return false;
-            }
-
-            // 15. Описание
+            // 14. Описание
             string description = DescriptionBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(description))
             {
@@ -483,7 +457,7 @@ namespace LibraryAccounting.Pages
                 return false;
             }
 
-            // 16. Проверка на дубликат книги (только по названию)
+            // 15. Проверка на дубликат книги (только по названию)
             try
             {
                 if (AppConnect.model01 == null)
@@ -491,7 +465,7 @@ namespace LibraryAccounting.Pages
 
                 string bookTitle = TitleBox.Text.Trim();
 
-                if (_book == null) // Добавление новой книги
+                if (_book == null)
                 {
                     var existingBook = AppConnect.model01.Books
                         .FirstOrDefault(b => b.Title == bookTitle);
@@ -504,7 +478,7 @@ namespace LibraryAccounting.Pages
                         return false;
                     }
                 }
-                else // Редактирование существующей книги
+                else
                 {
                     var existingBook = AppConnect.model01.Books
                         .FirstOrDefault(b => b.Title == bookTitle && b.BookId != _book.BookId);
@@ -530,114 +504,57 @@ namespace LibraryAccounting.Pages
 
         #endregion
 
-        #endregion
-
-        #endregion
-
-        #endregion
-
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Валидация всех полей
                 if (!ValidateFields())
                     return;
 
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-                // Проверяем, есть ли уже такая книга (по названию и автору)
                 string title = TitleBox.Text.Trim();
                 int authorId = ((Authors)AuthorBox.SelectedItem).AuthorId;
 
                 if (_book == null)
                 {
-                    // Проверка на дубликат при добавлении
-                    var existingBook = AppConnect.model01.Books
-                        .FirstOrDefault(b => b.Title == title && b.AuthorId == authorId);
-
-                    if (existingBook != null)
-                    {
-                        MessageBox.Show($"Книга «{title}» уже существует в базе данных",
-                            "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-
                     _book = new Books();
                     AppConnect.model01.Books.Add(_book);
                     _book.AddedDate = DateTime.Now;
                 }
 
-                // Заполнение всех полей
                 _book.Title = title;
                 _book.AuthorId = authorId;
                 _book.GenreId = ((Genres)GenreBox.SelectedItem).GenreId;
                 _book.PublishYear = int.Parse(YearBox.Text);
-
-                // Издательство (может быть null)
                 _book.PublisherId = PublisherBox.SelectedItem != null
                     ? ((Publishers)PublisherBox.SelectedItem).PublisherId
                     : (int?)null;
-
-                // ISBN (может быть пустым)
                 _book.ISBN = string.IsNullOrWhiteSpace(IsbnBox.Text) ? null : IsbnBox.Text.Trim();
-
-                // Страницы
                 _book.Pages = string.IsNullOrWhiteSpace(PagesBox.Text) ? (int?)null : int.Parse(PagesBox.Text);
-
-                // Язык
                 _book.LanguageId = LanguageBox.SelectedItem != null
                     ? ((Languages)LanguageBox.SelectedItem).LanguageId
                     : (int?)null;
-
-                // Переплет
-                if (BindingBox.SelectedItem != null)
-                {
-                    var selectedBinding = (Bindings)BindingBox.SelectedItem;
-                    _book.BindingId = selectedBinding.BindingId;
-                    _book.Bindings = selectedBinding;
-                }
-                else
-                {
-                    _book.BindingId = null;
-                }
-
-                // Формат
+                _book.BindingId = BindingBox.SelectedItem != null
+                    ? ((Bindings)BindingBox.SelectedItem).BindingId
+                    : (int?)null;
                 _book.Format = string.IsNullOrWhiteSpace(FormatBox.Text) ? null : FormatBox.Text.Trim();
-
-                // Серия
                 _book.Series = string.IsNullOrWhiteSpace(SeriesBox.Text) ? null : SeriesBox.Text.Trim();
-
-                // Издание
                 _book.Edition = string.IsNullOrWhiteSpace(EditionBox.Text) ? null : EditionBox.Text.Trim();
-
-                // Тираж
                 _book.Circulation = string.IsNullOrWhiteSpace(CirculationBox.Text)
                     ? (int?)null
                     : int.Parse(CirculationBox.Text);
-
-                // Количество экземпляров
-                _book.Quantity = int.Parse(QuantityBox.Text);
-                _book.AvailableQuantity = _book.Quantity; // При добавлении/редактировании доступно столько же
-
-                // Обложка
                 _book.CoverImage = _imageBytes;
-
-                // Описание
                 _book.Description = string.IsNullOrWhiteSpace(DescriptionBox.Text) ? null : DescriptionBox.Text.Trim();
-
-                // Дата изменения
                 _book.LastModified = DateTime.Now;
 
-                // Сохраняем изменения
                 AppConnect.model01.SaveChanges();
 
                 DialogResult = true;
                 Close();
             }
-            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            catch (DbEntityValidationException ex)
             {
-                // Ошибка валидации Entity Framework
                 string errors = "";
                 foreach (var validationErrors in ex.EntityValidationErrors)
                 {
@@ -649,9 +566,8 @@ namespace LibraryAccounting.Pages
                 MessageBox.Show($"Ошибка валидации данных:\n{errors}", "Ошибка сохранения",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+            catch (DbUpdateException ex)
             {
-                // Ошибка обновления базы данных
                 MessageBox.Show($"Ошибка при сохранении книги:\n{ex.InnerException?.Message ?? ex.Message}",
                     "Ошибка сохранения", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -694,14 +610,13 @@ namespace LibraryAccounting.Pages
             SeriesBox.Text = "";
             EditionBox.Text = "";
             CirculationBox.Text = "";
-            BindingBox.SelectedIndex = -1;
             FormatBox.Text = "";
-            QuantityBox.Text = "1";
 
             AuthorBox.SelectedIndex = -1;
             GenreBox.SelectedIndex = -1;
             PublisherBox.SelectedIndex = -1;
             LanguageBox.SelectedIndex = -1;
+            BindingBox.SelectedIndex = -1;
 
             _imageBytes = null;
             CoverImage.Source = null;

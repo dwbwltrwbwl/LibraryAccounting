@@ -36,8 +36,6 @@ namespace LibraryAccounting.AppData
         public Nullable<int> Circulation { get; set; }
         public Nullable<int> BindingId { get; set; }
         public string Format { get; set; }
-        public int Quantity { get; set; }
-        public int AvailableQuantity { get; set; }
         public System.DateTime AddedDate { get; set; }
         public Nullable<System.DateTime> LastModified { get; set; }
     

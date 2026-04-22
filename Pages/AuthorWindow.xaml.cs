@@ -46,19 +46,23 @@ namespace LibraryAccounting.Pages
             {
                 // Режим добавления
                 TitleText.Text = "Добавление автора";
-                ClearFields();  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+                ClearFields();
             }
         }
+
         private void ClearFields()
         {
             NameBox.Text = "";
             BirthDatePicker.SelectedDate = null;
             DeathDatePicker.SelectedDate = null;
             CountryComboBox.SelectedIndex = -1;
+            CountryComboBox.Text = "";
             CityComboBox.ItemsSource = null;
             CityComboBox.IsEnabled = false;
+            CityComboBox.Text = "";
             ErrorTextBlock.Visibility = Visibility.Collapsed;
         }
+
         private void LoadCountries()
         {
             try
@@ -68,6 +72,7 @@ namespace LibraryAccounting.Pages
                     .OrderBy(c => c.CountryName)
                     .ToList();
                 CountryComboBox.SelectedIndex = -1;
+                CountryComboBox.Text = "";
             }
             catch (Exception ex)
             {
@@ -88,13 +93,23 @@ namespace LibraryAccounting.Pages
                         .ToList();
 
                     CityComboBox.ItemsSource = cities;
-                    CityComboBox.IsEnabled = cities.Any();
-                    CityComboBox.SelectedIndex = -1;
+                    CityComboBox.IsEnabled = true;
+
+                    if (cities.Any())
+                    {
+                        CityComboBox.SelectedIndex = -1;
+                    }
+                    else
+                    {
+                        CityComboBox.Text = "";
+                    }
                 }
                 else
                 {
                     CityComboBox.ItemsSource = null;
                     CityComboBox.IsEnabled = false;
+                    CityComboBox.SelectedIndex = -1;
+                    CityComboBox.Text = "";
                 }
             }
             catch (Exception ex)
@@ -103,6 +118,7 @@ namespace LibraryAccounting.Pages
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private void CountryComboBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             var comboBox = sender as ComboBox;
@@ -134,16 +150,58 @@ namespace LibraryAccounting.Pages
                 }
             }
         }
+
         private void CountryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CountryComboBox.SelectedItem != null)
             {
                 var selectedCountry = (Countries)CountryComboBox.SelectedItem;
                 LoadCities(selectedCountry.CountryId);
+
+                // Обновляем текст в ComboBox после выбора
+                CountryComboBox.Text = selectedCountry.CountryName;
             }
             else
             {
                 LoadCities(null);
+            }
+        }
+
+        // ДОБАВЛЯЕМ НОВЫЙ МЕТОД для обработки потери фокуса
+        private void CountryComboBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox == null || string.IsNullOrWhiteSpace(comboBox.Text))
+                return;
+
+            string enteredText = comboBox.Text.Trim();
+
+            // Ищем точное совпадение по названию страны
+            var matchingCountry = AppConnect.model01.Countries
+                .FirstOrDefault(c => c.CountryName.Equals(enteredText, StringComparison.OrdinalIgnoreCase));
+
+            if (matchingCountry != null)
+            {
+                // Если нашли точное совпадение - выбираем его
+                comboBox.SelectedItem = matchingCountry;
+            }
+            else
+            {
+                // Если точного совпадения нет, ищем частичное совпадение
+                var partialMatch = AppConnect.model01.Countries
+                    .FirstOrDefault(c => c.CountryName.StartsWith(enteredText, StringComparison.OrdinalIgnoreCase));
+
+                if (partialMatch != null)
+                {
+                    comboBox.SelectedItem = partialMatch;
+                }
+                else
+                {
+                    // Если совпадений нет - очищаем выбор
+                    comboBox.SelectedIndex = -1;
+                    comboBox.Text = enteredText; // Оставляем введенный текст
+                    LoadCities(null);
+                }
             }
         }
 
@@ -275,7 +333,17 @@ namespace LibraryAccounting.Pages
             DeathDate = DeathDatePicker.SelectedDate;
             SelectedCityId = CityComboBox.SelectedValue as int?;
 
+            // Сначала показываем окно с сообщением об успехе
+            var messageDialog = new LibraryAccounting.Windows.MessageDialog(
+                "Успех",
+                "Автор успешно сохранен!"
+            );
+            messageDialog.Owner = this;
+            messageDialog.ShowDialog(); // Ждем, пока пользователь нажмет ОК
+
+            // После закрытия окна сообщения, закрываем окно автора
             DialogResult = true;
+            this.Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

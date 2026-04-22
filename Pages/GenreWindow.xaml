@@ -5,9 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LibraryAccounting.Pages"
         mc:Ignorable="d"
-        Title="GenreWindow" Height="450" Width="800">
+        Title="Жанр" Height="500" Width="600"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F1EC">
+
     <Window.Resources>
-        <!-- Стиль для кнопок -->
+        <!-- Стили остаются без изменений -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="16,0"/>
@@ -42,7 +45,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Стиль для кнопки отмены -->
         <Style x:Key="CancelButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="16,0"/>
@@ -76,7 +78,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Стиль для текстовых полей -->
         <Style x:Key="TextFieldStyle" TargetType="TextBox">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Background" Value="#FFFDF9"/>
@@ -106,7 +107,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Стиль для многострочного текстового поля -->
         <Style x:Key="MultiLineTextFieldStyle" TargetType="TextBox" BasedOn="{StaticResource TextFieldStyle}">
             <Setter Property="Height" Value="80"/>
             <Setter Property="VerticalContentAlignment" Value="Top"/>
@@ -115,8 +115,6 @@
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
         </Style>
 
-        <!-- Стиль для ComboBox -->
-        <!-- Стиль для ComboBox (исправленный) -->
         <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Background" Value="#FFFDF9"/>
@@ -125,10 +123,8 @@
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Foreground" Value="#2F4F4F"/>
             <Setter Property="Padding" Value="8,0"/>
-            <!-- Убираем кастомный шаблон, используем стандартный -->
         </Style>
 
-        <!-- Стиль для подписей -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -136,11 +132,10 @@
             <Setter Property="Margin" Value="0,0,0,5"/>
         </Style>
 
-        <!-- Стиль для ошибок -->
         <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#D32F2F"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
     </Window.Resources>
@@ -151,69 +146,76 @@
             CornerRadius="10"
             Margin="15">
 
-        <Grid Margin="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <!-- Заголовок -->
-            <TextBlock x:Name="TitleText" Text="Добавление / Редактирование жанра"
-                       FontSize="18"
-                       FontWeight="SemiBold"
-                       Foreground="#2F4F4F"
-                       Margin="0,0,0,20"/>
+                <!-- Заголовок -->
+                <TextBlock x:Name="TitleText" Text="Добавление / Редактирование жанра"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="#2F4F4F"
+                           Margin="0,0,0,20"
+                           Grid.Row="0"/>
 
-            <!-- Название -->
-            <TextBlock Text="Название*" Grid.Row="1" Style="{StaticResource LabelStyle}"/>
-            <TextBox x:Name="NameBox" 
-                     Grid.Row="2" 
-                     Style="{StaticResource TextFieldStyle}"
-                     MaxLength="100"
-                     TextChanged="NameBox_TextChanged"/>
+                <!-- Название -->
+                <TextBlock Text="Название*" Grid.Row="1" Style="{StaticResource LabelStyle}"/>
+                <TextBox x:Name="NameBox" 
+                         Grid.Row="2" 
+                         Style="{StaticResource TextFieldStyle}"
+                         MaxLength="100"
+                         TextChanged="NameBox_TextChanged"/>
 
-            <!-- Описание -->
-            <TextBlock Text="Описание*" Grid.Row="3" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
-            <TextBox x:Name="DescriptionBox" 
-                     Grid.Row="4" 
-                     Style="{StaticResource MultiLineTextFieldStyle}"
-                     MaxLength="500"
-                     TextChanged="DescriptionBox_TextChanged"/>
+                <!-- Описание -->
+                <TextBlock Text="Описание*" Grid.Row="3" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
+                <TextBox x:Name="DescriptionBox" 
+                         Grid.Row="4" 
+                         Style="{StaticResource MultiLineTextFieldStyle}"
+                         MaxLength="500"
+                         TextChanged="DescriptionBox_TextChanged"/>
 
-            <!-- Возрастной рейтинг -->
-            <TextBlock Text="Возрастной рейтинг*" Grid.Row="5" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
-            <ComboBox x:Name="AgeRatingBox" 
-          Grid.Row="6" 
-          Style="{StaticResource ComboBoxStyle}"
-          DisplayMemberPath="AgeRatingName"
-          SelectedValuePath="AgeRatingId"
-          SelectionChanged="AgeRatingBox_SelectionChanged"/>
-            <!-- Блок ошибок -->
-            <TextBlock x:Name="ErrorTextBlock" 
-                       Grid.Row="7"
-                       Style="{StaticResource ErrorTextStyle}"
-                       Visibility="Collapsed"/>
+                <!-- Возрастной рейтинг -->
+                <TextBlock Text="Возрастной рейтинг*" Grid.Row="5" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
+                <ComboBox x:Name="AgeRatingBox" 
+                          Grid.Row="6" 
+                          Style="{StaticResource ComboBoxStyle}"
+                          DisplayMemberPath="AgeRatingName"
+                          SelectedValuePath="AgeRatingId"
+                          SelectionChanged="AgeRatingBox_SelectionChanged"/>
 
-            <!-- Кнопки -->
-            <StackPanel Grid.Row="8"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        Margin="0,20,0,0">
-                <Button Content="Сохранить" 
-                        Width="120"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Click="Save_Click"/>
-                <Button Content="Отмена" 
-                        Width="120"
-                        Style="{StaticResource CancelButtonStyle}"
-                        Click="Cancel_Click"/>
-            </StackPanel>
-        </Grid>
+                <!-- Блок ошибок -->
+                <TextBlock x:Name="ErrorTextBlock" 
+                           Grid.Row="7"
+                           Style="{StaticResource ErrorTextStyle}"
+                           Visibility="Collapsed"
+                           Margin="0,15,0,10"/>
+
+                <!-- Кнопки -->
+                <StackPanel Grid.Row="8"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,10,0,0">
+                    <Button Content="Сохранить" 
+                            Width="120"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="Save_Click"/>
+                    <Button Content="Отмена" 
+                            Width="120"
+                            Style="{StaticResource CancelButtonStyle}"
+                            Click="Cancel_Click"/>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Border>
 </Window>

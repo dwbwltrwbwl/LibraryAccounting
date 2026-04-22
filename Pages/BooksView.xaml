@@ -211,8 +211,8 @@
                         <DataGridTextColumn Header="Тираж" Binding="{Binding Circulation}" Width="100"/>
 
                         <!-- Количество -->
-                        <DataGridTextColumn Header="Экз." Binding="{Binding Quantity}" Width="70"/>
-                        <DataGridTextColumn Header="Доступно" Binding="{Binding AvailableQuantity}" Width="80"/>
+                        <DataGridTextColumn Header="Экз. (всего)" Binding="{Binding TotalCopies}" Width="80"/>
+                        <DataGridTextColumn Header="Экз. (доступно)" Binding="{Binding AvailableCopies}" Width="90"/>
 
                         <!-- Даты -->
                         <DataGridTextColumn Header="Дата добавления" Binding="{Binding AddedDate, StringFormat=d}" Width="120"/>

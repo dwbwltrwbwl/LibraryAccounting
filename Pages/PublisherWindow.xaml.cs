@@ -147,7 +147,17 @@ namespace LibraryAccounting.Pages
             NameValue = NameBox.Text.Trim();
             SelectedCityId = CityComboBox.SelectedValue as int?;
 
+            // Показываем окно с сообщением об успехе
+            var messageDialog = new LibraryAccounting.Windows.MessageDialog(
+                "Успех",
+                "Издательство успешно сохранено!"
+            );
+            messageDialog.Owner = this;
+            messageDialog.ShowDialog(); // Ждем, пока пользователь нажмет ОК
+
+            // После закрытия окна сообщения, закрываем окно издательства
             DialogResult = true;
+            this.Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

@@ -620,27 +620,26 @@ namespace LibraryAccounting.Pages
                 case "Книжный фонд":
                     availableFields.AddRange(new[]
                     {
-                        new ReportField { Name = "Название", FieldName = "Title", IsSelected = true },
-                        new ReportField { Name = "Автор", FieldName = "Author", IsSelected = true },
-                        new ReportField { Name = "Жанр", FieldName = "Genre", IsSelected = true },
-                        new ReportField { Name = "Год издания", FieldName = "Year", IsSelected = true },
-                        new ReportField { Name = "Издательство", FieldName = "Publisher", IsSelected = true },
-                        new ReportField { Name = "ISBN", FieldName = "ISBN", IsSelected = false },
-                        new ReportField { Name = "Страниц", FieldName = "Pages", IsSelected = false },
-                        new ReportField { Name = "Язык", FieldName = "Language", IsSelected = false },
-                        new ReportField { Name = "Переплет", FieldName = "Binding", IsSelected = false },
-                        new ReportField { Name = "Формат", FieldName = "Format", IsSelected = false },
-                        new ReportField { Name = "Серия", FieldName = "Series", IsSelected = false },
-                        new ReportField { Name = "Издание", FieldName = "Edition", IsSelected = false },
-                        new ReportField { Name = "Тираж", FieldName = "Circulation", IsSelected = false },
-                        new ReportField { Name = "Количество экземпляров", FieldName = "Quantity", IsSelected = true },
-                        new ReportField { Name = "Доступно экземпляров", FieldName = "AvailableQuantity", IsSelected = true },
-                        new ReportField { Name = "Инвентарный номер", FieldName = "InventoryNumber", IsSelected = false },
-                        new ReportField { Name = "Местоположение", FieldName = "Location", IsSelected = false },
-                        new ReportField { Name = "Статус экземпляра", FieldName = "CopyStatus", IsSelected = false },
-                        new ReportField { Name = "Стеллаж", FieldName = "Shelf", IsSelected = false },
-                        new ReportField { Name = "Ряд", FieldName = "Row", IsSelected = false }
-                    });
+        new ReportField { Name = "Название", FieldName = "Title", IsSelected = true },
+        new ReportField { Name = "Автор", FieldName = "Author", IsSelected = true },
+        new ReportField { Name = "Жанр", FieldName = "Genre", IsSelected = true },
+        new ReportField { Name = "Год издания", FieldName = "Year", IsSelected = true },
+        new ReportField { Name = "Издательство", FieldName = "Publisher", IsSelected = true },
+        new ReportField { Name = "ISBN", FieldName = "ISBN", IsSelected = false },
+        new ReportField { Name = "Страниц", FieldName = "Pages", IsSelected = false },
+        new ReportField { Name = "Язык", FieldName = "Language", IsSelected = false },
+        new ReportField { Name = "Переплет", FieldName = "Binding", IsSelected = false },
+        new ReportField { Name = "Формат", FieldName = "Format", IsSelected = false },
+        new ReportField { Name = "Серия", FieldName = "Series", IsSelected = false },
+        new ReportField { Name = "Издание", FieldName = "Edition", IsSelected = false },
+        new ReportField { Name = "Тираж", FieldName = "Circulation", IsSelected = false },
+        // Удалены Quantity и AvailableQuantity
+        new ReportField { Name = "Инвентарный номер", FieldName = "InventoryNumber", IsSelected = false },
+        new ReportField { Name = "Местоположение", FieldName = "Location", IsSelected = false },
+        new ReportField { Name = "Статус экземпляра", FieldName = "CopyStatus", IsSelected = false },
+        new ReportField { Name = "Стеллаж", FieldName = "Shelf", IsSelected = false },
+        new ReportField { Name = "Ряд", FieldName = "Row", IsSelected = false }
+    });
                     break;
             }
 
@@ -853,12 +852,7 @@ namespace LibraryAccounting.Pages
                                     case "Circulation":
                                         dict[field.Name] = copy.Books?.Circulation ?? 0;
                                         break;
-                                    case "Quantity":
-                                        dict[field.Name] = copy.Books?.Quantity ?? 0;
-                                        break;
-                                    case "AvailableQuantity":
-                                        dict[field.Name] = copy.Books?.AvailableQuantity ?? 0;
-                                        break;
+                                    // Удалены case "Quantity" и case "AvailableQuantity"
                                     case "InventoryNumber":
                                         dict[field.Name] = copy.InventoryNumber ?? "";
                                         break;

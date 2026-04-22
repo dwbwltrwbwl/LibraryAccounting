@@ -152,9 +152,6 @@
                     <ComboBoxItem Content="Зона I: Философия и психология"/>
                     <ComboBoxItem Content="Зона J: Право и экономика"/>
                 </ComboBox>
-
-                <Button Content="Обновить карту" Grid.Column="2" Width="120" Height="35" Margin="10,0,0,0"
-                        Style="{StaticResource SecondaryButtonStyle}" Click="RefreshMap_Click"/>
             </Grid>
         </Border>
 

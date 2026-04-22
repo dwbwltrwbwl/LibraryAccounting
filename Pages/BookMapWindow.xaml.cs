@@ -116,10 +116,22 @@ namespace LibraryAccounting.Windows
                     ZoneName = GetZoneByShelfCode(b.ShelfCode)
                 }).ToList();
 
-                // Получаем все стеллажи из справочника
+                // Получаем все стеллажи из справочника с правильной сортировкой
                 var allShelves = AppConnect.model01.Shelves
-                    .OrderBy(s => s.SortOrder)
-                    .ToList();
+    .AsEnumerable()
+    .OrderBy(s =>
+    {
+        // Извлекаем буквенную часть и числовую часть
+        var match = System.Text.RegularExpressions.Regex.Match(s.ShelfCode, @"^([A-Za-z]+)(\d+)$");
+        if (match.Success)
+        {
+            string letters = match.Groups[1].Value;
+            int number = int.Parse(match.Groups[2].Value);
+            return (letters, number);
+        }
+        return (s.ShelfCode, 0);
+    })
+    .ToList();
 
                 if (!allShelves.Any())
                 {
@@ -276,20 +288,24 @@ namespace LibraryAccounting.Windows
 
                 if (loan != null)
                 {
-                    string shelfCode = loan.BookCopies.Shelves?.ShelfCode ?? "A2";
+                    string shelfCode = loan.BookCopies.Shelves?.ShelfCode ?? "";
                     int rowNumber = loan.BookCopies.Rows?.RowNumber ?? 1;
 
-                    var tempData = new Dictionary<string, Dictionary<string, Models.BookLocationInfo>>();
-                    if (_fullMapData.ContainsKey(shelfCode))
+                    if (!string.IsNullOrEmpty(shelfCode) && _fullMapData.ContainsKey(shelfCode))
                     {
-                        tempData[shelfCode] = _fullMapData[shelfCode];
+                        var tempData = new Dictionary<string, Dictionary<string, Models.BookLocationInfo>>
+                        {
+                            [shelfCode] = _fullMapData[shelfCode]
+                        };
                         BookMap.UpdateShelvesMap(tempData);
                         BookMap.HighlightLocation(shelfCode, $"Ряд {rowNumber}");
                         BookMap.ShowBookLocation(loan.BookCopies.Books.Title, shelfCode, $"Ряд {rowNumber}");
                     }
                     else
                     {
-                        ApplyZoneFilter();
+                        // Книга не найдена - показываем пустую карту
+                        BookMap.UpdateShelvesMap(new Dictionary<string, Dictionary<string, Models.BookLocationInfo>>());
+                        BookMap.ClearHighlight();
                     }
                 }
                 else
@@ -309,25 +325,30 @@ namespace LibraryAccounting.Windows
 
                     if (bookCopy != null)
                     {
-                        string shelfCode = bookCopy.Shelves?.ShelfCode ?? "A2";
+                        string shelfCode = bookCopy.Shelves?.ShelfCode ?? "";
                         int rowNumber = bookCopy.Rows?.RowNumber ?? 1;
 
-                        var tempData = new Dictionary<string, Dictionary<string, Models.BookLocationInfo>>();
-                        if (_fullMapData.ContainsKey(shelfCode))
+                        if (!string.IsNullOrEmpty(shelfCode) && _fullMapData.ContainsKey(shelfCode))
                         {
-                            tempData[shelfCode] = _fullMapData[shelfCode];
+                            var tempData = new Dictionary<string, Dictionary<string, Models.BookLocationInfo>>
+                            {
+                                [shelfCode] = _fullMapData[shelfCode]
+                            };
                             BookMap.UpdateShelvesMap(tempData);
                             BookMap.HighlightLocation(shelfCode, $"Ряд {rowNumber}");
                             BookMap.ShowBookLocation(bookCopy.Books.Title, shelfCode, $"Ряд {rowNumber}");
                         }
                         else
                         {
-                            ApplyZoneFilter();
+                            // Книга не найдена - показываем пустую карту
+                            BookMap.UpdateShelvesMap(new Dictionary<string, Dictionary<string, Models.BookLocationInfo>>());
+                            BookMap.ClearHighlight();
                         }
                     }
                     else
                     {
-                        ApplyZoneFilter();
+                        // Книга не найдена - показываем пустую карту
+                        BookMap.UpdateShelvesMap(new Dictionary<string, Dictionary<string, Models.BookLocationInfo>>());
                         BookMap.ClearHighlight();
                     }
                 }
@@ -335,6 +356,9 @@ namespace LibraryAccounting.Windows
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка поиска: {ex.Message}");
+                // При ошибке показываем пустую карту
+                BookMap.UpdateShelvesMap(new Dictionary<string, Dictionary<string, Models.BookLocationInfo>>());
+                BookMap.ClearHighlight();
             }
         }
 

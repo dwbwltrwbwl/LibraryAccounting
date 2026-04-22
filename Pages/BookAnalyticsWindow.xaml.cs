@@ -425,7 +425,7 @@ namespace LibraryAccounting.Windows
             var dialog = new SaveFileDialog
             {
                 Filter = "CSV файлы (*.csv)|*.csv",
-                FileName = $"Аналитика_{ChartTitle.Text}_{DateTime.Now:yyyy-MM-dd_HHmmss}"
+                FileName = $"Аналитика_{ChartTitle.Text.Replace(" ", "_")}_{DateTime.Now:yyyy-MM-dd_HHmmss}"
             };
 
             if (dialog.ShowDialog() == true)
@@ -436,18 +436,23 @@ namespace LibraryAccounting.Windows
                     sb.AppendLine(ChartTitle.Text);
                     sb.AppendLine("Категория;Количество");
 
+                    // Для BarChart (столбчатая диаграмма)
                     if (BarChart.Visibility == Visibility.Visible && BarChart.Series.Count > 0)
                     {
                         var series = BarChart.Series[0] as ColumnSeries;
-                        var axis = BarChart.AxisX[0];
-                        for (int i = 0; i < series.Values.Count; i++)
+                        if (series != null && BarChart.AxisX.Count > 0)
                         {
-                            var label = axis.Labels[i];
-                            var value = series.Values[i];
-                            sb.AppendLine($"\"{label}\";{value}");
+                            var axis = BarChart.AxisX[0];
+                            for (int i = 0; i < series.Values.Count && i < axis.Labels.Count; i++)
+                            {
+                                var label = axis.Labels[i];
+                                var value = series.Values[i];
+                                sb.AppendLine($"\"{label}\";{value}");
+                            }
                         }
                     }
-                    else if (PieChart.Visibility == Visibility.Visible)
+                    // Для PieChart (круговая диаграмма)
+                    else if (PieChart.Visibility == Visibility.Visible && PieChart.Series.Count > 0)
                     {
                         foreach (PieSeries series in PieChart.Series)
                         {
@@ -456,9 +461,24 @@ namespace LibraryAccounting.Windows
                             sb.AppendLine($"\"{label}\";{value}");
                         }
                     }
+                    // ДЛЯ LineChart (линейная диаграмма) - ВОТ ЧТО БЫЛО ПРОПУЩЕНО!
+                    else if (LineChart.Visibility == Visibility.Visible && LineChart.Series.Count > 0)
+                    {
+                        var series = LineChart.Series[0] as LineSeries;
+                        if (series != null && LineChart.AxisX.Count > 0)
+                        {
+                            var axis = LineChart.AxisX[0];
+                            for (int i = 0; i < series.Values.Count && i < axis.Labels.Count; i++)
+                            {
+                                var label = axis.Labels[i];
+                                var value = series.Values[i];
+                                sb.AppendLine($"\"{label}\";{value}");
+                            }
+                        }
+                    }
 
                     File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
-                    MessageBox.Show("Экспорт выполнен успешно!", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Экспорт выполнен успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {

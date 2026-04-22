@@ -126,13 +126,12 @@ namespace LibraryAccounting.Pages
                 return;
             }
 
+            // Проверка на максимальный срок - 60 дней
             if (days > 60)
             {
-                if (MessageBox.Show("Максимальный срок выдачи - 60 дней. Продолжить?", "Предупреждение",
-                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-                {
-                    return;
-                }
+                MessageBox.Show("Максимальный срок выдачи - 60 дней", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
 
             SelectedReaderId = (int)ReaderComboBox.SelectedValue;

@@ -301,15 +301,22 @@ namespace LibraryAccounting.Pages
                 PhoneBox.Focus();
                 return false;
             }
-            if (phone.Length < 10 || phone.Length > 20)
+
+            // Берем только цифры
+            string digits = Regex.Replace(phone, @"\D", "");
+
+            // Должно быть ровно 11 цифр
+            if (digits.Length != 11)
             {
-                ShowError("Телефон должен содержать от 10 до 20 символов");
+                ShowError("Введите полный номер телефона (11 цифр)");
                 PhoneBox.Focus();
                 return false;
             }
-            if (!Regex.IsMatch(phone, @"^[\+\d][\d\s\-\(\)]{9,19}$"))
+
+            // Должен начинаться с 7
+            if (!digits.StartsWith("7"))
             {
-                ShowError("Введите корректный номер телефона (например: +7-999-123-45-67 или 89991234567)");
+                ShowError("Номер телефона должен начинаться с +7");
                 PhoneBox.Focus();
                 return false;
             }
@@ -322,6 +329,21 @@ namespace LibraryAccounting.Pages
                     ShowError("Стаж работы должен быть числом от 0 до 60 лет");
                     ExperienceBox.Focus();
                     return false;
+                }
+
+                if (BirthDatePicker.SelectedDate != null)
+                {
+                    int age = DateTime.Today.Year - BirthDatePicker.SelectedDate.Value.Year;
+
+                    if (BirthDatePicker.SelectedDate.Value.Date > DateTime.Today.AddYears(-age))
+                        age--;
+
+                    if (exp > age)
+                    {
+                        ShowError("Стаж работы не может быть больше возраста");
+                        ExperienceBox.Focus();
+                        return false;
+                    }
                 }
             }
 
@@ -425,55 +447,65 @@ namespace LibraryAccounting.Pages
             var textBox = sender as TextBox;
             if (textBox == null) return;
 
+            // ❗ снимаем обработчик, чтобы избежать рекурсии
+            textBox.TextChanged -= PhoneBox_TextChanged;
+
             string text = textBox.Text;
 
-            // Удаляем все нецифровые символы
+            // Оставляем только цифры
             string digits = Regex.Replace(text, @"\D", "");
+
+            // Ограничение: максимум 11 цифр
+            if (digits.Length > 11)
+                digits = digits.Substring(0, 11);
 
             if (string.IsNullOrEmpty(digits))
             {
                 textBox.Text = "";
+                textBox.TextChanged += PhoneBox_TextChanged;
                 return;
             }
 
-            string formatted = "";
+            // Если начинается с 8 → заменяем на 7
+            if (digits.StartsWith("8"))
+                digits = "7" + digits.Substring(1);
 
-            // Форматирование для российских номеров
-            if (digits.Length <= 11)
+            // Если не начинается с 7 → принудительно добавляем 7
+            if (!digits.StartsWith("7"))
+                digits = "7" + digits;
+
+            string formatted = "+7";
+
+            if (digits.Length > 1)
             {
-                if (digits.Length >= 1)
+                string part = digits.Substring(1);
+
+                if (part.Length >= 1)
                 {
-                    if (digits[0] == '7' || digits[0] == '8')
-                    {
-                        formatted = "+7";
-                        digits = digits.Substring(1);
-                    }
-                    else
-                    {
-                        formatted = "+7";
-                    }
+                    formatted += " (" + part.Substring(0, Math.Min(3, part.Length));
                 }
 
-                if (digits.Length >= 1)
+                if (part.Length >= 4)
                 {
-                    formatted += " (" + digits.Substring(0, Math.Min(3, digits.Length));
-                    if (digits.Length >= 4)
-                    {
-                        formatted += ") " + digits.Substring(3, Math.Min(3, digits.Length - 3));
-                        if (digits.Length >= 7)
-                        {
-                            formatted += "-" + digits.Substring(6, Math.Min(2, digits.Length - 6));
-                            if (digits.Length >= 9)
-                            {
-                                formatted += "-" + digits.Substring(8, Math.Min(2, digits.Length - 8));
-                            }
-                        }
-                    }
+                    formatted += ") " + part.Substring(3, Math.Min(3, part.Length - 3));
+                }
+
+                if (part.Length >= 7)
+                {
+                    formatted += "-" + part.Substring(6, Math.Min(2, part.Length - 6));
+                }
+
+                if (part.Length >= 9)
+                {
+                    formatted += "-" + part.Substring(8, Math.Min(2, part.Length - 8));
                 }
             }
 
             textBox.Text = formatted;
             textBox.CaretIndex = textBox.Text.Length;
+
+            // ❗ возвращаем обработчик обратно
+            textBox.TextChanged += PhoneBox_TextChanged;
         }
         private void ChangePassword_Click(object sender, RoutedEventArgs e)
         {

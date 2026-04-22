@@ -237,13 +237,6 @@
                         </ComboBox>
                     </StackPanel>
                 </Border>
-
-                <!-- Кнопка сброса -->
-                <Button Grid.Column="3" Grid.Row="0"
-                        Content="Сбросить фильтры"
-                        Width="120" Height="35"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Click="ResetFilters_Click"/>
             </Grid>
         </Border>
 
