@@ -110,12 +110,12 @@
 
         <!-- Панель фильтрации -->
         <Border Grid.Row="1"
-                Background="#FFFDF9"
-                BorderBrush="#C8BFAF"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="15"
-                Margin="0,0,0,20">
+        Background="#FFFDF9"
+        BorderBrush="#C8BFAF"
+        BorderThickness="1"
+        CornerRadius="8"
+        Padding="15"
+        Margin="0,0,0,20">
 
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -126,39 +126,42 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="Фильтр по читателю:" 
-                               VerticalAlignment="Center" 
-                               Foreground="#2F4F4F" 
-                               FontWeight="SemiBold" 
-                               Margin="0,0,10,0"/>
+                       VerticalAlignment="Center" 
+                       Foreground="#2F4F4F" 
+                       FontWeight="SemiBold" 
+                       Margin="0,0,10,0"/>
 
                     <ComboBox x:Name="ReaderFilterComboBox" 
-                              Width="250" 
-                              Height="30"
-                              Style="{StaticResource SearchComboBoxStyle}"
-                              DisplayMemberPath="FullName"
-                              SelectedValuePath="ReaderId"
-                              SelectionChanged="ReaderFilter_SelectionChanged"
-                              KeyUp="ReaderFilterComboBox_KeyUp"/>
+                      Width="200"  
+                        Height="30"
+                      Style="{StaticResource SearchComboBoxStyle}"
+                      DisplayMemberPath="FullName"
+                      SelectedValuePath="ReaderId"
+                      SelectionChanged="ReaderFilter_SelectionChanged"
+                      KeyUp="ReaderFilterComboBox_KeyUp"/>
 
-                    <TextBlock x:Name="RecordsCount" 
-                               VerticalAlignment="Center"
-                               Foreground="#6F6F6F"
-                               Margin="15,0,0,0"/>
-                </StackPanel>
+                        <TextBlock x:Name="RecordsCount" 
+                       VerticalAlignment="Center"
+                       Foreground="#6F6F6F"
+                       Margin="15,0,0,0"
+                       MaxWidth="300"  
+                       TextWrapping="NoWrap"
+                       TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <CheckBox x:Name="ShowOnlyActiveCheckBox" 
-                              Content="Только активные (невозвращенные)"
-                              VerticalAlignment="Center"
-                              Margin="0,0,10,0"
-                              Checked="ShowOnlyActive_Changed"
-                              Unchecked="ShowOnlyActive_Changed"/>
+                      Content="Только активные"
+                      VerticalAlignment="Center"
+                      Margin="0,0,10,0"
+                      Checked="ShowOnlyActive_Changed"
+                      Unchecked="ShowOnlyActive_Changed"/>
 
                     <Button Content="История читателя"
-                            Width="130"
-                            Height="30"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Click="ShowReaderHistory_Click"/>
+                    Width="120"
+                    Height="30"
+                    Style="{StaticResource ActionButtonStyle}"
+                    Click="ShowReaderHistory_Click"/>
                 </StackPanel>
             </Grid>
         </Border>

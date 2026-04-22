@@ -20,7 +20,11 @@ namespace LibraryAccounting.Pages
 
             AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
             LoadCategories();
+
+            // Устанавливаем максимальную дату рождения (сегодня)
+            BirthDatePicker.DisplayDateEnd = DateTime.Today;
         }
+
         private void LoadCategories()
         {
             var categories = AppConnect.model01.ReaderCategories.ToList();
@@ -29,6 +33,7 @@ namespace LibraryAccounting.Pages
             CategoryBox.DisplayMemberPath = "CategoryName";
             CategoryBox.SelectedValuePath = "CategoryId";
         }
+
         public ReaderEditWindow(Readers reader)
         {
             InitializeComponent();
@@ -46,8 +51,8 @@ namespace LibraryAccounting.Pages
             EmailBox.Text = reader.Email;
             PassportBox.Text = reader.PassportData;
 
-            // 🔽 новые поля
             BirthDatePicker.SelectedDate = reader.BirthDate;
+            BirthDatePicker.DisplayDateEnd = DateTime.Today;
             CategoryBox.SelectedValue = reader.CategoryId;
         }
 
@@ -64,40 +69,100 @@ namespace LibraryAccounting.Pages
 
             string error = "";
 
+            // 1. Фамилия (обязательно)
             if (string.IsNullOrWhiteSpace(LastNameBox.Text))
-                error += "Фамилия\n";
+                error += "• Фамилия\n";
 
+            // 2. Имя (обязательно)
             if (string.IsNullOrWhiteSpace(FirstNameBox.Text))
-                error += "Имя\n";
+                error += "• Имя\n";
 
-            if (string.IsNullOrWhiteSpace(MiddleNameBox.Text))
-                error += "Отчество\n";
+            // 3. Отчество (НЕ обязательно - убрали проверку)
 
+            // 4. Телефон (обязательно + полный номер)
+            string phoneDigits = new string(PhoneBox.Text.Where(char.IsDigit).ToArray());
             if (string.IsNullOrWhiteSpace(PhoneBox.Text))
-                error += "Телефон\n";
+                error += "• Телефон\n";
+            else if (phoneDigits.Length != 11)
+            {
+                MessageBox.Show("Введите полный номер телефона (11 цифр)", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                PhoneBox.Focus();
+                return;
+            }
 
+            // 5. Email (обязательно)
             if (string.IsNullOrWhiteSpace(EmailBox.Text))
-                error += "Email\n";
+                error += "• Email\n";
 
+            // 6. Паспорт (обязательно + 10 цифр)
             if (string.IsNullOrWhiteSpace(PassportBox.Text))
-                error += "Паспорт\n";
+                error += "• Паспорт\n";
+            else if (PassportBox.Text.Trim().Length != 10)
+            {
+                MessageBox.Show("Паспорт должен содержать 10 цифр (серия и номер)", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                PassportBox.Focus();
+                return;
+            }
 
+            // 7. Дата рождения (обязательно + не в будущем)
             if (BirthDatePicker.SelectedDate == null)
-                error += "Дата рождения\n";
+                error += "• Дата рождения\n";
+            else if (BirthDatePicker.SelectedDate.Value > DateTime.Today)
+            {
+                MessageBox.Show("Дата рождения не может быть в будущем", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                BirthDatePicker.Focus();
+                return;
+            }
 
+            // 8. Категория (обязательно)
             if (CategoryBox.SelectedValue == null)
-                error += "Категория\n";
+                error += "• Категория\n";
 
             if (!string.IsNullOrEmpty(error))
             {
-                MessageBox.Show("Заполните поля:\n" + error);
+                MessageBox.Show("Заполните обязательные поля:\n" + error, "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            // Проверка email
             if (!IsValidEmail(EmailBox.Text.Trim()))
             {
-                MessageBox.Show("Некорректный email");
+                MessageBox.Show("Некорректный email", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                EmailBox.Focus();
                 return;
             }
+
+            // Проверка уникальности email
+            int currentReaderId = _reader.ReaderId;
+            bool emailExists = AppConnect.model01.Readers
+                .Any(r => r.Email == EmailBox.Text.Trim() && r.ReaderId != currentReaderId);
+
+            if (emailExists)
+            {
+                MessageBox.Show("Пользователь с таким Email уже существует", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                EmailBox.Focus();
+                return;
+            }
+
+            // Проверка уникальности паспорта
+            bool passportExists = AppConnect.model01.Readers
+                .Any(r => r.PassportData == PassportBox.Text.Trim() && r.ReaderId != currentReaderId);
+
+            if (passportExists)
+            {
+                MessageBox.Show("Пользователь с таким паспортом уже существует", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                PassportBox.Focus();
+                return;
+            }
+
+            // Сохранение данных
             _reader.last_name = LastNameBox.Text.Trim();
             _reader.first_name = FirstNameBox.Text.Trim();
             _reader.middle_name = string.IsNullOrWhiteSpace(MiddleNameBox.Text)
@@ -108,49 +173,31 @@ namespace LibraryAccounting.Pages
             _reader.Email = EmailBox.Text?.Trim();
             _reader.PassportData = PassportBox.Text?.Trim();
             _reader.BirthDate = BirthDatePicker.SelectedDate.Value;
-            if (CategoryBox.SelectedValue != null)
-            {
-                _reader.CategoryId = (int)CategoryBox.SelectedValue;
-            }
+            _reader.CategoryId = (int)CategoryBox.SelectedValue;
             _reader.Status = _reader.Status ?? "Активный";
-            int currentReaderId = _reader != null ? _reader.ReaderId : 0;
-            bool emailExists = AppConnect.model01.Readers
-    .Any(r => r.Email == EmailBox.Text.Trim()
-           && r.ReaderId != currentReaderId);
-
-            if (emailExists)
-            {
-                MessageBox.Show("Пользователь с таким Email уже существует");
-                return;
-            }
-            bool passportExists = AppConnect.model01.Readers
-    .Any(r => r.PassportData == PassportBox.Text.Trim()
-           && r.ReaderId != currentReaderId);
-
-            if (passportExists)
-            {
-                MessageBox.Show("Пользователь с таким паспортом уже существует");
-                return;
-            }
 
             AppConnect.model01.SaveChanges();
 
             DialogResult = true;
             Close();
         }
+
         private void OnlyLetters_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !Regex.IsMatch(e.Text, @"^[а-яА-Яa-zA-Z]+$");
         }
+
         private bool IsValidEmail(string email)
         {
             return Regex.IsMatch(email,
                 @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         }
+
         private void Phone_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
         }
+
         private void Phone_TextChanged(object sender, TextChangedEventArgs e)
         {
             var textBox = sender as TextBox;
@@ -176,10 +223,12 @@ namespace LibraryAccounting.Pages
             textBox.Text = formatted;
             textBox.CaretIndex = textBox.Text.Length;
         }
+
         private void OnlyDigits_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
         }
+
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;

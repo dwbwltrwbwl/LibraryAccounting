@@ -257,12 +257,13 @@
                                     BorderThickness="1"
                                     CornerRadius="5">
                                 <TextBox x:Name="ExperienceTextBox"
-                                         Height="36"
-                                         Background="Transparent"
-                                         BorderThickness="0"
-                                         Padding="10" 
-                                         MaxLength="3"
-                                         TextChanged="ExperienceTextBox_TextChanged"/>
+         Height="36"
+         Background="Transparent"
+         BorderThickness="0"
+         Padding="10" 
+         MaxLength="3"
+         TextChanged="ExperienceTextBox_TextChanged"
+         ToolTip="Стаж не может превышать возраст"/>
                             </Border>
                         </StackPanel>
                     </Grid>

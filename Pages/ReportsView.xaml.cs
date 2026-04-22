@@ -62,7 +62,7 @@ namespace LibraryAccounting.Pages
         {
             SetLoading(true);
             currentReportName = "Выданные книги";
-            CurrentReportTitle.Text = "Отчет: Выданные книги";
+            CurrentReportTitle.Text = "Отчёт: Выданные книги";
             HideCustomReportPanel();
             ShowDataGrid();
             SwitchViewBtn.Visibility = Visibility.Visible;
@@ -104,7 +104,6 @@ namespace LibraryAccounting.Pages
 
                 UpdateStatistics();
                 RecordsCount.Text = $"{currentReportData.Count} записей";
-
                 ResetFiltersUI();
             }
             catch (Exception ex)
@@ -121,7 +120,7 @@ namespace LibraryAccounting.Pages
         {
             SetLoading(true);
             currentReportName = "Просроченные книги";
-            CurrentReportTitle.Text = "Отчет: Просроченные книги";
+            CurrentReportTitle.Text = "Отчёт: Просроченные книги";
             HideCustomReportPanel();
             ShowDataGrid();
             SwitchViewBtn.Visibility = Visibility.Visible;
@@ -133,26 +132,23 @@ namespace LibraryAccounting.Pages
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
                 DateTime today = DateTime.Now.Date;
 
-                var loans = AppConnect.model01.Loans
+                var report = AppConnect.model01.Loans
                     .Where(l => l.ReturnDate == null && l.DueDate < today)
                     .Select(l => new
                     {
-                        l.LoanId,
-                        Reader = l.Readers.last_name + " " + l.Readers.first_name + " " + (l.Readers.middle_name ?? ""),
-                        Book = l.BookCopies.Books.Title,
-                        InventoryNumber = l.BookCopies.InventoryNumber,
-                        DueDate = l.DueDate
+                        Читатель = l.Readers.last_name + " " + l.Readers.first_name + " " + (l.Readers.middle_name ?? ""),
+                        Книга = l.BookCopies.Books.Title,
+                        Инвентарный_номер = l.BookCopies.InventoryNumber,
+                        Срок_возврата = l.DueDate
                     })
-                    .ToList();
-
-                var report = loans
+                    .ToList()
                     .Select(l => new
                     {
-                        l.Reader,
-                        l.Book,
-                        l.InventoryNumber,
-                        Просрочка_дней = (today - l.DueDate).Days,
-                        Срок_возврата = l.DueDate.ToString("dd.MM.yyyy")
+                        l.Читатель,
+                        l.Книга,
+                        l.Инвентарный_номер,
+                        Просрочка_дней = (today - l.Срок_возврата).Days,
+                        Срок_возврата = l.Срок_возврата.ToString("dd.MM.yyyy")
                     })
                     .OrderByDescending(x => x.Просрочка_дней)
                     .ToList();
@@ -167,7 +163,6 @@ namespace LibraryAccounting.Pages
 
                 UpdateStatistics();
                 RecordsCount.Text = $"{currentReportData.Count} просроченных книг";
-
                 ResetFiltersUI();
             }
             catch (Exception ex)
@@ -184,7 +179,7 @@ namespace LibraryAccounting.Pages
         {
             SetLoading(true);
             currentReportName = "Популярные книги";
-            CurrentReportTitle.Text = "Отчет: Популярные книги";
+            CurrentReportTitle.Text = "Отчёт: Популярные книги";
             HideCustomReportPanel();
             ShowDataGrid();
             SwitchViewBtn.Visibility = Visibility.Visible;
@@ -216,7 +211,6 @@ namespace LibraryAccounting.Pages
 
                 UpdateStatistics();
                 RecordsCount.Text = $"Топ {currentReportData.Count} книг";
-
                 ResetFiltersUI();
             }
             catch (Exception ex)
@@ -233,7 +227,7 @@ namespace LibraryAccounting.Pages
         {
             SetLoading(true);
             currentReportName = "Активные читатели";
-            CurrentReportTitle.Text = "Отчет: Активные читатели";
+            CurrentReportTitle.Text = "Отчёт: Активные читатели";
             HideCustomReportPanel();
             ShowDataGrid();
             SwitchViewBtn.Visibility = Visibility.Visible;
@@ -265,7 +259,6 @@ namespace LibraryAccounting.Pages
 
                 UpdateStatistics();
                 RecordsCount.Text = $"Топ {currentReportData.Count} читателей";
-
                 ResetFiltersUI();
             }
             catch (Exception ex)
@@ -282,7 +275,7 @@ namespace LibraryAccounting.Pages
         {
             SetLoading(true);
             currentReportName = "Статистика по жанрам";
-            CurrentReportTitle.Text = "Отчет: Статистика по жанрам";
+            CurrentReportTitle.Text = "Отчёт: Статистика по жанрам";
             HideCustomReportPanel();
             ShowDataGrid();
             SwitchViewBtn.Visibility = Visibility.Visible;
@@ -314,7 +307,6 @@ namespace LibraryAccounting.Pages
 
                 UpdateStatistics();
                 RecordsCount.Text = $"{currentReportData.Count} жанров";
-
                 ResetFiltersUI();
             }
             catch (Exception ex)
@@ -525,7 +517,7 @@ namespace LibraryAccounting.Pages
                 ReportsDataGrid.Visibility = Visibility.Collapsed;
                 ChartViewPanel.Visibility = Visibility.Collapsed;
                 CustomReportPanel.Visibility = Visibility.Visible;
-                CurrentReportTitle.Text = "Конструктор отчетов";
+                CurrentReportTitle.Text = "Конструктор отчётов";
                 SwitchViewBtn.Visibility = Visibility.Collapsed;
 
                 if (ReportTypeCombo.SelectedIndex == -1)
@@ -561,7 +553,7 @@ namespace LibraryAccounting.Pages
             ReportsDataGrid.Visibility = Visibility.Collapsed;
             ChartViewPanel.Visibility = Visibility.Collapsed;
             CustomReportPanel.Visibility = Visibility.Visible;
-            CurrentReportTitle.Text = "Конструктор отчетов";
+            CurrentReportTitle.Text = "Конструктор отчётов";
             SwitchViewBtn.Visibility = Visibility.Collapsed;
             RemoveBackButton();
         }
@@ -620,26 +612,25 @@ namespace LibraryAccounting.Pages
                 case "Книжный фонд":
                     availableFields.AddRange(new[]
                     {
-        new ReportField { Name = "Название", FieldName = "Title", IsSelected = true },
-        new ReportField { Name = "Автор", FieldName = "Author", IsSelected = true },
-        new ReportField { Name = "Жанр", FieldName = "Genre", IsSelected = true },
-        new ReportField { Name = "Год издания", FieldName = "Year", IsSelected = true },
-        new ReportField { Name = "Издательство", FieldName = "Publisher", IsSelected = true },
-        new ReportField { Name = "ISBN", FieldName = "ISBN", IsSelected = false },
-        new ReportField { Name = "Страниц", FieldName = "Pages", IsSelected = false },
-        new ReportField { Name = "Язык", FieldName = "Language", IsSelected = false },
-        new ReportField { Name = "Переплет", FieldName = "Binding", IsSelected = false },
-        new ReportField { Name = "Формат", FieldName = "Format", IsSelected = false },
-        new ReportField { Name = "Серия", FieldName = "Series", IsSelected = false },
-        new ReportField { Name = "Издание", FieldName = "Edition", IsSelected = false },
-        new ReportField { Name = "Тираж", FieldName = "Circulation", IsSelected = false },
-        // Удалены Quantity и AvailableQuantity
-        new ReportField { Name = "Инвентарный номер", FieldName = "InventoryNumber", IsSelected = false },
-        new ReportField { Name = "Местоположение", FieldName = "Location", IsSelected = false },
-        new ReportField { Name = "Статус экземпляра", FieldName = "CopyStatus", IsSelected = false },
-        new ReportField { Name = "Стеллаж", FieldName = "Shelf", IsSelected = false },
-        new ReportField { Name = "Ряд", FieldName = "Row", IsSelected = false }
-    });
+                        new ReportField { Name = "Название", FieldName = "Title", IsSelected = true },
+                        new ReportField { Name = "Автор", FieldName = "Author", IsSelected = true },
+                        new ReportField { Name = "Жанр", FieldName = "Genre", IsSelected = true },
+                        new ReportField { Name = "Год издания", FieldName = "Year", IsSelected = true },
+                        new ReportField { Name = "Издательство", FieldName = "Publisher", IsSelected = true },
+                        new ReportField { Name = "ISBN", FieldName = "ISBN", IsSelected = false },
+                        new ReportField { Name = "Страниц", FieldName = "Pages", IsSelected = false },
+                        new ReportField { Name = "Язык", FieldName = "Language", IsSelected = false },
+                        new ReportField { Name = "Переплёт", FieldName = "Binding", IsSelected = false },
+                        new ReportField { Name = "Формат", FieldName = "Format", IsSelected = false },
+                        new ReportField { Name = "Серия", FieldName = "Series", IsSelected = false },
+                        new ReportField { Name = "Издание", FieldName = "Edition", IsSelected = false },
+                        new ReportField { Name = "Тираж", FieldName = "Circulation", IsSelected = false },
+                        new ReportField { Name = "Инвентарный номер", FieldName = "InventoryNumber", IsSelected = false },
+                        new ReportField { Name = "Местоположение", FieldName = "Location", IsSelected = false },
+                        new ReportField { Name = "Статус экземпляра", FieldName = "CopyStatus", IsSelected = false },
+                        new ReportField { Name = "Стеллаж", FieldName = "Shelf", IsSelected = false },
+                        new ReportField { Name = "Ряд", FieldName = "Row", IsSelected = false }
+                    });
                     break;
             }
 
@@ -653,7 +644,7 @@ namespace LibraryAccounting.Pages
             {
                 if (ReportTypeCombo.SelectedItem == null)
                 {
-                    ShowError("Выберите тип отчета");
+                    ShowError("Выберите тип отчёта");
                     return;
                 }
 
@@ -852,7 +843,6 @@ namespace LibraryAccounting.Pages
                                     case "Circulation":
                                         dict[field.Name] = copy.Books?.Circulation ?? 0;
                                         break;
-                                    // Удалены case "Quantity" и case "AvailableQuantity"
                                     case "InventoryNumber":
                                         dict[field.Name] = copy.InventoryNumber ?? "";
                                         break;
@@ -922,7 +912,7 @@ namespace LibraryAccounting.Pages
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка создания отчета: {ex.Message}");
+                ShowError($"Ошибка создания отчёта: {ex.Message}");
             }
             finally
             {
@@ -1220,7 +1210,7 @@ namespace LibraryAccounting.Pages
                     }
 
                     File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
-                    ShowInfo($"Отчет успешно экспортирован в CSV\n{dialog.FileName}\nЭкспортировано записей: {rowCount}");
+                    ShowInfo($"Отчёт успешно экспортирован в CSV\n{dialog.FileName}\nЭкспортировано записей: {rowCount}");
                 }
             }
             catch (Exception ex)

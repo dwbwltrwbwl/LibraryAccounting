@@ -236,6 +236,12 @@ namespace LibraryAccounting.Windows
                 InventoryBox.Text = "INV-";
                 InventoryBox.CaretIndex = InventoryBox.Text.Length;
             }
+            else
+            {
+                // Удаляем пробелы при инициализации
+                InventoryBox.Text = InventoryBox.Text.Replace(" ", "");
+                InventoryBox.CaretIndex = InventoryBox.Text.Length;
+            }
         }
 
         private void InventoryBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -244,6 +250,9 @@ namespace LibraryAccounting.Windows
             if (textBox == null) return;
 
             string text = textBox.Text;
+
+            // Удаляем все пробелы
+            text = text.Replace(" ", "");
 
             if (!text.StartsWith("INV-"))
             {
@@ -275,6 +284,13 @@ namespace LibraryAccounting.Windows
             if (textBox == null) return;
 
             int cursorPos = textBox.CaretIndex;
+
+            // Запрещаем ввод пробелов
+            if (e.Text == " ")
+            {
+                e.Handled = true;
+                return;
+            }
 
             if (cursorPos <= 4 && (e.Text == "\b" || string.IsNullOrEmpty(e.Text)))
             {
@@ -452,7 +468,9 @@ namespace LibraryAccounting.Windows
                 return;
             }
 
-            string inventory = InventoryBox.Text.Trim();
+            // Удаляем пробелы из инвентарного номера
+            string inventory = InventoryBox.Text.Trim().Replace(" ", "");
+
             if (string.IsNullOrWhiteSpace(inventory) || inventory == "INV-")
             {
                 MessageBox.Show("Введите инвентарный номер (должен начинаться с INV-)", "Ошибка",
@@ -523,7 +541,7 @@ namespace LibraryAccounting.Windows
                 }
 
                 _copy.BookId = book.BookId;
-                _copy.InventoryNumber = inventory;
+                _copy.InventoryNumber = inventory;  // Сохраняем без пробелов
                 _copy.ShelfId = shelfId;
                 _copy.RowId = rowId;
 

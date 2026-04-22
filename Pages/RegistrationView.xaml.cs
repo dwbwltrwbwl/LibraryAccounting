@@ -167,6 +167,9 @@ namespace LibraryAccounting.Pages
         /// <summary>
         /// Проверка стажа
         /// </summary>
+        /// <summary>
+        /// Проверка стажа
+        /// </summary>
         private void ExperienceTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string exp = ExperienceTextBox.Text.Trim();
@@ -175,6 +178,7 @@ namespace LibraryAccounting.Pages
             {
                 isExperienceValid = true;
                 ExperienceTextBox.Background = Brushes.Transparent;
+                ExperienceTextBox.ToolTip = null;
                 CheckFormValidity();
                 return;
             }
@@ -190,13 +194,52 @@ namespace LibraryAccounting.Pages
             if (!string.IsNullOrEmpty(filtered))
             {
                 int years = int.Parse(filtered);
-                isExperienceValid = years >= 0 && years <= 60;
-                ExperienceTextBox.Background = isExperienceValid ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(255, 220, 220));
+
+                // Базовая проверка
+                bool isValidRange = years >= 0 && years <= 60;
+
+                // Проверка относительно возраста
+                bool isValidVsAge = true;
+                string errorMessage = "";
+
+                if (BirthDatePicker.SelectedDate.HasValue)
+                {
+                    int age = CalculateAge(BirthDatePicker.SelectedDate.Value);
+
+                    if (years > age)
+                    {
+                        isValidVsAge = false;
+                        errorMessage = $"Стаж ({years} лет) не может быть больше возраста ({age} лет)";
+                    }
+                    else if (years > age - 16) // Предполагаем, что работать начинают с 16 лет
+                    {
+                        // Предупреждение, но не ошибка
+                        ExperienceTextBox.ToolTip = $"Внимание: стаж {years} лет при возрасте {age} лет";
+                        ExperienceTextBox.Background = new SolidColorBrush(Color.FromRgb(255, 255, 200)); // Желтый фон
+                    }
+                }
+
+                isExperienceValid = isValidRange && isValidVsAge;
+
+                if (!isExperienceValid)
+                {
+                    ExperienceTextBox.Background = new SolidColorBrush(Color.FromRgb(255, 220, 220));
+                    ExperienceTextBox.ToolTip = string.IsNullOrEmpty(errorMessage) ? "Стаж должен быть от 0 до 60 лет" : errorMessage;
+                }
+                else if (ExperienceTextBox.ToolTip == null || ExperienceTextBox.ToolTip.ToString() == errorMessage)
+                {
+                    ExperienceTextBox.Background = Brushes.Transparent;
+                    if (!ExperienceTextBox.ToolTip?.ToString().StartsWith("Внимание") ?? false)
+                    {
+                        ExperienceTextBox.ToolTip = null;
+                    }
+                }
             }
             else
             {
                 isExperienceValid = true;
                 ExperienceTextBox.Background = Brushes.Transparent;
+                ExperienceTextBox.ToolTip = null;
             }
 
             CheckFormValidity();
@@ -205,8 +248,17 @@ namespace LibraryAccounting.Pages
         /// <summary>
         /// Проверка даты рождения
         /// </summary>
+        /// <summary>
+        /// Проверка даты рождения
+        /// </summary>
         private void BirthDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
+            // При изменении даты рождения перепроверяем стаж
+            if (!string.IsNullOrEmpty(ExperienceTextBox.Text))
+            {
+                ExperienceTextBox_TextChanged(ExperienceTextBox, null);
+            }
+
             CheckFormValidity();
         }
 
@@ -531,6 +583,7 @@ namespace LibraryAccounting.Pages
             }
 
             // Валидация стажа
+            // Валидация стажа
             if (!string.IsNullOrEmpty(ExperienceTextBox.Text))
             {
                 experience = int.Parse(ExperienceTextBox.Text);
@@ -538,6 +591,32 @@ namespace LibraryAccounting.Pages
                 {
                     ShowError("Стаж должен быть от 0 до 60 лет");
                     return;
+                }
+
+                // Проверка стажа относительно возраста
+                if (birthDate.HasValue)
+                {
+                    int age = CalculateAge(birthDate.Value);
+                    if (experience > age)
+                    {
+                        ShowError($"Стаж ({experience} лет) не может быть больше возраста ({age} лет)");
+                        return;
+                    }
+
+                    // Предупреждение о подозрительном стаже
+                    if (experience > age - 16)
+                    {
+                        var result = MessageBox.Show(
+                            $"Внимание: указан стаж {experience} лет при возрасте {age} лет. Продолжить?",
+                            "Предупреждение",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning);
+
+                        if (result == MessageBoxResult.No)
+                        {
+                            return;
+                        }
+                    }
                 }
             }
 
@@ -608,7 +687,25 @@ namespace LibraryAccounting.Pages
                 ShowError($"Ошибка регистрации: {ex.Message}");
             }
         }
+        /// <summary>
+        /// Вычисляет возраст по дате рождения
+        /// </summary>
+        /// <summary>
+        /// Вычисляет точный возраст по дате рождения
+        /// </summary>
+        private int CalculateAge(DateTime birthDate)
+        {
+            DateTime today = DateTime.Today;
+            int age = today.Year - birthDate.Year;
 
+            // Проверяем, был ли день рождения в этом году
+            if (birthDate.Date > today.AddYears(-age))
+            {
+                age--;
+            }
+
+            return age;
+        }
         private void ShowError(string message)
         {
             var dialog = new MessageDialog("Ошибка регистрации", message);

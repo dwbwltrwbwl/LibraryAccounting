@@ -73,6 +73,37 @@
             <Setter Property="Foreground" Value="#2F4F4F"/>
             <Setter Property="Margin" Value="0,0,0,15"/>
         </Style>
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2F4F4F"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F0EDE8"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#E8E4DD"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Border Padding="20"
@@ -197,9 +228,10 @@
                             Margin="0,20,0,0">
 
                     <Button Content="Отмена"
-                            Width="90"
-                            Margin="0,0,10,0"
-                            Click="Cancel_Click"/>
+        Width="90"
+        Margin="0,0,10,0"
+        Style="{StaticResource CancelButtonStyle}"
+        Click="Cancel_Click"/>
 
                     <Button Content="Сохранить"
                             Width="110"

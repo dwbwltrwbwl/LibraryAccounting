@@ -212,11 +212,12 @@
                     </ComboBox>
 
                     <!-- Книги -->
+                    <!-- Книги -->
                     <ComboBox x:Name="BooksFilter"
-                              Width="160"
-                              Margin="0,0,10,0"
-                              SelectionChanged="FilterChanged">
-                        <ComboBoxItem Content="Все"/>
+          Width="160"
+          Margin="0,0,10,0"
+          SelectionChanged="FilterChanged">
+                        <ComboBoxItem Content="Все" IsSelected="True"/>
                         <ComboBoxItem Content="Есть книги"/>
                         <ComboBoxItem Content="Нет книг"/>
                     </ComboBox>

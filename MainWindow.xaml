@@ -9,7 +9,7 @@
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         MinWidth="900"
-MinHeight="600">
+MinHeight="600" Icon="/Images/icon.png">
     <Grid>
         <Frame x:Name="frameMain" Content="Frame" NavigationUIVisibility="Hidden" />
 

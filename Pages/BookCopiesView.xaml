@@ -9,6 +9,7 @@
       Background="#F4F1EC">
 
     <Page.Resources>
+        <!-- Стили остаются без изменений -->
         <Style x:Key="FilterComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="30"/>
             <Setter Property="Background" Value="#F4F1EC"/>
@@ -18,6 +19,7 @@
             <Setter Property="Padding" Value="8,0"/>
             <Setter Property="Margin" Value="0,0,10,0"/>
         </Style>
+
         <Style x:Key="BooksDataGridStyle" TargetType="DataGrid">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="13"/>
@@ -32,8 +34,72 @@
             <Setter Property="CanUserAddRows" Value="False"/>
             <Setter Property="CanUserDeleteRows" Value="False"/>
             <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <Style x:Key="BooksDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Background" Value="#2F4F4F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderBrush" Value="#1F3A3A"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="BooksDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#D4E8E8"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F0EDE8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="BooksDataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#E8E4DD"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#D4E8E8"/>
+                    <Setter Property="Foreground" Value="#1F3A3A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2F4F4F"/>
+            <Setter Property="BorderBrush" Value="#1F3A3A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1F3A3A"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Page.Resources>
 
@@ -42,12 +108,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Верхняя панель -->
-        <Border Background="#FFFDF9"
+        <Border Grid.Row="0"
+                Background="#FFFDF9"
                 BorderBrush="#C8BFAF"
                 BorderThickness="1"
                 CornerRadius="8"
@@ -86,11 +152,13 @@
                             Margin="0,0,10,0"
                             Style="{StaticResource ActionButtonStyle}"
                             Click="DeleteButton_Click"/>
+
                     <Button Content="Экспорт CSV"
-        Width="100"
-        Margin="10,0,0,0"
-        Style="{StaticResource ActionButtonStyle}"
-        Click="ExportToCsv_Click"/>
+                            Width="100"
+                            Margin="10,0,0,0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="ExportToCsv_Click"/>
+
                     <Button x:Name="MassWriteOffButton" 
                             Content="Массовое списание"
                             Width="140"
@@ -164,7 +232,7 @@
                 BorderThickness="1"
                 CornerRadius="8"
                 Padding="15"
-                Margin="0,0,20,20">
+                Margin="0,0,0,20">
 
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -223,110 +291,111 @@
             </Grid>
         </Border>
 
-        <!-- Таблица -->
+        <!-- Таблица с прокруткой -->
         <Border Grid.Row="3"
-        Background="#FFFDF9"
-        BorderBrush="#C8BFAF"
-        BorderThickness="1"
-        CornerRadius="8"
-        Padding="15"
-        Margin="0,0,0,0">
+                Background="#FFFDF9"
+                BorderBrush="#C8BFAF"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="15">
 
-            <DataGrid x:Name="CopiesDataGrid"
-              MouseDoubleClick="CopiesDataGrid_MouseDoubleClick"
-              Style="{StaticResource BooksDataGridStyle}"
-              ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
-              RowStyle="{StaticResource BooksDataGridRowStyle}"
-              CellStyle="{StaticResource BooksDataGridCellStyle}"
-              AutoGenerateColumns="False"
-              SelectionMode="Extended"
-              SelectionUnit="FullRow"
-              VerticalScrollBarVisibility="Auto"
-              HorizontalScrollBarVisibility="Auto"
-              CanUserResizeColumns="True"
-              CanUserReorderColumns="True"
-              MaxHeight="500">
+            <!-- ОБЕРТКА В SCROLLVIEWER -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                          HorizontalScrollBarVisibility="Auto">
+                <DataGrid x:Name="CopiesDataGrid"
+                          MouseDoubleClick="CopiesDataGrid_MouseDoubleClick"
+                          Style="{StaticResource BooksDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource BooksDataGridColumnHeaderStyle}"
+                          RowStyle="{StaticResource BooksDataGridRowStyle}"
+                          CellStyle="{StaticResource BooksDataGridCellStyle}"
+                          AutoGenerateColumns="False"
+                          SelectionMode="Extended"
+                          SelectionUnit="FullRow"
+                          CanUserResizeColumns="True"
+                          CanUserReorderColumns="True"
+                          MinHeight="400"
+                          MaxHeight="600">
 
-                <DataGrid.Columns>
-                    <!-- Чекбокс для выбора -->
-                    <DataGridTemplateColumn Header="Выбрать" Width="60">
-                        <DataGridTemplateColumn.HeaderTemplate>
-                            <DataTemplate>
-                                <CheckBox x:Name="SelectAllCheckBox" 
-                                  Content="Все" 
-                                  Checked="SelectAllCheckBox_Checked"
-                                  Unchecked="SelectAllCheckBox_Unchecked"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.HeaderTemplate>
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <CheckBox x:Name="RowCheckBox" 
-                                  Tag="{Binding CopyId}"
-                                  Checked="RowCheckBox_Checked"
-                                  Unchecked="RowCheckBox_Unchecked"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Center"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <DataGrid.Columns>
+                        <!-- Чекбокс для выбора -->
+                        <DataGridTemplateColumn Header="Выбрать" Width="60">
+                            <DataGridTemplateColumn.HeaderTemplate>
+                                <DataTemplate>
+                                    <CheckBox x:Name="SelectAllCheckBox" 
+                                              Content="Все" 
+                                              Checked="SelectAllCheckBox_Checked"
+                                              Unchecked="SelectAllCheckBox_Unchecked"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.HeaderTemplate>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox x:Name="RowCheckBox" 
+                                              Tag="{Binding CopyId}"
+                                              Checked="RowCheckBox_Checked"
+                                              Unchecked="RowCheckBox_Unchecked"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="Книга"
-                                Binding="{Binding BookTitle}"
-                                Width="200"/>
+                        <DataGridTextColumn Header="Книга"
+                                            Binding="{Binding BookTitle}"
+                                            Width="200"/>
 
-                    <DataGridTextColumn Header="Инвентарный №"
-                                Binding="{Binding InventoryNumber}"
-                                Width="120"/>
+                        <DataGridTextColumn Header="Инвентарный №"
+                                            Binding="{Binding InventoryNumber}"
+                                            Width="120"/>
 
-                    <DataGridTextColumn Header="Местоположение"
-                                Binding="{Binding Location}"
-                                Width="150"/>
+                        <DataGridTextColumn Header="Местоположение"
+                                            Binding="{Binding Location}"
+                                            Width="150"/>
 
-                    <DataGridTextColumn Header="Статус" Width="100">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="Black"/>
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Status}" Value="Available">
-                                        <Setter Property="Foreground" Value="Green"/>
-                                        <Setter Property="Text" Value="✅ Доступна"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Status}" Value="Issued">
-                                        <Setter Property="Foreground" Value="Orange"/>
-                                        <Setter Property="Text" Value="📤 Выдана"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Status}" Value="Lost">
-                                        <Setter Property="Foreground" Value="Red"/>
-                                        <Setter Property="Text" Value="❌ Потеряна"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Status}" Value="WrittenOff">
-                                        <Setter Property="Foreground" Value="Gray"/>
-                                        <Setter Property="Text" Value="🗑 Списана"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
+                        <DataGridTextColumn Header="Статус" Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="Black"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="Available">
+                                            <Setter Property="Foreground" Value="Green"/>
+                                            <Setter Property="Text" Value="✅ Доступна"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Issued">
+                                            <Setter Property="Foreground" Value="Orange"/>
+                                            <Setter Property="Text" Value="📤 Выдана"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Lost">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                            <Setter Property="Text" Value="❌ Потеряна"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="WrittenOff">
+                                            <Setter Property="Foreground" Value="Gray"/>
+                                            <Setter Property="Text" Value="🗑 Списана"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Дата добавления"
-                                Binding="{Binding AddedDate, StringFormat=dd.MM.yyyy}"
-                                Width="100"/>
+                        <DataGridTextColumn Header="Дата добавления"
+                                            Binding="{Binding AddedDate, StringFormat=dd.MM.yyyy}"
+                                            Width="100"/>
 
-                    <DataGridTextColumn Header="Последний читатель"
-                                Binding="{Binding LastReaderName}"
-                                Width="150"/>
+                        <DataGridTextColumn Header="Последний читатель"
+                                            Binding="{Binding LastReaderName}"
+                                            Width="150"/>
 
-                    <DataGridTextColumn Header="Последняя выдача"
-                                Binding="{Binding LastLoanDate, StringFormat=dd.MM.yyyy}"
-                                Width="100"/>
+                        <DataGridTextColumn Header="Последняя выдача"
+                                            Binding="{Binding LastLoanDate, StringFormat=dd.MM.yyyy}"
+                                            Width="100"/>
 
-                    <DataGridTextColumn Header="Всего выдач"
-                                Binding="{Binding TotalLoans}"
-                                Width="80"/>
-
-                </DataGrid.Columns>
-            </DataGrid>
+                        <DataGridTextColumn Header="Всего выдач"
+                                            Binding="{Binding TotalLoans}"
+                                            Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
         </Border>
     </Grid>
 </Page>
