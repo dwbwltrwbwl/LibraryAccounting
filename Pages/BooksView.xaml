@@ -111,44 +111,56 @@
                 <!-- Поиск и фильтры -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <TextBlock Text="Поиск:"
-                               VerticalAlignment="Center"
-                               Foreground="#3A3A3A"
-                               Margin="0,0,10,0"/>
+               VerticalAlignment="Center"
+               Foreground="#3A3A3A"
+               Margin="0,0,10,0"/>
 
                     <TextBox x:Name="SearchTextBox"
-                             Width="250"
-                             Height="32"
-                             Padding="8"
-                             Background="#F4F1EC"
-                             BorderBrush="#C8BFAF"
-                             BorderThickness="1"
-                             TextChanged="SearchTextBox_TextChanged"/>
+             Width="250"
+             Height="32"
+             Padding="8"
+             Background="#F4F1EC"
+             BorderBrush="#C8BFAF"
+             BorderThickness="1"
+             TextChanged="SearchTextBox_TextChanged"/>
 
-                    <!-- Фильтр по жанру (с поиском) -->
+                    <!-- Фильтр по жанру -->
                     <ComboBox x:Name="GenreComboBox"
-          Width="180"
-          Margin="20,0,0,0"
-          SelectionChanged="GenreFilter_Changed"
-          KeyUp="GenreComboBox_KeyUp"
-          IsEditable="True"
-          IsTextSearchEnabled="False"
-          StaysOpenOnEdit="True"/>
+              Width="180"
+              Margin="20,0,5,0"
+              SelectionChanged="GenreFilter_Changed"
+              KeyUp="GenreComboBox_KeyUp"
+              IsEditable="True"
+              IsTextSearchEnabled="False"
+              StaysOpenOnEdit="True"/>
+                    <Button Content="✕" Width="25" Height="25" 
+            Margin="0,0,10,0"
+            Background="Transparent" BorderThickness="0"
+            Foreground="#999" FontSize="14" Cursor="Hand"
+            Click="ClearGenreFilter_Click"
+            ToolTip="Сбросить фильтр жанра"/>
 
-                    <!-- Фильтр по издательству (с поиском) -->
+                    <!-- Фильтр по издательству -->
                     <ComboBox x:Name="PublisherComboBox"
-          Width="180"
-          Margin="10,0,0,0"
-          SelectionChanged="PublisherFilter_Changed"
-          KeyUp="PublisherComboBox_KeyUp"
-          IsEditable="True"
-          IsTextSearchEnabled="False"
-          StaysOpenOnEdit="True"/>
+              Width="180"
+              Margin="0,0,5,0"
+              SelectionChanged="PublisherFilter_Changed"
+              KeyUp="PublisherComboBox_KeyUp"
+              IsEditable="True"
+              IsTextSearchEnabled="False"
+              StaysOpenOnEdit="True"/>
+                    <Button Content="✕" Width="25" Height="25" 
+            Margin="0,0,10,0"
+            Background="Transparent" BorderThickness="0"
+            Foreground="#999" FontSize="14" Cursor="Hand"
+            Click="ClearPublisherFilter_Click"
+            ToolTip="Сбросить фильтр издательства"/>
 
                     <!-- Сортировка -->
                     <ComboBox x:Name="SortComboBox"
-                              Width="180"
-                              Margin="10,0,0,0"
-                              SelectionChanged="SortComboBox_SelectionChanged">
+              Width="180"
+              Margin="10,0,0,0"
+              SelectionChanged="SortComboBox_SelectionChanged">
                         <ComboBoxItem Content="Без сортировки"/>
                         <ComboBoxItem Content="По названию"/>
                         <ComboBoxItem Content="По автору"/>

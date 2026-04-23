@@ -156,14 +156,23 @@
           SelectedValuePath="BindingId"
           KeyUp="BindingBox_KeyUp"/>
 
+                            <!-- Формат -->
                             <TextBlock Text="Формат*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="FormatBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>
+                            <TextBlock Text="Примеры: 84x108/32, 60x90/16, 70x100/16"
+           FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
 
+                            <!-- Серия -->
                             <TextBlock Text="Серия*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="SeriesBox" Style="{StaticResource TextBoxStyle}" MaxLength="100"/>
+                            <TextBlock Text="Примеры: Русская классика, Мировая классика, Фантастика и фэнтези"
+           FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
 
+                            <!-- Издание -->
                             <TextBlock Text="Издание*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="EditionBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>
+                            <TextBlock Text="Примеры: 1-е, 2-е переработанное, 3-е стереотипное"
+           FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
 
                             <TextBlock Text="Тираж*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="CirculationBox" Style="{StaticResource TextBoxStyle}" 
