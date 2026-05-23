@@ -12,12 +12,13 @@ namespace LibraryAccounting.AppData
     using System;
     using System.Collections.Generic;
     
-    public partial class sysdiagrams
+    public partial class BookAuthors
     {
-        public string name { get; set; }
-        public int principal_id { get; set; }
-        public int diagram_id { get; set; }
-        public Nullable<int> version { get; set; }
-        public byte[] definition { get; set; }
+        public int BookAuthorId { get; set; }
+        public int BookId { get; set; }
+        public int AuthorId { get; set; }
+    
+        public virtual Authors Authors { get; set; }
+        public virtual Books Books { get; set; }
     }
 }

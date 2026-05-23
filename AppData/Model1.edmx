@@ -32,6 +32,14 @@
           <Property Name="BindingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="BindingName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
+        <EntityType Name="BookAuthors">
+          <Key>
+            <PropertyRef Name="BookAuthorId" />
+          </Key>
+          <Property Name="BookAuthorId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="BookId" Type="int" Nullable="false" />
+          <Property Name="AuthorId" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="BookCopies">
           <Key>
             <PropertyRef Name="CopyId" />
@@ -46,6 +54,14 @@
           <Property Name="TotalLoans" Type="int" Nullable="false" />
           <Property Name="ShelfId" Type="int" />
           <Property Name="RowId" Type="int" />
+        </EntityType>
+        <EntityType Name="BookGenres">
+          <Key>
+            <PropertyRef Name="BookGenreId" />
+          </Key>
+          <Property Name="BookGenreId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="BookId" Type="int" Nullable="false" />
+          <Property Name="GenreId" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Books">
           <Key>
@@ -177,16 +193,6 @@
           <Property Name="SortOrder" Type="int" Nullable="false" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
         </EntityType>
-        <EntityType Name="sysdiagrams">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="principal_id" Type="int" Nullable="false" />
-          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="version" Type="int" />
-          <Property Name="definition" Type="varbinary(max)" />
-        </EntityType>
         <EntityType Name="Users">
           <Key>
             <PropertyRef Name="UserId" />
@@ -218,6 +224,30 @@
             </Principal>
             <Dependent Role="Authors">
               <PropertyRef Name="CityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookAuthors_Authors">
+          <End Role="Authors" Type="Self.Authors" Multiplicity="1" />
+          <End Role="BookAuthors" Type="Self.BookAuthors" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Authors">
+              <PropertyRef Name="AuthorId" />
+            </Principal>
+            <Dependent Role="BookAuthors">
+              <PropertyRef Name="AuthorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookAuthors_Books">
+          <End Role="Books" Type="Self.Books" Multiplicity="1" />
+          <End Role="BookAuthors" Type="Self.BookAuthors" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Books">
+              <PropertyRef Name="BookId" />
+            </Principal>
+            <Dependent Role="BookAuthors">
+              <PropertyRef Name="BookId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -266,6 +296,30 @@
             </Principal>
             <Dependent Role="BookCopies">
               <PropertyRef Name="ShelfId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookGenres_Books">
+          <End Role="Books" Type="Self.Books" Multiplicity="1" />
+          <End Role="BookGenres" Type="Self.BookGenres" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Books">
+              <PropertyRef Name="BookId" />
+            </Principal>
+            <Dependent Role="BookGenres">
+              <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookGenres_Genres">
+          <End Role="Genres" Type="Self.Genres" Multiplicity="1" />
+          <End Role="BookGenres" Type="Self.BookGenres" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Genres">
+              <PropertyRef Name="GenreId" />
+            </Principal>
+            <Dependent Role="BookGenres">
+              <PropertyRef Name="GenreId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -429,7 +483,9 @@
           <EntitySet Name="AgeRatings" EntityType="Self.AgeRatings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Authors" EntityType="Self.Authors" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Bindings" EntityType="Self.Bindings" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BookAuthors" EntityType="Self.BookAuthors" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BookCopies" EntityType="Self.BookCopies" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BookGenres" EntityType="Self.BookGenres" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Books" EntityType="Self.Books" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cities" EntityType="Self.Cities" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Countries" EntityType="Self.Countries" Schema="dbo" store:Type="Tables" />
@@ -442,11 +498,18 @@
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Rows" EntityType="Self.Rows" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Shelves" EntityType="Self.Shelves" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_Authors_Cities" Association="Self.FK_Authors_Cities">
             <End Role="Cities" EntitySet="Cities" />
             <End Role="Authors" EntitySet="Authors" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookAuthors_Authors" Association="Self.FK_BookAuthors_Authors">
+            <End Role="Authors" EntitySet="Authors" />
+            <End Role="BookAuthors" EntitySet="BookAuthors" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookAuthors_Books" Association="Self.FK_BookAuthors_Books">
+            <End Role="Books" EntitySet="Books" />
+            <End Role="BookAuthors" EntitySet="BookAuthors" />
           </AssociationSet>
           <AssociationSet Name="FK_BookCopies_Books" Association="Self.FK_BookCopies_Books">
             <End Role="Books" EntitySet="Books" />
@@ -463,6 +526,14 @@
           <AssociationSet Name="FK_BookCopies_Shelves" Association="Self.FK_BookCopies_Shelves">
             <End Role="Shelves" EntitySet="Shelves" />
             <End Role="BookCopies" EntitySet="BookCopies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookGenres_Books" Association="Self.FK_BookGenres_Books">
+            <End Role="Books" EntitySet="Books" />
+            <End Role="BookGenres" EntitySet="BookGenres" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookGenres_Genres" Association="Self.FK_BookGenres_Genres">
+            <End Role="Genres" EntitySet="Genres" />
+            <End Role="BookGenres" EntitySet="BookGenres" />
           </AssociationSet>
           <AssociationSet Name="FK_Books_Authors" Association="Self.FK_Books_Authors">
             <End Role="Authors" EntitySet="Authors" />
@@ -543,6 +614,7 @@
           <Property Name="DeathDate" Type="DateTime" Precision="0" />
           <Property Name="CityId" Type="Int32" />
           <NavigationProperty Name="Cities" Relationship="Self.FK_Authors_Cities" FromRole="Authors" ToRole="Cities" />
+          <NavigationProperty Name="BookAuthors" Relationship="Self.FK_BookAuthors_Authors" FromRole="Authors" ToRole="BookAuthors" />
           <NavigationProperty Name="Books" Relationship="Self.FK_Books_Authors" FromRole="Authors" ToRole="Books" />
         </EntityType>
         <EntityType Name="Bindings">
@@ -552,6 +624,16 @@
           <Property Name="BindingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="BindingName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Books" Relationship="Self.FK_Books_Bindings" FromRole="Bindings" ToRole="Books" />
+        </EntityType>
+        <EntityType Name="BookAuthors">
+          <Key>
+            <PropertyRef Name="BookAuthorId" />
+          </Key>
+          <Property Name="BookAuthorId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BookId" Type="Int32" Nullable="false" />
+          <Property Name="AuthorId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Authors" Relationship="Self.FK_BookAuthors_Authors" FromRole="BookAuthors" ToRole="Authors" />
+          <NavigationProperty Name="Books" Relationship="Self.FK_BookAuthors_Books" FromRole="BookAuthors" ToRole="Books" />
         </EntityType>
         <EntityType Name="BookCopies">
           <Key>
@@ -572,6 +654,16 @@
           <NavigationProperty Name="Rows" Relationship="Self.FK_BookCopies_Rows" FromRole="BookCopies" ToRole="Rows" />
           <NavigationProperty Name="Shelves" Relationship="Self.FK_BookCopies_Shelves" FromRole="BookCopies" ToRole="Shelves" />
           <NavigationProperty Name="Loans" Relationship="Self.FK_Loans_BookCopies" FromRole="BookCopies" ToRole="Loans" />
+        </EntityType>
+        <EntityType Name="BookGenres">
+          <Key>
+            <PropertyRef Name="BookGenreId" />
+          </Key>
+          <Property Name="BookGenreId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BookId" Type="Int32" Nullable="false" />
+          <Property Name="GenreId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Books" Relationship="Self.FK_BookGenres_Books" FromRole="BookGenres" ToRole="Books" />
+          <NavigationProperty Name="Genres" Relationship="Self.FK_BookGenres_Genres" FromRole="BookGenres" ToRole="Genres" />
         </EntityType>
         <EntityType Name="Books">
           <Key>
@@ -597,7 +689,9 @@
           <Property Name="LastModified" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Authors" Relationship="Self.FK_Books_Authors" FromRole="Books" ToRole="Authors" />
           <NavigationProperty Name="Bindings" Relationship="Self.FK_Books_Bindings" FromRole="Books" ToRole="Bindings" />
+          <NavigationProperty Name="BookAuthors" Relationship="Self.FK_BookAuthors_Books" FromRole="Books" ToRole="BookAuthors" />
           <NavigationProperty Name="BookCopies" Relationship="Self.FK_BookCopies_Books" FromRole="Books" ToRole="BookCopies" />
+          <NavigationProperty Name="BookGenres" Relationship="Self.FK_BookGenres_Books" FromRole="Books" ToRole="BookGenres" />
           <NavigationProperty Name="Genres" Relationship="Self.FK_Books_Genres" FromRole="Books" ToRole="Genres" />
           <NavigationProperty Name="Languages" Relationship="Self.FK_Books_Languages" FromRole="Books" ToRole="Languages" />
           <NavigationProperty Name="Publishers" Relationship="Self.FK_Books_Publishers" FromRole="Books" ToRole="Publishers" />
@@ -631,6 +725,7 @@
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="AgeRatingId" Type="Int32" />
           <NavigationProperty Name="AgeRatings" Relationship="Self.FK_Genres_AgeRatings" FromRole="Genres" ToRole="AgeRatings" />
+          <NavigationProperty Name="BookGenres" Relationship="Self.FK_BookGenres_Genres" FromRole="Genres" ToRole="BookGenres" />
           <NavigationProperty Name="Books" Relationship="Self.FK_Books_Genres" FromRole="Genres" ToRole="Books" />
         </EntityType>
         <EntityType Name="Languages">
@@ -729,16 +824,6 @@
           <NavigationProperty Name="BookCopies" Relationship="Self.FK_BookCopies_Shelves" FromRole="Shelves" ToRole="BookCopies" />
           <NavigationProperty Name="Rows" Relationship="Self.FK_Rows_Shelves" FromRole="Shelves" ToRole="Rows" />
         </EntityType>
-        <EntityType Name="sysdiagrams">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="principal_id" Type="Int32" Nullable="false" />
-          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="version" Type="Int32" />
-          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
-        </EntityType>
         <EntityType Name="Users">
           <Key>
             <PropertyRef Name="UserId" />
@@ -786,6 +871,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_BookAuthors_Authors">
+          <End Role="Authors" Type="Self.Authors" Multiplicity="1" />
+          <End Role="BookAuthors" Type="Self.BookAuthors" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Authors">
+              <PropertyRef Name="AuthorId" />
+            </Principal>
+            <Dependent Role="BookAuthors">
+              <PropertyRef Name="AuthorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Books_Authors">
           <End Role="Authors" Type="Self.Authors" Multiplicity="1" />
           <End Role="Books" Type="Self.Books" Multiplicity="*" />
@@ -807,6 +904,18 @@
             </Principal>
             <Dependent Role="Books">
               <PropertyRef Name="BindingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookAuthors_Books">
+          <End Role="Books" Type="Self.Books" Multiplicity="1" />
+          <End Role="BookAuthors" Type="Self.BookAuthors" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Books">
+              <PropertyRef Name="BookId" />
+            </Principal>
+            <Dependent Role="BookAuthors">
+              <PropertyRef Name="BookId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -867,6 +976,30 @@
             </Principal>
             <Dependent Role="Loans">
               <PropertyRef Name="CopyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookGenres_Books">
+          <End Role="Books" Type="Self.Books" Multiplicity="1" />
+          <End Role="BookGenres" Type="Self.BookGenres" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Books">
+              <PropertyRef Name="BookId" />
+            </Principal>
+            <Dependent Role="BookGenres">
+              <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookGenres_Genres">
+          <End Role="Genres" Type="Self.Genres" Multiplicity="1" />
+          <End Role="BookGenres" Type="Self.BookGenres" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Genres">
+              <PropertyRef Name="GenreId" />
+            </Principal>
+            <Dependent Role="BookGenres">
+              <PropertyRef Name="GenreId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -982,7 +1115,9 @@
           <EntitySet Name="AgeRatings" EntityType="Self.AgeRatings" />
           <EntitySet Name="Authors" EntityType="Self.Authors" />
           <EntitySet Name="Bindings" EntityType="Self.Bindings" />
+          <EntitySet Name="BookAuthors" EntityType="Self.BookAuthors" />
           <EntitySet Name="BookCopies" EntityType="Self.BookCopies" />
+          <EntitySet Name="BookGenres" EntityType="Self.BookGenres" />
           <EntitySet Name="Books" EntityType="Self.Books" />
           <EntitySet Name="Cities" EntityType="Self.Cities" />
           <EntitySet Name="Countries" EntityType="Self.Countries" />
@@ -995,7 +1130,6 @@
           <EntitySet Name="Roles" EntityType="Self.Roles" />
           <EntitySet Name="Rows" EntityType="Self.Rows" />
           <EntitySet Name="Shelves" EntityType="Self.Shelves" />
-          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
           <EntitySet Name="Users" EntityType="Self.Users" />
           <AssociationSet Name="FK_Genres_AgeRatings" Association="Self.FK_Genres_AgeRatings">
             <End Role="AgeRatings" EntitySet="AgeRatings" />
@@ -1005,6 +1139,10 @@
             <End Role="Cities" EntitySet="Cities" />
             <End Role="Authors" EntitySet="Authors" />
           </AssociationSet>
+          <AssociationSet Name="FK_BookAuthors_Authors" Association="Self.FK_BookAuthors_Authors">
+            <End Role="Authors" EntitySet="Authors" />
+            <End Role="BookAuthors" EntitySet="BookAuthors" />
+          </AssociationSet>
           <AssociationSet Name="FK_Books_Authors" Association="Self.FK_Books_Authors">
             <End Role="Authors" EntitySet="Authors" />
             <End Role="Books" EntitySet="Books" />
@@ -1012,6 +1150,10 @@
           <AssociationSet Name="FK_Books_Bindings" Association="Self.FK_Books_Bindings">
             <End Role="Bindings" EntitySet="Bindings" />
             <End Role="Books" EntitySet="Books" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookAuthors_Books" Association="Self.FK_BookAuthors_Books">
+            <End Role="Books" EntitySet="Books" />
+            <End Role="BookAuthors" EntitySet="BookAuthors" />
           </AssociationSet>
           <AssociationSet Name="FK_BookCopies_Books" Association="Self.FK_BookCopies_Books">
             <End Role="Books" EntitySet="Books" />
@@ -1032,6 +1174,14 @@
           <AssociationSet Name="FK_Loans_BookCopies" Association="Self.FK_Loans_BookCopies">
             <End Role="BookCopies" EntitySet="BookCopies" />
             <End Role="Loans" EntitySet="Loans" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookGenres_Books" Association="Self.FK_BookGenres_Books">
+            <End Role="Books" EntitySet="Books" />
+            <End Role="BookGenres" EntitySet="BookGenres" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookGenres_Genres" Association="Self.FK_BookGenres_Genres">
+            <End Role="Genres" EntitySet="Genres" />
+            <End Role="BookGenres" EntitySet="BookGenres" />
           </AssociationSet>
           <AssociationSet Name="FK_Books_Genres" Association="Self.FK_Books_Genres">
             <End Role="Genres" EntitySet="Genres" />
@@ -1106,6 +1256,15 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="BookAuthors">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.BookAuthors">
+              <MappingFragment StoreEntitySet="BookAuthors">
+                <ScalarProperty Name="BookAuthorId" ColumnName="BookAuthorId" />
+                <ScalarProperty Name="BookId" ColumnName="BookId" />
+                <ScalarProperty Name="AuthorId" ColumnName="AuthorId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="BookCopies">
             <EntityTypeMapping TypeName="LibraryAccountingModel.BookCopies">
               <MappingFragment StoreEntitySet="BookCopies">
@@ -1119,6 +1278,15 @@
                 <ScalarProperty Name="TotalLoans" ColumnName="TotalLoans" />
                 <ScalarProperty Name="ShelfId" ColumnName="ShelfId" />
                 <ScalarProperty Name="RowId" ColumnName="RowId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BookGenres">
+            <EntityTypeMapping TypeName="LibraryAccountingModel.BookGenres">
+              <MappingFragment StoreEntitySet="BookGenres">
+                <ScalarProperty Name="BookGenreId" ColumnName="BookGenreId" />
+                <ScalarProperty Name="BookId" ColumnName="BookId" />
+                <ScalarProperty Name="GenreId" ColumnName="GenreId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1261,17 +1429,6 @@
                 <ScalarProperty Name="Zone" ColumnName="Zone" />
                 <ScalarProperty Name="SortOrder" ColumnName="SortOrder" />
                 <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="sysdiagrams">
-            <EntityTypeMapping TypeName="LibraryAccountingModel.sysdiagrams">
-              <MappingFragment StoreEntitySet="sysdiagrams">
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
-                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
-                <ScalarProperty Name="version" ColumnName="version" />
-                <ScalarProperty Name="definition" ColumnName="definition" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

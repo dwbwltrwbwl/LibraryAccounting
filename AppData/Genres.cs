@@ -17,6 +17,7 @@ namespace LibraryAccounting.AppData
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Genres()
         {
+            this.BookGenres = new HashSet<BookGenres>();
             this.Books = new HashSet<Books>();
         }
     
@@ -26,6 +27,8 @@ namespace LibraryAccounting.AppData
         public Nullable<int> AgeRatingId { get; set; }
     
         public virtual AgeRatings AgeRatings { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BookGenres> BookGenres { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Books> Books { get; set; }
     }

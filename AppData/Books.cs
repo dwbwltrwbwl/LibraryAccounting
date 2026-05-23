@@ -17,7 +17,9 @@ namespace LibraryAccounting.AppData
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Books()
         {
+            this.BookAuthors = new HashSet<BookAuthors>();
             this.BookCopies = new HashSet<BookCopies>();
+            this.BookGenres = new HashSet<BookGenres>();
         }
     
         public int BookId { get; set; }
@@ -42,7 +44,11 @@ namespace LibraryAccounting.AppData
         public virtual Authors Authors { get; set; }
         public virtual Bindings Bindings { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BookAuthors> BookAuthors { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BookCopies> BookCopies { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BookGenres> BookGenres { get; set; }
         public virtual Genres Genres { get; set; }
         public virtual Languages Languages { get; set; }
         public virtual Publishers Publishers { get; set; }

@@ -17,6 +17,7 @@ namespace LibraryAccounting.AppData
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Authors()
         {
+            this.BookAuthors = new HashSet<BookAuthors>();
             this.Books = new HashSet<Books>();
         }
     
@@ -27,6 +28,8 @@ namespace LibraryAccounting.AppData
         public Nullable<int> CityId { get; set; }
     
         public virtual Cities Cities { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BookAuthors> BookAuthors { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Books> Books { get; set; }
     }

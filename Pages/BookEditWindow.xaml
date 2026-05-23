@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Книга"
-        Height="750"
-        Width="900"
+        Height="800"
+        Width="950"
         WindowStartupLocation="CenterOwner"
         Background="#F4F1EC">
 
@@ -41,11 +41,31 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="SmallButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Width" Value="35"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#5F3E40"/>
+            <Setter Property="Height" Value="30"/>
+        </Style>
+
         <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#2F4F4F"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+
+        <Style x:Key="SubLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource LabelStyle}">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="Margin" Value="0,2,0,5"/>
         </Style>
 
         <Style x:Key="TextBoxStyle" TargetType="TextBox">
@@ -77,6 +97,21 @@
             <Setter Property="IsTextSearchEnabled" Value="False"/>
             <Setter Property="StaysOpenOnEdit" Value="True"/>
         </Style>
+
+        <Style x:Key="ListBoxStyle" TargetType="ListBox">
+            <Setter Property="Height" Value="100"/>
+            <Setter Property="Background" Value="#FFFDF9"/>
+            <Setter Property="BorderBrush" Value="#C8BFAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="SelectionMode" Value="Extended"/>
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,0"/>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="20">
@@ -101,7 +136,7 @@
                            Margin="0,0,0,25"/>
 
                 <!-- Контент -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="550">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="600">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -110,38 +145,82 @@
 
                         <!-- Левая часть - форма -->
                         <StackPanel Margin="0,0,25,0">
+                            <!-- Название -->
                             <TextBlock Text="Название*" Style="{StaticResource LabelStyle}"/>
                             <TextBox x:Name="TitleBox" Style="{StaticResource TextBoxStyle}" MaxLength="200"/>
 
-                            <TextBlock Text="Автор*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
-                            <ComboBox x:Name="AuthorBox" 
-                                      Style="{StaticResource ComboBoxStyle}" 
-                                      DisplayMemberPath="FullName"
-                                      KeyUp="AuthorBox_KeyUp"/>
+                            <!-- АВТОРЫ (множественный выбор) -->
+                            <TextBlock Text="Авторы*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <DockPanel LastChildFill="True" Margin="0,0,0,5">
+                                <Button x:Name="AddAuthorButton" 
+                                        Content="+" 
+                                        Style="{StaticResource SmallButtonStyle}"
+                                        DockPanel.Dock="Right"
+                                        Margin="5,0,0,0"
+                                        Cursor="Hand"
+                                        Click="AddAuthor_Click"/>
+                                <ComboBox x:Name="AuthorBox" 
+                                          Style="{StaticResource ComboBoxStyle}" 
+                                          DisplayMemberPath="FullName"
+                                          KeyUp="AuthorBox_KeyUp"/>
+                            </DockPanel>
+                            <TextBlock Text="Выбранные авторы:" Style="{StaticResource SubLabelStyle}"/>
+                            <ListBox x:Name="SelectedAuthorsList" 
+         Style="{StaticResource ListBoxStyle}"
+         DisplayMemberPath="FullName"/>
+                            <Button x:Name="RemoveAuthorButton" 
+                                    Content="Удалить выбранных авторов"
+                                    Style="{StaticResource DangerButtonStyle}"
+                                    Margin="0,5,0,0"
+                                    Click="RemoveAuthors_Click"/>
 
-                            <TextBlock Text="Жанр*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
-                            <ComboBox x:Name="GenreBox" 
-                                      Style="{StaticResource ComboBoxStyle}" 
-                                      DisplayMemberPath="Name"
-                                      KeyUp="GenreBox_KeyUp"/>
+                            <!-- ЖАНРЫ (множественный выбор) -->
+                            <TextBlock Text="Жанры*" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
+                            <DockPanel LastChildFill="True" Margin="0,0,0,5">
+                                <Button x:Name="AddGenreButton" 
+                                        Content="+" 
+                                        Style="{StaticResource SmallButtonStyle}"
+                                        DockPanel.Dock="Right"
+                                        Margin="5,0,0,0"
+                                        Cursor="Hand"
+                                        Click="AddGenre_Click"/>
+                                <ComboBox x:Name="GenreBox" 
+                                          Style="{StaticResource ComboBoxStyle}" 
+                                          DisplayMemberPath="Name"
+                                          KeyUp="GenreBox_KeyUp"/>
+                            </DockPanel>
+                            <TextBlock Text="Выбранные жанры:" Style="{StaticResource SubLabelStyle}"/>
+                            <ListBox x:Name="SelectedGenresList" 
+         Style="{StaticResource ListBoxStyle}"
+         DisplayMemberPath="Name"/>
+                            <Button x:Name="RemoveGenreButton" 
+                                    Content="Удалить выбранные жанры"
+                                    Style="{StaticResource DangerButtonStyle}"
+                                    Margin="0,5,0,0"
+                                    Click="RemoveGenres_Click"/>
 
-                            <TextBlock Text="Издательство*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                            <!-- Издательство -->
+                            <TextBlock Text="Издательство*" Style="{StaticResource LabelStyle}" Margin="0,15,0,0"/>
                             <ComboBox x:Name="PublisherBox" 
                                       Style="{StaticResource ComboBoxStyle}" 
                                       DisplayMemberPath="PublisherName"
                                       KeyUp="PublisherBox_KeyUp"/>
 
+                            <!-- Год издания -->
                             <TextBlock Text="Год издания*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="YearBox" Style="{StaticResource TextBoxStyle}" MaxLength="4" 
                                      PreviewTextInput="YearBox_PreviewTextInput"/>
 
+                            <!-- ISBN -->
                             <TextBlock Text="ISBN*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="IsbnBox" Style="{StaticResource TextBoxStyle}" MaxLength="20"/>
 
+                            <!-- Страниц -->
                             <TextBlock Text="Страниц*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="PagesBox" Style="{StaticResource TextBoxStyle}" 
                                      PreviewTextInput="NumberOnly_PreviewTextInput"/>
 
+                            <!-- Язык -->
                             <TextBlock Text="Язык*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <ComboBox x:Name="LanguageBox" 
                                       Style="{StaticResource ComboBoxStyle}" 
@@ -149,39 +228,43 @@
                                       SelectedValuePath="LanguageId"
                                       KeyUp="LanguageBox_KeyUp"/>
 
+                            <!-- Переплет -->
                             <TextBlock Text="Переплет*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <ComboBox x:Name="BindingBox" 
-          Style="{StaticResource ComboBoxStyle}" 
-          DisplayMemberPath="BindingName"
-          SelectedValuePath="BindingId"
-          KeyUp="BindingBox_KeyUp"/>
+                                      Style="{StaticResource ComboBoxStyle}" 
+                                      DisplayMemberPath="BindingName"
+                                      SelectedValuePath="BindingId"
+                                      KeyUp="BindingBox_KeyUp"/>
 
                             <!-- Формат -->
                             <TextBlock Text="Формат*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="FormatBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>
                             <TextBlock Text="Примеры: 84x108/32, 60x90/16, 70x100/16"
-           FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
+                                       FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
 
                             <!-- Серия -->
                             <TextBlock Text="Серия*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="SeriesBox" Style="{StaticResource TextBoxStyle}" MaxLength="100"/>
                             <TextBlock Text="Примеры: Русская классика, Мировая классика, Фантастика и фэнтези"
-           FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
+                                       FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
 
                             <!-- Издание -->
                             <TextBlock Text="Издание*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="EditionBox" Style="{StaticResource TextBoxStyle}" MaxLength="50"/>
                             <TextBlock Text="Примеры: 1-е, 2-е переработанное, 3-е стереотипное"
-           FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
+                                       FontSize="10" Foreground="#999" Margin="2,2,0,10"/>
 
+                            <!-- Тираж -->
                             <TextBlock Text="Тираж*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="CirculationBox" Style="{StaticResource TextBoxStyle}" 
                                      PreviewTextInput="NumberOnly_PreviewTextInput"/>
 
+                            <!-- Количество экземпляров -->
                             <TextBlock Text="Количество экземпляров*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="QuantityBox" Style="{StaticResource TextBoxStyle}" Text="1"
                                      PreviewTextInput="NumberOnly_PreviewTextInput"/>
 
+                            <!-- Описание -->
                             <TextBlock Text="Описание*" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
                             <TextBox x:Name="DescriptionBox" Style="{StaticResource MultiLineTextBoxStyle}" 
                                      MaxLength="4000"/>
@@ -206,15 +289,14 @@
                                     Click="LoadImage_Click" Width="180"/>
 
                             <Button Content="Удалить обложку"
-                                    Style="{StaticResource ActionButtonStyle}"
-                                    Background="#5F3E40"
+                                    Style="{StaticResource DangerButtonStyle}"
                                     Margin="0,10,0,0"
                                     Click="RemoveImage_Click" Width="180"/>
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>
 
-                <!-- Кнопки -->
+                <!-- Кнопки внизу -->
                 <StackPanel Grid.Row="2"
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"

@@ -28,7 +28,9 @@ namespace LibraryAccounting.AppData
         public virtual DbSet<AgeRatings> AgeRatings { get; set; }
         public virtual DbSet<Authors> Authors { get; set; }
         public virtual DbSet<Bindings> Bindings { get; set; }
+        public virtual DbSet<BookAuthors> BookAuthors { get; set; }
         public virtual DbSet<BookCopies> BookCopies { get; set; }
+        public virtual DbSet<BookGenres> BookGenres { get; set; }
         public virtual DbSet<Books> Books { get; set; }
         public virtual DbSet<Cities> Cities { get; set; }
         public virtual DbSet<Countries> Countries { get; set; }
@@ -41,7 +43,6 @@ namespace LibraryAccounting.AppData
         public virtual DbSet<Roles> Roles { get; set; }
         public virtual DbSet<Rows> Rows { get; set; }
         public virtual DbSet<Shelves> Shelves { get; set; }
-        public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<Users> Users { get; set; }
     }
 }

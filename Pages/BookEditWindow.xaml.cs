@@ -1,14 +1,20 @@
-﻿using LibraryAccounting.AppData;
+﻿// ========================================
+// 1. ОБНОВЛЕННЫЙ КОД ОКНА BookEditWindow.xaml.cs
+// ========================================
+
+using LibraryAccounting.AppData;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.Core;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Validation;
 
 namespace LibraryAccounting.Pages
 {
@@ -18,7 +24,11 @@ namespace LibraryAccounting.Pages
         private byte[] _imageBytes;
         private bool _isEditing;
 
-        // Добавление новой книги
+        // Коллекции для множественных связей
+        private List<Authors> _selectedAuthors = new List<Authors>();
+        private List<Genres> _selectedGenres = new List<Genres>();
+
+        // Конструктор для добавления новой книги
         public BookEditWindow()
         {
             InitializeComponent();
@@ -28,7 +38,7 @@ namespace LibraryAccounting.Pages
             ClearFields();
         }
 
-        // Редактирование существующей книги
+        // Конструктор для редактирования существующей книги
         public BookEditWindow(Books book)
         {
             InitializeComponent();
@@ -38,7 +48,15 @@ namespace LibraryAccounting.Pages
             TitleText.Text = "Редактирование книги";
             _isEditing = true;
             _book = book;
+
+            // Убедитесь, что коллекции инициализированы (для старых книг)
+            if (_book.BookAuthors == null)
+                _book.BookAuthors = new HashSet<BookAuthors>();
+            if (_book.BookGenres == null)
+                _book.BookGenres = new HashSet<BookGenres>();
+
             LoadLists();
+            LoadSelectedData();
             FillData();
         }
 
@@ -62,76 +80,168 @@ namespace LibraryAccounting.Pages
             }
         }
 
-        private void LoadBindings(string filter = null)
+        private void LoadSelectedData()
         {
-            var query = AppConnect.model01.Bindings.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(filter))
-            {
-                query = query.Where(b => b.BindingName.ToLower().Contains(filter.ToLower()));
-            }
-            BindingBox.ItemsSource = query.OrderBy(b => b.BindingName).ToList();
-            BindingBox.DisplayMemberPath = "BindingName";
-            BindingBox.SelectedValuePath = "BindingId";
-        }
+            if (_book == null) return;
 
-        private void BindingBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            string searchText = BindingBox.Text?.Trim() ?? "";
-            LoadBindings(searchText);
-            if (BindingBox.ItemsSource != null && ((System.Collections.IList)BindingBox.ItemsSource).Count > 0)
-                BindingBox.IsDropDownOpen = true;
+            // Загрузка выбранных авторов
+            if (_book.BookAuthors != null && _book.BookAuthors.Any())
+            {
+                _selectedAuthors = _book.BookAuthors.Select(ba => ba.Authors).ToList();
+                SelectedAuthorsList.ItemsSource = null;
+                SelectedAuthorsList.ItemsSource = _selectedAuthors;
+
+                // ОБНОВЛЕНИЕ: также загружаем основного автора для отображения
+                var mainAuthor = _book.Authors;
+                if (mainAuthor != null && !_selectedAuthors.Any(a => a.AuthorId == mainAuthor.AuthorId))
+                {
+                    _selectedAuthors.Insert(0, mainAuthor);
+                    SelectedAuthorsList.ItemsSource = null;
+                    SelectedAuthorsList.ItemsSource = _selectedAuthors;
+                }
+            }
+
+            // Загрузка выбранных жанров
+            if (_book.BookGenres != null && _book.BookGenres.Any())
+            {
+                _selectedGenres = _book.BookGenres.Select(bg => bg.Genres).ToList();
+                SelectedGenresList.ItemsSource = null;
+                SelectedGenresList.ItemsSource = _selectedGenres;
+
+                // ОБНОВЛЕНИЕ: также загружаем основной жанр для отображения
+                var mainGenre = _book.Genres;
+                if (mainGenre != null && !_selectedGenres.Any(g => g.GenreId == mainGenre.GenreId))
+                {
+                    _selectedGenres.Insert(0, mainGenre);
+                    SelectedGenresList.ItemsSource = null;
+                    SelectedGenresList.ItemsSource = _selectedGenres;
+                }
+            }
         }
 
         #region Загрузка данных с фильтрацией
 
         private void LoadAuthors(string filter = null)
         {
-            var query = AppConnect.model01.Authors.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(filter))
+            try
             {
-                query = query.Where(a => a.FullName.ToLower().Contains(filter.ToLower()));
+                var query = AppConnect.model01.Authors.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    filter = filter.ToLower();
+                    query = query.Where(a => a.FullName.ToLower().Contains(filter));
+                }
+
+                // Исключаем уже выбранных авторов
+                var authorIds = _selectedAuthors.Select(a => a.AuthorId).ToList();
+                if (authorIds.Any())
+                {
+                    query = query.Where(a => !authorIds.Contains(a.AuthorId));
+                }
+
+                AuthorBox.ItemsSource = query.OrderBy(a => a.FullName).ToList();
+                AuthorBox.DisplayMemberPath = "FullName";
             }
-            AuthorBox.ItemsSource = query.OrderBy(a => a.FullName).ToList();
-            AuthorBox.DisplayMemberPath = "FullName";
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки авторов: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void LoadGenres(string filter = null)
         {
-            var query = AppConnect.model01.Genres.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(filter))
+            try
             {
-                query = query.Where(g => g.Name.ToLower().Contains(filter.ToLower()));
+                var query = AppConnect.model01.Genres.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    filter = filter.ToLower();
+                    query = query.Where(g => g.Name.ToLower().Contains(filter));
+                }
+
+                // Исключаем уже выбранные жанры
+                var genreIds = _selectedGenres.Select(g => g.GenreId).ToList();
+                if (genreIds.Any())
+                {
+                    query = query.Where(g => !genreIds.Contains(g.GenreId));
+                }
+
+                GenreBox.ItemsSource = query.OrderBy(g => g.Name).ToList();
+                GenreBox.DisplayMemberPath = "Name";
             }
-            GenreBox.ItemsSource = query.OrderBy(g => g.Name).ToList();
-            GenreBox.DisplayMemberPath = "Name";
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки жанров: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void LoadPublishers(string filter = null)
         {
-            var query = AppConnect.model01.Publishers.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(filter))
+            try
             {
-                query = query.Where(p => p.PublisherName.ToLower().Contains(filter.ToLower()));
+                var query = AppConnect.model01.Publishers.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    filter = filter.ToLower();
+                    query = query.Where(p => p.PublisherName.ToLower().Contains(filter));
+                }
+                PublisherBox.ItemsSource = query.OrderBy(p => p.PublisherName).ToList();
+                PublisherBox.DisplayMemberPath = "PublisherName";
             }
-            PublisherBox.ItemsSource = query.OrderBy(p => p.PublisherName).ToList();
-            PublisherBox.DisplayMemberPath = "PublisherName";
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки издательств: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void LoadLanguages(string filter = null)
         {
-            var query = AppConnect.model01.Languages.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(filter))
+            try
             {
-                query = query.Where(l => l.LanguageName.ToLower().Contains(filter.ToLower()));
+                var query = AppConnect.model01.Languages.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    filter = filter.ToLower();
+                    query = query.Where(l => l.LanguageName.ToLower().Contains(filter));
+                }
+                LanguageBox.ItemsSource = query.OrderBy(l => l.LanguageName).ToList();
+                LanguageBox.DisplayMemberPath = "LanguageName";
+                LanguageBox.SelectedValuePath = "LanguageId";
             }
-            LanguageBox.ItemsSource = query.OrderBy(l => l.LanguageName).ToList();
-            LanguageBox.DisplayMemberPath = "LanguageName";
-            LanguageBox.SelectedValuePath = "LanguageId";
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки языков: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadBindings(string filter = null)
+        {
+            try
+            {
+                var query = AppConnect.model01.Bindings.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    filter = filter.ToLower();
+                    query = query.Where(b => b.BindingName.ToLower().Contains(filter));
+                }
+                BindingBox.ItemsSource = query.OrderBy(b => b.BindingName).ToList();
+                BindingBox.DisplayMemberPath = "BindingName";
+                BindingBox.SelectedValuePath = "BindingId";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки типов переплета: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         #endregion
 
-        #region Обработчики поиска
+        #region Обработчики поиска (KeyUp)
 
         private void AuthorBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -165,6 +275,130 @@ namespace LibraryAccounting.Pages
                 LanguageBox.IsDropDownOpen = true;
         }
 
+        private void BindingBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            string searchText = BindingBox.Text?.Trim() ?? "";
+            LoadBindings(searchText);
+            if (BindingBox.ItemsSource != null && ((System.Collections.IList)BindingBox.ItemsSource).Count > 0)
+                BindingBox.IsDropDownOpen = true;
+        }
+
+        #endregion
+
+        #region Добавление/удаление авторов и жанров
+
+        private void AddAuthor_Click(object sender, RoutedEventArgs e)
+        {
+            if (AuthorBox.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите автора из списка", "Добавление автора",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var author = (Authors)AuthorBox.SelectedItem;
+
+            if (_selectedAuthors.Any(a => a.AuthorId == author.AuthorId))
+            {
+                MessageBox.Show("Этот автор уже добавлен", "Добавление автора",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            _selectedAuthors.Add(author);
+            UpdateAuthorsList();
+
+            // Очищаем выбор и обновляем список доступных авторов
+            AuthorBox.SelectedIndex = -1;
+            AuthorBox.Text = "";
+            LoadAuthors();
+        }
+
+        private void RemoveAuthors_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedAuthorsList.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Выберите авторов для удаления", "Удаление авторов",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var toRemove = SelectedAuthorsList.SelectedItems.Cast<Authors>().ToList();
+            foreach (var author in toRemove)
+            {
+                _selectedAuthors.Remove(author);
+            }
+            UpdateAuthorsList();
+
+            // Обновляем список доступных авторов
+            LoadAuthors();
+        }
+
+        private void UpdateAuthorsList()
+        {
+            SelectedAuthorsList.ItemsSource = null;
+            SelectedAuthorsList.ItemsSource = _selectedAuthors;
+
+            // Обновляем список доступных авторов (исключая выбранных)
+            LoadAuthors();
+        }
+
+        private void AddGenre_Click(object sender, RoutedEventArgs e)
+        {
+            if (GenreBox.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите жанр из списка", "Добавление жанра",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var genre = (Genres)GenreBox.SelectedItem;
+
+            if (_selectedGenres.Any(g => g.GenreId == genre.GenreId))
+            {
+                MessageBox.Show("Этот жанр уже добавлен", "Добавление жанра",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            _selectedGenres.Add(genre);
+            UpdateGenresList();
+
+            // Очищаем выбор и обновляем список доступных жанров
+            GenreBox.SelectedIndex = -1;
+            GenreBox.Text = "";
+            LoadGenres();
+        }
+
+        private void RemoveGenres_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedGenresList.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Выберите жанры для удаления", "Удаление жанров",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var toRemove = SelectedGenresList.SelectedItems.Cast<Genres>().ToList();
+            foreach (var genre in toRemove)
+            {
+                _selectedGenres.Remove(genre);
+            }
+            UpdateGenresList();
+
+            // Обновляем список доступных жанров
+            LoadGenres();
+        }
+
+        private void UpdateGenresList()
+        {
+            SelectedGenresList.ItemsSource = null;
+            SelectedGenresList.ItemsSource = _selectedGenres;
+
+            // Обновляем список доступных жанров (исключая выбранные)
+            LoadGenres();
+        }
+
         #endregion
 
         private void FillData()
@@ -180,12 +414,6 @@ namespace LibraryAccounting.Pages
             EditionBox.Text = _book.Edition ?? "";
             CirculationBox.Text = _book.Circulation?.ToString() ?? "";
             FormatBox.Text = _book.Format ?? "";
-
-            var selectedAuthor = AppConnect.model01.Authors.FirstOrDefault(a => a.AuthorId == _book.AuthorId);
-            if (selectedAuthor != null) AuthorBox.SelectedItem = selectedAuthor;
-
-            var selectedGenre = AppConnect.model01.Genres.FirstOrDefault(g => g.GenreId == _book.GenreId);
-            if (selectedGenre != null) GenreBox.SelectedItem = selectedGenre;
 
             if (_book.PublisherId.HasValue)
             {
@@ -266,7 +494,7 @@ namespace LibraryAccounting.Pages
 
         private bool ValidateFields()
         {
-            // 1. Название (макс 200 символов)
+            // 1. Название
             string title = TitleBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -291,19 +519,19 @@ namespace LibraryAccounting.Pages
                 return false;
             }
 
-            // 3. Автор
-            if (AuthorBox.SelectedItem == null)
+            // 3. Авторы
+            if (_selectedAuthors.Count == 0)
             {
-                MessageBox.Show("Выберите автора", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                AuthorBox.Focus();
+                MessageBox.Show("Добавьте хотя бы одного автора", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
-            // 4. Жанр
-            if (GenreBox.SelectedItem == null)
+            // 4. Жанры
+            if (_selectedGenres.Count == 0)
             {
-                MessageBox.Show("Выберите жанр", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                GenreBox.Focus();
+                MessageBox.Show("Добавьте хотя бы один жанр", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
@@ -457,45 +685,19 @@ namespace LibraryAccounting.Pages
                 return false;
             }
 
-            // 15. Проверка на дубликат книги (только по названию)
-            try
+            // 15. Количество экземпляров
+            string quantityText = QuantityBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(quantityText))
             {
-                if (AppConnect.model01 == null)
-                    AppConnect.model01 = new LibraryAccountingEntities();
-
-                string bookTitle = TitleBox.Text.Trim();
-
-                if (_book == null)
-                {
-                    var existingBook = AppConnect.model01.Books
-                        .FirstOrDefault(b => b.Title == bookTitle);
-
-                    if (existingBook != null)
-                    {
-                        MessageBox.Show($"Книга с названием «{bookTitle}» уже существует в базе данных",
-                            "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        TitleBox.Focus();
-                        return false;
-                    }
-                }
-                else
-                {
-                    var existingBook = AppConnect.model01.Books
-                        .FirstOrDefault(b => b.Title == bookTitle && b.BookId != _book.BookId);
-
-                    if (existingBook != null)
-                    {
-                        MessageBox.Show($"Книга с названием «{bookTitle}» уже существует в базе данных",
-                            "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        TitleBox.Focus();
-                        return false;
-                    }
-                }
+                MessageBox.Show("Введите количество экземпляров", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                QuantityBox.Focus();
+                return false;
             }
-            catch (Exception ex)
+            if (!int.TryParse(quantityText, out int quantity) || quantity <= 0 || quantity > 10000)
             {
-                MessageBox.Show($"Ошибка при проверке дубликата: {ex.Message}", "Ошибка",
+                MessageBox.Show("Количество экземпляров должно быть числом от 1 до 10000", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
+                QuantityBox.Focus();
                 return false;
             }
 
@@ -514,41 +716,82 @@ namespace LibraryAccounting.Pages
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
                 string title = TitleBox.Text.Trim();
-                int authorId = ((Authors)AuthorBox.SelectedItem).AuthorId;
+                int publisherId = ((Publishers)PublisherBox.SelectedItem).PublisherId;
+                int languageId = ((Languages)LanguageBox.SelectedItem).LanguageId;
+                int bindingId = ((Bindings)BindingBox.SelectedItem).BindingId;
 
-                if (_book == null)
+                bool isNewBook = (_book == null);
+
+                if (isNewBook)
                 {
                     _book = new Books();
                     AppConnect.model01.Books.Add(_book);
                     _book.AddedDate = DateTime.Now;
                 }
 
+                // Заполнение основных полей
                 _book.Title = title;
-                _book.AuthorId = authorId;
-                _book.GenreId = ((Genres)GenreBox.SelectedItem).GenreId;
                 _book.PublishYear = int.Parse(YearBox.Text);
-                _book.PublisherId = PublisherBox.SelectedItem != null
-                    ? ((Publishers)PublisherBox.SelectedItem).PublisherId
-                    : (int?)null;
+                _book.PublisherId = publisherId;
                 _book.ISBN = string.IsNullOrWhiteSpace(IsbnBox.Text) ? null : IsbnBox.Text.Trim();
                 _book.Pages = string.IsNullOrWhiteSpace(PagesBox.Text) ? (int?)null : int.Parse(PagesBox.Text);
-                _book.LanguageId = LanguageBox.SelectedItem != null
-                    ? ((Languages)LanguageBox.SelectedItem).LanguageId
-                    : (int?)null;
-                _book.BindingId = BindingBox.SelectedItem != null
-                    ? ((Bindings)BindingBox.SelectedItem).BindingId
-                    : (int?)null;
+                _book.LanguageId = languageId;
+                _book.BindingId = bindingId;
                 _book.Format = string.IsNullOrWhiteSpace(FormatBox.Text) ? null : FormatBox.Text.Trim();
                 _book.Series = string.IsNullOrWhiteSpace(SeriesBox.Text) ? null : SeriesBox.Text.Trim();
                 _book.Edition = string.IsNullOrWhiteSpace(EditionBox.Text) ? null : EditionBox.Text.Trim();
-                _book.Circulation = string.IsNullOrWhiteSpace(CirculationBox.Text)
-                    ? (int?)null
-                    : int.Parse(CirculationBox.Text);
+                _book.Circulation = string.IsNullOrWhiteSpace(CirculationBox.Text) ? (int?)null : int.Parse(CirculationBox.Text);
                 _book.CoverImage = _imageBytes;
                 _book.Description = string.IsNullOrWhiteSpace(DescriptionBox.Text) ? null : DescriptionBox.Text.Trim();
                 _book.LastModified = DateTime.Now;
 
+                // Обязательные поля AuthorId и GenreId
+                if (_selectedAuthors.Any())
+                    _book.AuthorId = _selectedAuthors.First().AuthorId;
+                if (_selectedGenres.Any())
+                    _book.GenreId = _selectedGenres.First().GenreId;
+
+                // Сохраняем книгу
                 AppConnect.model01.SaveChanges();
+
+                int bookId = _book.BookId;
+
+                // ========== ОБНОВЛЕНИЕ СВЯЗЕЙ С АВТОРАМИ ==========
+                // Удаляем старые связи
+                var oldAuthors = AppConnect.model01.BookAuthors.Where(ba => ba.BookId == bookId).ToList();
+                AppConnect.model01.BookAuthors.RemoveRange(oldAuthors);
+
+                // Добавляем новые связи
+                foreach (var author in _selectedAuthors)
+                {
+                    AppConnect.model01.BookAuthors.Add(new BookAuthors
+                    {
+                        BookId = bookId,
+                        AuthorId = author.AuthorId
+                    });
+                }
+
+                // ========== ОБНОВЛЕНИЕ СВЯЗЕЙ С ЖАНРАМИ ==========
+                // Удаляем старые связи
+                var oldGenres = AppConnect.model01.BookGenres.Where(bg => bg.BookId == bookId).ToList();
+                AppConnect.model01.BookGenres.RemoveRange(oldGenres);
+
+                // Добавляем новые связи
+                foreach (var genre in _selectedGenres)
+                {
+                    AppConnect.model01.BookGenres.Add(new BookGenres
+                    {
+                        BookId = bookId,
+                        GenreId = genre.GenreId
+                    });
+                }
+
+                // Сохраняем связи
+                AppConnect.model01.SaveChanges();
+
+                // ========== УПРАВЛЕНИЕ ЭКЗЕМПЛЯРАМИ ==========
+                int quantity = int.Parse(QuantityBox.Text);
+                UpdateBookCopies(bookId, quantity);
 
                 DialogResult = true;
                 Close();
@@ -568,7 +811,10 @@ namespace LibraryAccounting.Pages
             }
             catch (DbUpdateException ex)
             {
-                MessageBox.Show($"Ошибка при сохранении книги:\n{ex.InnerException?.Message ?? ex.Message}",
+                var innerMessage = ex.InnerException?.InnerException?.Message ??
+                                  ex.InnerException?.Message ??
+                                  ex.Message;
+                MessageBox.Show($"Ошибка при сохранении книги:\n{innerMessage}",
                     "Ошибка сохранения", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
@@ -576,6 +822,79 @@ namespace LibraryAccounting.Pages
                 MessageBox.Show($"Ошибка при сохранении книги:\n{ex.Message}", "Ошибка сохранения",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void UpdateBookCopies(int bookId, int targetQuantity)
+        {
+            var existingCopies = AppConnect.model01.BookCopies.Where(c => c.BookId == bookId).ToList();
+            int currentCount = existingCopies.Count;
+
+            if (currentCount < targetQuantity)
+            {
+                // Добавляем недостающие экземпляры
+                int copiesToAdd = targetQuantity - currentCount;
+                for (int i = 0; i < copiesToAdd; i++)
+                {
+                    string invNumber = GenerateInventoryNumber();
+                    BookCopies newCopy = new BookCopies
+                    {
+                        BookId = bookId,
+                        InventoryNumber = invNumber,
+                        Status = "Available",
+                        AddedDate = DateTime.Now,
+                        TotalLoans = 0
+                    };
+                    AppConnect.model01.BookCopies.Add(newCopy);
+                }
+            }
+            else if (currentCount > targetQuantity)
+            {
+                // Помечаем лишние экземпляры как "Списанные" вместо удаления
+                int copiesToRemove = currentCount - targetQuantity;
+
+                var copiesToMark = existingCopies
+                    .Where(c => c.Status == "Available" &&
+                                !AppConnect.model01.Loans.Any(l => l.CopyId == c.CopyId))
+                    .Take(copiesToRemove)
+                    .ToList();
+
+                foreach (var copy in copiesToMark)
+                {
+                    copy.Status = "WrittenOff"; // Списан
+                }
+
+                if (copiesToMark.Count < copiesToRemove)
+                {
+                    MessageBox.Show($"Предупреждение: Помечено как списанные только {copiesToMark.Count} из {copiesToRemove} лишних экземпляров.\n" +
+                        "Остальные имеют историю выдач и не могут быть удалены или списаны.\n\n" +
+                        $"Текущее количество доступных экземпляров: {existingCopies.Count(c => c.Status == "Available")}",
+                        "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+
+            AppConnect.model01.SaveChanges();
+        }
+
+        private string GenerateInventoryNumber()
+        {
+            string prefix = "INV-";
+            int maxNumber = 0;
+
+            var existingNumbers = AppConnect.model01.BookCopies
+                .Where(c => c.InventoryNumber.StartsWith(prefix))
+                .Select(c => c.InventoryNumber)
+                .ToList();
+
+            foreach (var num in existingNumbers)
+            {
+                if (num.Length > prefix.Length && int.TryParse(num.Substring(prefix.Length), out int parsed))
+                {
+                    if (parsed > maxNumber)
+                        maxNumber = parsed;
+                }
+            }
+
+            return $"{prefix}{(maxNumber + 1):D4}";
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -611,12 +930,16 @@ namespace LibraryAccounting.Pages
             EditionBox.Text = "";
             CirculationBox.Text = "";
             FormatBox.Text = "";
+            QuantityBox.Text = "1";
 
-            AuthorBox.SelectedIndex = -1;
-            GenreBox.SelectedIndex = -1;
             PublisherBox.SelectedIndex = -1;
             LanguageBox.SelectedIndex = -1;
             BindingBox.SelectedIndex = -1;
+
+            _selectedAuthors.Clear();
+            _selectedGenres.Clear();
+            UpdateAuthorsList();
+            UpdateGenresList();
 
             _imageBytes = null;
             CoverImage.Source = null;

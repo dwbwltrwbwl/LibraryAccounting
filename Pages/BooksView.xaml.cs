@@ -3,6 +3,7 @@ using LibraryAccounting.Windows;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -21,8 +22,8 @@ namespace LibraryAccounting.Pages
         {
             public int BookId { get; set; }
             public string Title { get; set; }
-            public string AuthorName { get; set; }
-            public string GenreName { get; set; }
+            public string AuthorNames { get; set; }        // Изменено с AuthorName
+            public string GenreNames { get; set; }         // Изменено с GenreName
             public string PublisherName { get; set; }
             public int? PublishYear { get; set; }
             public string ISBN { get; set; }
@@ -39,6 +40,10 @@ namespace LibraryAccounting.Pages
             public int AvailableCopies { get; set; }
             public DateTime? AddedDate { get; set; }
             public DateTime? LastModified { get; set; }
+
+            // Свойства для отображения в DataGrid (для совместимости со старыми binding'ами)
+            public string AuthorName => AuthorNames;
+            public string GenreName => GenreNames;
         }
 
         public BooksView()
@@ -58,31 +63,49 @@ namespace LibraryAccounting.Pages
             {
                 AppConnect.model01 = AppConnect.model01 ?? new LibraryAccountingEntities();
 
-                var books = AppConnect.model01.Books
-                    .Select(b => new BookViewModel
+                // Получаем книги
+                var booksList = AppConnect.model01.Books.ToList();
+
+                var books = new List<BookViewModel>();
+
+                foreach (var b in booksList)
+                {
+                    // Получаем авторов для каждой книги (отдельный запрос или через Include)
+                    var authorNames = AppConnect.model01.BookAuthors
+                        .Where(ba => ba.BookId == b.BookId)
+                        .Select(ba => ba.Authors.FullName)
+                        .ToList();
+
+                    var genreNames = AppConnect.model01.BookGenres
+                        .Where(bg => bg.BookId == b.BookId)
+                        .Select(bg => bg.Genres.Name)
+                        .ToList();
+
+                    var bookVM = new BookViewModel
                     {
                         BookId = b.BookId,
                         Title = b.Title,
-                        AuthorName = b.Authors != null ? b.Authors.FullName : "Не указан",
-                        GenreName = b.Genres != null ? b.Genres.Name : "Не указан",
-                        PublisherName = b.Publishers != null ? b.Publishers.PublisherName : "Не указано",
+                        AuthorNames = authorNames.Any() ? string.Join(", ", authorNames.OrderBy(n => n)) : "Не указан",
+                        GenreNames = genreNames.Any() ? string.Join(", ", genreNames.OrderBy(n => n)) : "Не указан",
+                        PublisherName = b.Publishers?.PublisherName ?? "Не указано",
                         PublishYear = b.PublishYear,
                         ISBN = b.ISBN,
                         CoverImage = b.CoverImage,
                         Pages = b.Pages,
-                        LanguageName = b.Languages != null ? b.Languages.LanguageName : "Не указан",
+                        LanguageName = b.Languages?.LanguageName ?? "Не указан",
                         Description = b.Description,
                         Series = b.Series,
                         Edition = b.Edition,
                         Circulation = b.Circulation,
-                        BindingName = b.Bindings != null ? b.Bindings.BindingName : "Не указан",
+                        BindingName = b.Bindings?.BindingName ?? "Не указан",
                         Format = b.Format,
                         AddedDate = b.AddedDate,
                         LastModified = b.LastModified,
                         TotalCopies = b.BookCopies.Count(),
                         AvailableCopies = b.BookCopies.Count(c => c.Status == "Available")
-                    })
-                    .ToList();
+                    };
+                    books.Add(bookVM);
+                }
 
                 _books = books;
                 _booksView = CollectionViewSource.GetDefaultView(_books);
@@ -107,24 +130,40 @@ namespace LibraryAccounting.Pages
 
         private void LoadGenres(string filter = null)
         {
-            var query = AppConnect.model01.Genres.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(filter))
+            try
             {
-                query = query.Where(g => g.Name.ToLower().Contains(filter.ToLower()));
+                var query = AppConnect.model01.Genres.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    filter = filter.ToLower();
+                    query = query.Where(g => g.Name.ToLower().Contains(filter));
+                }
+                GenreComboBox.ItemsSource = query.OrderBy(g => g.Name).ToList();
+                GenreComboBox.DisplayMemberPath = "Name";
             }
-            GenreComboBox.ItemsSource = query.OrderBy(g => g.Name).ToList();
-            GenreComboBox.DisplayMemberPath = "Name";
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка загрузки жанров: {ex.Message}");
+            }
         }
 
         private void LoadPublishers(string filter = null)
         {
-            var query = AppConnect.model01.Publishers.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(filter))
+            try
             {
-                query = query.Where(p => p.PublisherName.ToLower().Contains(filter.ToLower()));
+                var query = AppConnect.model01.Publishers.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    filter = filter.ToLower();
+                    query = query.Where(p => p.PublisherName.ToLower().Contains(filter));
+                }
+                PublisherComboBox.ItemsSource = query.OrderBy(p => p.PublisherName).ToList();
+                PublisherComboBox.DisplayMemberPath = "PublisherName";
             }
-            PublisherComboBox.ItemsSource = query.OrderBy(p => p.PublisherName).ToList();
-            PublisherComboBox.DisplayMemberPath = "PublisherName";
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка загрузки издательств: {ex.Message}");
+            }
         }
 
         private void GenreComboBox_KeyUp(object sender, KeyEventArgs e)
@@ -176,16 +215,19 @@ namespace LibraryAccounting.Pages
 
             string search = SearchTextBox.Text?.ToLower() ?? "";
 
+            // Фильтр по жанру (проверяем, содержит ли строка жанров выбранный жанр)
             bool matchesGenre = true;
             if (GenreComboBox.SelectedItem != null)
             {
                 var selectedGenre = GenreComboBox.SelectedItem as Genres;
-                if (selectedGenre != null)
+                if (selectedGenre != null && !string.IsNullOrEmpty(selectedGenre.Name))
                 {
-                    matchesGenre = book.GenreName == selectedGenre.Name;
+                    matchesGenre = book.GenreNames != null &&
+                                   book.GenreNames.ToLower().Contains(selectedGenre.Name.ToLower());
                 }
             }
 
+            // Фильтр по издательству
             bool matchesPublisher = true;
             if (PublisherComboBox.SelectedItem != null)
             {
@@ -196,9 +238,11 @@ namespace LibraryAccounting.Pages
                 }
             }
 
+            // Поиск по тексту
             bool matchesSearch = string.IsNullOrEmpty(search) ||
                 (book.Title != null && book.Title.ToLower().Contains(search)) ||
-                (book.AuthorName != null && book.AuthorName.ToLower().Contains(search)) ||
+                (book.AuthorNames != null && book.AuthorNames.ToLower().Contains(search)) ||
+                (book.GenreNames != null && book.GenreNames.ToLower().Contains(search)) ||
                 (book.ISBN != null && book.ISBN.ToLower().Contains(search)) ||
                 (book.Series != null && book.Series.ToLower().Contains(search)) ||
                 (book.Description != null && book.Description.ToLower().Contains(search));
@@ -225,7 +269,7 @@ namespace LibraryAccounting.Pages
                     _booksView.SortDescriptions.Add(new SortDescription("Title", ListSortDirection.Ascending));
                     break;
                 case "По автору":
-                    _booksView.SortDescriptions.Add(new SortDescription("AuthorName", ListSortDirection.Ascending));
+                    _booksView.SortDescriptions.Add(new SortDescription("AuthorNames", ListSortDirection.Ascending));
                     break;
                 case "По году":
                     _booksView.SortDescriptions.Add(new SortDescription("PublishYear", ListSortDirection.Descending));
@@ -291,13 +335,16 @@ namespace LibraryAccounting.Pages
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
+            // Проверка прав
             if (AppConnect.CurrentUser == null || AppConnect.CurrentUser.RoleId == 2)
             {
                 ShowError("У вас нет прав на удаление книг");
                 return;
             }
+
             try
             {
+                // Проверка выбора
                 if (BooksDataGrid.SelectedItem == null)
                 {
                     ShowError("Выберите книгу для удаления");
@@ -307,22 +354,39 @@ namespace LibraryAccounting.Pages
                 var selected = BooksDataGrid.SelectedItem as BookViewModel;
                 if (selected == null) return;
 
-                if (IsBookUsed(selected.BookId))
+                // ПРОВЕРКА: есть ли активные выдачи (не возвращенные книги)
+                var db = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+                var hasActiveLoans = db.BookCopies
+                    .Any(c => c.BookId == selected.BookId &&
+                              c.Status == "Issued" &&
+                              db.Loans.Any(l => l.CopyId == c.CopyId && l.ReturnDate == null));
+
+                if (hasActiveLoans)
                 {
-                    ShowError("Невозможно удалить книгу.\nДля неё существуют экземпляры или история выдач.");
+                    ShowError("Невозможно удалить книгу.\nНекоторые экземпляры находятся в выдаче и не возвращены.");
                     return;
                 }
 
+                // Подтверждение удаления
                 DeleteMessageDialog dialog = new DeleteMessageDialog(
                     "Подтверждение удаления",
-                    $"Вы действительно хотите удалить книгу «{selected.Title}»?"
+                    $"Вы действительно хотите удалить книгу «{selected.Title}»?\n\n" +
+                    "Будут удалены:\n" +
+                    "✓ Связи с авторами и жанрами\n" +
+                    "✓ Все экземпляры книги\n" +
+                    "✓ История выдач (если есть)"
                 );
                 dialog.Owner = Window.GetWindow(this);
 
                 if (dialog.ShowDialog() != true) return;
 
-                var db = AppConnect.model01 ?? new LibraryAccountingEntities();
-                var bookFromDb = db.Books.FirstOrDefault(b => b.BookId == selected.BookId);
+                // Загружаем книгу со всеми связанными данными
+                var bookFromDb = db.Books
+                    .Include("BookAuthors")
+                    .Include("BookGenres")
+                    .Include("BookCopies")
+                    .FirstOrDefault(b => b.BookId == selected.BookId);
 
                 if (bookFromDb == null)
                 {
@@ -330,15 +394,78 @@ namespace LibraryAccounting.Pages
                     return;
                 }
 
-                db.Books.Remove(bookFromDb);
-                db.SaveChanges();
-                LoadBooks();
-                ShowInfo("Книга успешно удалена");
+                // Используем транзакцию для безопасности
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        // 1. Удаляем все выдачи экземпляров этой книги
+                        var copyIds = bookFromDb.BookCopies.Select(c => c.CopyId).ToList();
+                        var loansToDelete = db.Loans.Where(l => copyIds.Contains(l.CopyId)).ToList();
+                        if (loansToDelete.Any())
+                        {
+                            db.Loans.RemoveRange(loansToDelete);
+                        }
+
+                        // 2. Удаляем связи с авторами
+                        if (bookFromDb.BookAuthors != null && bookFromDb.BookAuthors.Any())
+                        {
+                            db.BookAuthors.RemoveRange(bookFromDb.BookAuthors);
+                        }
+
+                        // 3. Удаляем связи с жанрами
+                        if (bookFromDb.BookGenres != null && bookFromDb.BookGenres.Any())
+                        {
+                            db.BookGenres.RemoveRange(bookFromDb.BookGenres);
+                        }
+
+                        // 4. Удаляем экземпляры книги
+                        if (bookFromDb.BookCopies != null && bookFromDb.BookCopies.Any())
+                        {
+                            db.BookCopies.RemoveRange(bookFromDb.BookCopies);
+                        }
+
+                        // 5. Удаляем саму книгу
+                        db.Books.Remove(bookFromDb);
+
+                        // Сохраняем изменения
+                        db.SaveChanges();
+                        transaction.Commit();
+
+                        // Обновляем список
+                        LoadBooks();
+                        ShowInfo($"Книга «{selected.Title}» успешно удалена");
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                var innerMessage = ex.InnerException?.InnerException?.Message ??
+                                  ex.InnerException?.Message ??
+                                  ex.Message;
+                ShowError($"Ошибка при удалении книги:\n{innerMessage}");
             }
             catch (Exception ex)
             {
-                ShowError("Ошибка при удалении книги:\n" + ex.Message);
+                ShowError($"Ошибка при удалении книги:\n{ex.Message}");
             }
+        }
+
+        // Дополнительный метод для проверки наличия выдач (можно использовать вместо LINQ выше)
+        private bool BookHasActiveLoans(int bookId)
+        {
+            var db = AppConnect.model01 ?? new LibraryAccountingEntities();
+
+            // Получаем все экземпляры книги
+            var copies = db.BookCopies.Where(c => c.BookId == bookId).Select(c => c.CopyId).ToList();
+
+            // Проверяем, есть ли невозвращенные выдачи
+            return db.Loans.Any(l => copies.Contains(l.CopyId) && l.ReturnDate == null);
         }
 
         private bool IsBookUsed(int bookId)
@@ -383,11 +510,11 @@ namespace LibraryAccounting.Pages
                 if (dialog.ShowDialog() == true)
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("\"Название\";\"Автор\";\"Жанр\";\"Издательство\";\"Год\";\"ISBN\";\"Страниц\";\"Язык\";\"Переплет\";\"Формат\";\"Серия\";\"Издание\";\"Тираж\";\"Экземпляров\";\"Доступно\";\"Дата добавления\";\"Описание\"");
+                    sb.AppendLine("\"Название\";\"Авторы\";\"Жанры\";\"Издательство\";\"Год\";\"ISBN\";\"Страниц\";\"Язык\";\"Переплет\";\"Формат\";\"Серия\";\"Издание\";\"Тираж\";\"Экземпляров\";\"Доступно\";\"Дата добавления\";\"Описание\"");
 
                     foreach (var book in items)
                     {
-                        sb.AppendLine($"{EscapeCsv(book.Title)};{EscapeCsv(book.AuthorName)};{EscapeCsv(book.GenreName)};{EscapeCsv(book.PublisherName)};{book.PublishYear};{EscapeCsv(book.ISBN)};{book.Pages};{EscapeCsv(book.LanguageName)};{EscapeCsv(book.BindingName)};{EscapeCsv(book.Format)};{EscapeCsv(book.Series)};{EscapeCsv(book.Edition)};{book.Circulation};{book.TotalCopies};{book.AvailableCopies};{book.AddedDate:dd.MM.yyyy};{EscapeCsv(book.Description)}");
+                        sb.AppendLine($"{EscapeCsv(book.Title)};{EscapeCsv(book.AuthorNames)};{EscapeCsv(book.GenreNames)};{EscapeCsv(book.PublisherName)};{book.PublishYear};{EscapeCsv(book.ISBN)};{book.Pages};{EscapeCsv(book.LanguageName)};{EscapeCsv(book.BindingName)};{EscapeCsv(book.Format)};{EscapeCsv(book.Series)};{EscapeCsv(book.Edition)};{book.Circulation};{book.TotalCopies};{book.AvailableCopies};{book.AddedDate:dd.MM.yyyy};{EscapeCsv(book.Description)}");
                     }
 
                     System.IO.File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);

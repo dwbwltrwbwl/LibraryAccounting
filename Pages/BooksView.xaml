@@ -205,8 +205,8 @@
 
                         <!-- Основная информация -->
                         <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="250"/>
-                        <DataGridTextColumn Header="Автор" Binding="{Binding AuthorName}" Width="200"/>
-                        <DataGridTextColumn Header="Жанр" Binding="{Binding GenreName}" Width="150"/>
+                        <DataGridTextColumn Header="Автор" Binding="{Binding AuthorName}" Width="200" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Жанр" Binding="{Binding GenreName}" Width="150" IsReadOnly="True"/>
                         <DataGridTextColumn Header="Издательство" Binding="{Binding PublisherName}" Width="180"/>
                         <DataGridTextColumn Header="Год" Binding="{Binding PublishYear}" Width="80"/>
                         <DataGridTextColumn Header="ISBN" Binding="{Binding ISBN}" Width="150"/>
